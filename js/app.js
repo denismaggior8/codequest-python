@@ -1369,15 +1369,26 @@ function transpilePythonToJS(pyCode) {
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i];
     
-    // Skip empty lines or comment-only lines
-    if (line.trim() === '' || line.trim().startsWith('#')) {
-      jsCode += line + '\n';
-      continue;
-    }
-    
-    // Measure indentation
+    // Measure indentation on the original line
     const match = line.match(/^(\s*)/);
     const currentIndent = match ? match[1].length : 0;
+    
+    // Extract strings to prevent transpiling keywords inside them
+    const strings = [];
+    let processedLine = line.replace(/(['"])(.*?)\1/g, (match) => {
+      strings.push(match);
+      return `__STR_${strings.length - 1}__`;
+    });
+    
+    // Handle comments: replace '#' with '//' in the code portion
+    let comment = '';
+    const hashIdx = processedLine.indexOf('#');
+    if (hashIdx !== -1) {
+      comment = '//' + processedLine.substring(hashIdx + 1);
+      processedLine = processedLine.substring(0, hashIdx);
+    }
+    
+    let content = processedLine.trim();
     
     // If indentation decreased, close braces
     while (indentStack[indentStack.length - 1] > currentIndent) {
@@ -1385,7 +1396,22 @@ function transpilePythonToJS(pyCode) {
       jsCode += ' '.repeat(indentStack[indentStack.length - 1]) + '}\n';
     }
     
-    let content = line.trim();
+    // If the line is empty (excluding comments), output just the comment or empty line
+    if (content === '') {
+      if (comment !== '') {
+        jsCode += ' '.repeat(currentIndent) + comment + '\n';
+      } else {
+        jsCode += '\n';
+      }
+      continue;
+    }
+    
+    // Skip 'global' declaration lines (but output as a comment to preserve line count & debuggability)
+    if (content.startsWith('global ') || /^global\b/.test(content)) {
+      jsCode += ' '.repeat(currentIndent) + '// ' + content + (comment ? ' ' + comment : '') + '\n';
+      continue;
+    }
+    
     let isBlockHeader = false;
     
     // Translate Python syntax to JS syntax
@@ -1393,23 +1419,39 @@ function transpilePythonToJS(pyCode) {
       content = content.replace(/def\s+(\w+)\s*\((.*)\)\s*:/, 'function $1($2) {');
       isBlockHeader = true;
     } else if (content.startsWith('for ') && content.includes('in range(')) {
-      content = content.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*(\d+)\s*\)\s*:/, 'for (let $1 = 0; $1 < $2; $1++) {');
+      if (content.includes(',')) {
+        // e.g., for i in range(1, limit): -> for (let i = 1; i < limit; i++) {
+        content = content.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)\s*:/, 'for (let $1 = $2; $1 < $3; $1++) {');
+      } else {
+        // e.g., for i in range(limit): -> for (let i = 0; i < limit; i++) {
+        content = content.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*([^)]+)\s*\)\s*:/, 'for (let $1 = 0; $1 < $2; $1++) {');
+      }
       isBlockHeader = true;
     } else if (content.startsWith('if ')) {
       content = content.replace(/if\s+(.+)\s*:/, 'if ($1) {');
-      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!');
+      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
       isBlockHeader = true;
     } else if (content.startsWith('elif ')) {
       content = content.replace(/elif\s+(.+)\s*:/, 'else if ($1) {');
-      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!');
+      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
       isBlockHeader = true;
     } else if (content.startsWith('else:')) {
       content = 'else {';
       isBlockHeader = true;
     } else if (content.startsWith('while ')) {
       content = content.replace(/while\s+(.+)\s*:/, 'while ($1) {');
+      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
       isBlockHeader = true;
     }
+    
+    // Translate other general boolean & null keywords globally in the line
+    content = content.replace(/\band\b/g, '&&')
+                     .replace(/\bor\b/g, '||')
+                     .replace(/\bnot\s*/g, '!')
+                     .replace(/\bTrue\b/g, 'true')
+                     .replace(/\bFalse\b/g, 'false')
+                     .replace(/\bNone\b/g, 'null')
+                     .replace(/\bpass\b/g, '');
     
     // Translate custom commands
     content = content.replace(/hero\.move_forward\(\)/g, 'moveForward()');
@@ -1423,8 +1465,15 @@ function transpilePythonToJS(pyCode) {
     
     // Append semicolons to expression lines (non-headers)
     if (!isBlockHeader && !content.endsWith(';') && !content.endsWith('}')) {
-      content += ';';
+      if (content.trim() !== '') {
+        content += ';';
+      }
     }
+    
+    // Restore string literals
+    content = content.replace(/__STR_(\d+)__/g, (match, id) => {
+      return strings[parseInt(id)];
+    });
     
     // If indentation increased, push to stack
     if (isBlockHeader) {
@@ -1441,7 +1490,7 @@ function transpilePythonToJS(pyCode) {
       }
     }
     
-    jsCode += ' '.repeat(currentIndent) + content + '\n';
+    jsCode += ' '.repeat(currentIndent) + content + (comment ? ' ' + comment : '') + '\n';
   }
   
   // Close any remaining open braces

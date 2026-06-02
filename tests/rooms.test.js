@@ -176,6 +176,72 @@ LEVELS.forEach((room, idx) => {
   });
 });
 
+const fs = require('fs');
+const appContent = fs.readFileSync(path.join(__dirname, '../js/app.js'), 'utf8');
+const startIdx = appContent.indexOf('function transpilePythonToJS(pyCode) {');
+
+if (startIdx !== -1) {
+  const endMarker = 'return jsCode;\n}';
+  const endMarkerIdx = appContent.indexOf(endMarker, startIdx);
+  if (endMarkerIdx !== -1) {
+    const endIdx = endMarkerIdx + endMarker.length;
+    const fnSource = appContent.substring(startIdx, endIdx);
+    eval(fnSource); // Defines transpilePythonToJS locally in the test context
+    
+    runTest('Transpiler - Basic function structure and commands', () => {
+      const py = 'def on_start():\n    hero.move_forward()\n    hero.collect_rupee()';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('function on_start() {'), 'Should translate def to function');
+      assert(js.includes('moveForward();'), 'Should translate hero.move_forward()');
+      assert(js.includes('collectRupee();'), 'Should translate hero.collect_rupee()');
+    });
+
+    runTest('Transpiler - Global variable declarations', () => {
+      const py = 'def on_start():\n    global rupees, numbers\n    rupees = 0';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('// global rupees, numbers'), 'Should comment out global statement');
+      assert(js.includes('rupees = 0;'), 'Should preserve assignment');
+    });
+
+    runTest('Transpiler - Variable range loops', () => {
+      const py = 'for i in range(rupees):\n    hero.move_forward()';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('for (let i = 0; i < rupees; i++) {'), 'Should support variable limit in range()');
+    });
+
+    runTest('Transpiler - Range loop with start and stop parameters', () => {
+      const py = 'for i in range(1, 5):\n    hero.move_forward()';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('for (let i = 1; i < 5; i++) {'), 'Should support range(start, stop)');
+    });
+
+    runTest('Transpiler - Comments handling', () => {
+      const py = '# Whole line comment\nhero.move_forward() # End-of-line comment';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('// Whole line comment'), 'Should convert whole line comment');
+      assert(js.includes('moveForward(); // End-of-line comment'), 'Should convert end-of-line comment');
+    });
+
+    runTest('Transpiler - Booleans, None, and logical operators', () => {
+      const py = 'is_empty = None\nif True and not False:\n    pass';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('is_empty = null;'), 'Should translate None to null');
+      assert(js.includes('if (true && !false) {'), 'Should translate boolean/logical keywords in conditions');
+      assert(!js.includes('pass'), 'Should strip pass statements');
+    });
+
+    runTest('Transpiler - Protecting string literals from translation', () => {
+      const py = 'print("do not touch True or False or None or global inside strings")';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('printConsole("do not touch True or False or None or global inside strings");'), 'Keywords inside strings should be protected');
+    });
+  } else {
+    console.error('⚠️ Could not extract transpilePythonToJS from app.js (matching brace not found)');
+  }
+} else {
+  console.error('⚠️ Could not find transpilePythonToJS in app.js for testing');
+}
+
 console.log('\n--- Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);
@@ -183,6 +249,6 @@ console.log(`Failed: ${failedTestsCount}`);
 if (failedTestsCount > 0) {
   process.exit(1);
 } else {
-  console.log('\n🎉 ALL ROOMS CONFIGURED CORRECTLY AND ARE SOLVABLE!');
+  console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY!');
   process.exit(0);
 }
