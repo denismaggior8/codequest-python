@@ -178,7 +178,7 @@ LEVELS.forEach((room, idx) => {
 
 const fs = require('fs');
 const appContent = fs.readFileSync(path.join(__dirname, '../js/app.js'), 'utf8');
-const startIdx = appContent.indexOf('function transpilePythonToJS(pyCode) {');
+const startIdx = appContent.indexOf('function translateTernaryInLine(line) {');
 
 if (startIdx !== -1) {
   const endMarker = 'return jsCode;\n}';
@@ -234,6 +234,27 @@ if (startIdx !== -1) {
       const py = 'print("do not touch True or False or None or global inside strings")';
       const js = transpilePythonToJS(py);
       assert(js.includes('printConsole("do not touch True or False or None or global inside strings");'), 'Keywords inside strings should be protected');
+    });
+
+    runTest('Transpiler - Imports and from-imports', () => {
+      const py = 'import math\nfrom numbers import Number';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('// import math'), 'Should comment out import math');
+      assert(js.includes('// from numbers import Number'), 'Should comment out from numbers import Number');
+    });
+
+    runTest('Transpiler - isinstance checks', () => {
+      const py = 'isinstance(rupees, Number)\nisinstance(name, str)\nisinstance(items, list)';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('(typeof rupees === \'number\')'), 'Should translate isinstance with Number to typeof === number');
+      assert(js.includes('(typeof name === \'string\')'), 'Should translate isinstance with str to typeof === string');
+      assert(js.includes('Array.isArray(items)'), 'Should translate isinstance with list to Array.isArray');
+    });
+
+    runTest('Transpiler - Inline ternary operators', () => {
+      const py = 'rupees = (rupees if isinstance(rupees, Number) else 0) + 1';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('rupees = (((typeof rupees === \'number\') ? rupees : 0)) + 1;'), 'Should translate inline ternary operator correctly');
     });
   } else {
     console.error('⚠️ Could not extract transpilePythonToJS from app.js (matching brace not found)');

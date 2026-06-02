@@ -1360,6 +1360,92 @@ function updateLineNumbers() {
   lineNumbers.textContent = numStr;
 }
 
+function translateTernaryInLine(line) {
+  while (true) {
+    const ifMatch = line.match(/\bif\b/);
+    const elseMatchActual = line.match(/\belse\b/);
+    
+    if (!ifMatch || !elseMatchActual) {
+      break;
+    }
+    
+    const ifIdx = ifMatch.index;
+    const elseIdx = elseMatchActual.index;
+    
+    if (ifIdx > elseIdx) {
+      break;
+    }
+    
+    const B = line.substring(ifIdx + ifMatch[0].length, elseIdx).trim();
+    
+    // Scan left to find A
+    let parenDepth = 0;
+    let bracketDepth = 0;
+    let leftIdx = ifIdx;
+    while (leftIdx > 0) {
+      leftIdx--;
+      const char = line[leftIdx];
+      if (char === ')') parenDepth++;
+      else if (char === '(') {
+        if (parenDepth === 0) {
+          leftIdx++;
+          break;
+        }
+        parenDepth--;
+      }
+      else if (char === ']') bracketDepth++;
+      else if (char === '[') {
+        if (bracketDepth === 0) {
+          leftIdx++;
+          break;
+        }
+        bracketDepth--;
+      }
+      else if (parenDepth === 0 && bracketDepth === 0) {
+        if (char === '=' || char === ',' || char === ';' || char === ':') {
+          leftIdx++;
+          break;
+        }
+      }
+    }
+    const A = line.substring(leftIdx, ifIdx).trim();
+    
+    // Scan right to find C
+    parenDepth = 0;
+    bracketDepth = 0;
+    const startC = elseIdx + elseMatchActual[0].length;
+    let rightIdx = startC;
+    while (rightIdx < line.length) {
+      const char = line[rightIdx];
+      if (char === '(') parenDepth++;
+      else if (char === ')') {
+        if (parenDepth === 0) {
+          break;
+        }
+        parenDepth--;
+      }
+      else if (char === '[') bracketDepth++;
+      else if (char === ']') {
+        if (bracketDepth === 0) {
+          break;
+        }
+        bracketDepth--;
+      }
+      else if (parenDepth === 0 && bracketDepth === 0) {
+        if (char === ',' || char === ';') {
+          break;
+        }
+      }
+      rightIdx++;
+    }
+    const C = line.substring(startC, rightIdx).trim();
+    
+    const jsTernary = `(${B} ? ${A} : ${C})`;
+    line = line.substring(0, leftIdx) + jsTernary + line.substring(rightIdx);
+  }
+  return line;
+}
+
 // Simple Python-to-JavaScript Transpiler
 function transpilePythonToJS(pyCode) {
   const lines = pyCode.split('\n');
@@ -1406,6 +1492,12 @@ function transpilePythonToJS(pyCode) {
       continue;
     }
     
+    // Skip import lines (but output as a comment to preserve line count & debuggability)
+    if (content.startsWith('import ') || /^import\b/.test(content) || content.startsWith('from ') || /^from\b/.test(content)) {
+      jsCode += ' '.repeat(currentIndent) + '// ' + content + (comment ? ' ' + comment : '') + '\n';
+      continue;
+    }
+    
     // Skip 'global' declaration lines (but output as a comment to preserve line count & debuggability)
     if (content.startsWith('global ') || /^global\b/.test(content)) {
       jsCode += ' '.repeat(currentIndent) + '// ' + content + (comment ? ' ' + comment : '') + '\n';
@@ -1443,6 +1535,26 @@ function transpilePythonToJS(pyCode) {
       content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
       isBlockHeader = true;
     }
+    
+    // Translate isinstance(var, type) to typeof or Array checks
+    content = content.replace(/isinstance\s*\(\s*([^,]+)\s*,\s*(\w+)\s*\)/g, (match, varName, typeName) => {
+      if (['Number', 'int', 'float'].includes(typeName)) {
+        return `(typeof ${varName} === 'number')`;
+      }
+      if (['str'].includes(typeName)) {
+        return `(typeof ${varName} === 'string')`;
+      }
+      if (['bool'].includes(typeName)) {
+        return `(typeof ${varName} === 'boolean')`;
+      }
+      if (['list'].includes(typeName)) {
+        return `Array.isArray(${varName})`;
+      }
+      return `(${varName} instanceof ${typeName})`;
+    });
+    
+    // Translate Python ternary operator (expr1 if cond else expr2) to JS ternary (cond ? expr1 : expr2)
+    content = translateTernaryInLine(content);
     
     // Translate other general boolean & null keywords globally in the line
     content = content.replace(/\band\b/g, '&&')
