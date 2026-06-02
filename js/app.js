@@ -1144,6 +1144,46 @@ function markLevelCompleted(levelId) {
   updateHeartsDisplay();
 }
 
+function migrateOldSaveData() {
+  const mapping = {
+    "1": "sequences/room1",
+    "2": "variables/room1",
+    "3": "conditionals/room1",
+    "4": "loops/room1",
+    "5": "functions/room1",
+    "6": "lists/room1",
+    "7": "recursion/room1"
+  };
+
+  let migratedCompleted = false;
+  for (const oldId in mapping) {
+    const newId = mapping[oldId];
+    if (completedLevels[oldId] && !completedLevels[newId]) {
+      completedLevels[newId] = true;
+      migratedCompleted = true;
+    }
+  }
+
+  let migratedCode = false;
+  for (const oldId in mapping) {
+    const newId = mapping[oldId];
+    if (levelsCodeCache[oldId] && !levelsCodeCache[newId]) {
+      levelsCodeCache[newId] = levelsCodeCache[oldId];
+      migratedCode = true;
+    }
+  }
+
+  if (migratedCompleted || migratedCode) {
+    console.log("🔄 Migrated old numeric save data keys to new string path namespaces.");
+    try {
+      localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
+      localStorage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
+    } catch (e) {
+      console.warn("Failed to write migrated data: ", e);
+    }
+  }
+}
+
 function loadProgress() {
   const progressStr = localStorage.getItem('codequest_completed');
   if (progressStr) {
@@ -1179,6 +1219,7 @@ function loadProgress() {
     }
   }
   
+  migrateOldSaveData();
   console.log("📂 loadProgress complete. completedLevels:", completedLevels, "currentLevelIndex:", currentLevelIndex);
 }
 
@@ -1482,6 +1523,8 @@ function importGameState(file) {
       // Load progress
       completedLevels = data.completedLevels;
       levelsCodeCache = data.levelsCode;
+      
+      migrateOldSaveData();
       
       if (data.settings) {
         if (data.settings.language) {
