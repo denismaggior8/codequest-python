@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Legend of Python - Impara a programmare in un dungeon 2D a 8 bit</title>
+  
+  <!-- Google Fonts for Retro Style -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Blockly Library -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly/python_compressed.js"></script>
+  
+  <!-- i18n Translation Dictionary -->
+  <script src="js/i18n.js"></script>
+</head>
+<body class="retro-theme zelda-theme">
+
+  <div class="scanlines"></div>
+
+  <!-- Header Section -->
+  <header class="pixel-border-outer">
+    <div class="logo">
+      <span class="pixel-text-red logo-top font-press">THE LEGEND OF</span>
+      <span class="pixel-text-yellow logo-main font-press">PYTHON</span>
+    </div>
+    
+    <div class="level-nav">
+      <button id="prev-level-btn" class="pixel-btn nav-btn">&lt;</button>
+      <div class="level-select-container">
+        <select id="level-select" class="pixel-select font-vt"></select>
+      </div>
+      <button id="next-level-btn" class="pixel-btn nav-btn">&gt;</button>
+    </div>
+
+    <div class="header-controls">
+      <div class="hearts-display" title="Hearts Earned" id="hearts-display">❤️❤️❤️❤️❤️</div>
+      
+      <!-- Language Selector -->
+      <div class="lang-select-container" style="display:inline-block; margin-right: 10px;">
+        <select id="lang-select" class="pixel-select font-vt" style="font-size:20px; padding: 2px 4px;">
+          <option value="it">🇮🇹 IT</option>
+          <option value="en">🇬🇧 EN</option>
+        </select>
+      </div>
+
+      <button id="sound-btn" class="pixel-btn sound-btn" title="Toggle Sound">🔊</button>
+      <button id="help-btn" class="pixel-btn help-btn" title="How to Play">?</button>
+      <button id="reset-progress-btn" data-i18n="resetQuest" class="pixel-btn danger-btn font-vt" title="Reset all achievements">RESETTA QUEST</button>
+    </div>
+  </header>
+
+  <!-- Main Game Dashboard -->
+  <main class="dashboard">
+    
+    <!-- LEFT PANEL: Instructions & Simulator -->
+    <section class="panel left-panel pixel-border-outer flex-col">
+      <div class="panel-header pixel-text-yellow font-press" data-i18n="dungeonQuest">DUNGEON QUEST</div>
+      
+      <div class="panel-content scrollable flex-grow flex-col">
+        <!-- Level Narrative -->
+        <div id="quest-card" class="pixel-card-inner">
+          <h2 id="quest-title" class="font-press pixel-text-green">Caricamento...</h2>
+          <div class="badge-container">
+            <span id="level-badge" class="pixel-badge font-vt">Room</span>
+          </div>
+          <p id="quest-desc" class="font-vt">...</p>
+          <div class="goal-box font-vt">
+            <strong data-i18n="missionTitle">MISSIONE:</strong> <span id="quest-goal">...</span>
+          </div>
+        </div>
+
+        <!-- Simulator Grid Area -->
+        <div class="simulator-wrapper pixel-card-inner">
+          <div class="simulator-header font-press" data-i18n="dungeonMap">MAPPA DEL DUNGEON</div>
+          <canvas id="simulator-canvas" width="300" height="300"></canvas>
+          
+          <div class="playback-controls">
+            <button id="run-btn" data-i18n="run" class="pixel-btn run-btn font-press">AVVIA</button>
+            <button id="stop-btn" data-i18n="stop" class="pixel-btn stop-btn font-press" disabled>FERMA</button>
+            <button id="step-btn" data-i18n="step" class="pixel-btn step-btn font-press">PASSO</button>
+          </div>
+          
+          <div class="speed-control font-vt">
+            <span data-i18n="speed">VELOCITÀ:</span>
+            <input type="range" id="speed-slider" min="1" max="5" value="3" class="pixel-slider">
+          </div>
+        </div>
+
+        <!-- Terminal Console -->
+        <div class="terminal-wrapper pixel-card-inner flex-grow">
+          <div class="terminal-header font-press" data-i18n="dungeonLog">REGISTRO DUNGEON</div>
+          <div id="terminal-console" class="font-vt">
+            <div class="terminal-line system">...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MIDDLE PANEL: Blockly Programming Canvas / Text Editor -->
+    <section class="panel center-panel pixel-border-outer flex-col">
+      <div class="panel-header pixel-text-green font-press flex-row justify-between align-center">
+        <span data-i18n="spellBook">LIBRO INCANTESIMI</span>
+        <div class="mode-tabs">
+          <button id="tab-blocks" class="tab-btn active font-vt">BLOCCHI</button>
+          <button id="tab-python" class="tab-btn font-vt">PYTHON</button>
+        </div>
+      </div>
+      <div class="panel-content flex-grow" id="blockly-container">
+        <div id="blocklyDiv"></div>
+      </div>
+      <div class="panel-content flex-grow hidden flex-col" id="editor-container" style="height: 100%;">
+        <div class="editor-wrapper flex-row flex-grow">
+          <div class="line-numbers font-vt" id="editor-line-numbers">1</div>
+          <textarea id="python-textarea" class="code-editor-area font-vt" spellcheck="false" placeholder="# Scrivi qui il tuo incantesimo Python..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: Python Code Output -->
+    <section class="panel right-panel pixel-border-outer flex-col">
+      <div class="panel-header pixel-text-yellow font-press" data-i18n="pythonScroll">PERGAMENA PYTHON</div>
+      <div class="panel-content flex-col flex-grow">
+        <div class="pixel-card-inner flex-grow flex-col relative-container">
+          <div class="code-header font-press">
+            <span>hero_program.py</span>
+            <button id="copy-code-btn" data-i18n="copy" class="pixel-btn copy-btn font-vt">COPIA</button>
+          </div>
+          <pre class="code-container font-vt"><code id="python-output">...</code></pre>
+        </div>
+        
+        <!-- Code explanations / tips for kids -->
+        <div id="python-explanation-card" class="pixel-card-inner font-vt">
+          <div class="tip-header pixel-text-green font-press" data-i18n="pythonScrollWisdom">SAGGEZZA DELLA PERGAMENA</div>
+          <p id="python-explanation-text">...</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Level Success Modal -->
+  <div id="success-modal" class="modal-overlay hidden">
+    <div class="modal-content pixel-border-outer text-center">
+      <h2 class="pixel-text-yellow font-press animate-bounce" data-i18n="modalCleared">DUNGEON COMPLETATO!</h2>
+      <div class="modal-badge font-press" data-i18n="modalBadge">💚 FRAMMENTO DI TRIFORZA OTTENUTO</div>
+      <p id="success-message" class="font-vt">...</p>
+      
+      <div class="success-code-reveal pixel-card-inner">
+        <div class="font-press pixel-text-green" data-i18n="modalCodeHeader" style="font-size: 10px; margin-bottom: 8px;">HAI LANCIATO QUESTO INCANTESIMO PYTHON:</div>
+        <pre class="font-vt"><code id="success-code-text">...</code></pre>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="modal-retry-btn" data-i18n="modalReplay" class="pixel-btn font-vt">RIGIOCA</button>
+        <button id="modal-next-btn" data-i18n="modalNext" class="pixel-btn run-btn font-vt">PROSSIMA STANZA &gt;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help / Instructions Modal -->
+  <div id="help-modal" class="modal-overlay hidden">
+    <div class="modal-content pixel-border-outer">
+      <h2 class="pixel-text-green font-press text-center" data-i18n="helpTitle">COME GIOCARE</h2>
+      <div class="help-scroll font-vt">
+        <p data-i18n="helpParagraph1">...</p>
+        
+        <ol>
+          <li data-i18n="helpStep1">...</li>
+          <li data-i18n="helpStep2">...</li>
+          <li data-i18n="helpStep3">...</li>
+          <li data-i18n="helpStep4">...</li>
+          <li data-i18n="helpStep5">...</li>
+        </ol>
+
+        <p class="text-center" style="margin-top: 15px;">
+          <button id="close-help-btn" data-i18n="helpClose" class="pixel-btn font-press">ENTRA NEL DUNGEON!</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Entry Scripts -->
+  <script src="js/levels.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

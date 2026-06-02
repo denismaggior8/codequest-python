@@ -1,0 +1,971 @@
+// The Legend of Python - Main Controller & Sound Synthesizer (i18n Zelda Theme)
+
+// Synthesizer Engine for retro Zelda sound effects
+class RetroSynth {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+  }
+  
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+  
+  toggle() {
+    this.enabled = !this.enabled;
+    return this.enabled;
+  }
+  
+  play(type) {
+    if (!this.enabled) return;
+    this.init();
+    
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+    
+    const now = this.ctx.currentTime;
+    
+    switch (type) {
+      case 'click': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(1000, now + 0.05);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.05);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+        break;
+      }
+      case 'step': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.08);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.08);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+        break;
+      }
+      case 'turn': {
+        this.playTone(350, 0.03, 'square', 0.06, now);
+        this.playTone(450, 0.03, 'square', 0.06, now + 0.04);
+        break;
+      }
+      case 'collect': {
+        this.playTone(987.77, 0.07, 'square', 0.07, now); // B5
+        this.playTone(1318.51, 0.22, 'square', 0.07, now + 0.07); // E6
+        break;
+      }
+      case 'win': {
+        // Zelda Secret Discovered Melody (Ascending 8-Note Chime)
+        const notes = [783.99, 739.99, 622.25, 440.00, 415.30, 659.25, 830.61, 1046.50];
+        const tempo = 0.07;
+        notes.forEach((freq, idx) => {
+          this.playTone(freq, 0.06, 'square', 0.08, now + idx * tempo);
+        });
+        break;
+      }
+      case 'crash': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(10, now + 0.22);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.22);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+        break;
+      }
+      case 'print': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1400, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.03);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.03);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.03);
+        break;
+      }
+      case 'error': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.setValueAtTime(100, now + 0.1);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.2);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+        break;
+      }
+    }
+  }
+  
+  playTone(freq, duration, type, volume, startTime) {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, startTime);
+    gain.gain.setValueAtTime(volume, startTime);
+    gain.gain.linearRampToValueAtTime(0, startTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + duration);
+  }
+}
+
+// Global Game State
+const synth = new RetroSynth();
+let currentLevelIndex = 0;
+let workspace = null;
+let simulator = null;
+let completedLevels = {};
+let currentMode = 'blocks';
+
+// Translation interpolation helper
+function t(key, replacements = {}) {
+  const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['it'];
+  let text = dict[key] || TRANSLATIONS['en'][key] || key;
+  for (const placeholder in replacements) {
+    text = text.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
+  }
+  return text;
+}
+
+// Initialize Application
+document.addEventListener('DOMContentLoaded', () => {
+  loadProgress();
+  
+  // Load saved language or default to IT
+  const savedLang = localStorage.getItem('codequest_lang') || 'it';
+  currentLanguage = savedLang;
+  document.getElementById('lang-select').value = currentLanguage;
+  
+  // Load Blockly language locale file, then initialize level
+  loadBlocklyLocale(currentLanguage, () => {
+    applyTranslations(currentLanguage);
+    setupUIEventListeners();
+    initSimulator();
+    loadLevel(currentLevelIndex);
+  });
+});
+
+// Load Blockly language definitions dynamically
+function loadBlocklyLocale(lang, callback) {
+  const existing = document.getElementById('blockly-locale-script');
+  if (existing) {
+    existing.remove();
+  }
+  
+  const script = document.createElement('script');
+  script.id = 'blockly-locale-script';
+  script.src = `https://unpkg.com/blockly/msg/${lang}.js`;
+  script.onload = () => {
+    if (callback) callback();
+  };
+  script.onerror = () => {
+    // Fallback if network fails
+    console.warn("Failed to load blockly locale from CDN. Defaulting.");
+    if (callback) callback();
+  };
+  document.head.appendChild(script);
+}
+
+// Setup UI Interactivity
+function setupUIEventListeners() {
+  const prevBtn = document.getElementById('prev-level-btn');
+  const nextBtn = document.getElementById('next-level-btn');
+  const levelSelect = document.getElementById('level-select');
+  const soundBtn = document.getElementById('sound-btn');
+  const helpBtn = document.getElementById('help-btn');
+  const closeHelpBtn = document.getElementById('close-help-btn');
+  const resetProgressBtn = document.getElementById('reset-progress-btn');
+  const langSelect = document.getElementById('lang-select');
+  
+  const runBtn = document.getElementById('run-btn');
+  const stopBtn = document.getElementById('stop-btn');
+  const stepBtn = document.getElementById('step-btn');
+  const speedSlider = document.getElementById('speed-slider');
+  
+  const modalRetryBtn = document.getElementById('modal-retry-btn');
+  const modalNextBtn = document.getElementById('modal-next-btn');
+  const copyCodeBtn = document.getElementById('copy-code-btn');
+  
+  // Populate level select dropdown
+  refreshLevelSelector();
+
+  levelSelect.addEventListener('change', (e) => {
+    synth.play('click');
+    loadLevel(parseInt(e.target.value, 10));
+  });
+
+  prevBtn.addEventListener('click', () => {
+    synth.play('click');
+    if (currentLevelIndex > 0) {
+      loadLevel(currentLevelIndex - 1);
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    synth.play('click');
+    if (currentLevelIndex < LEVELS.length - 1) {
+      loadLevel(currentLevelIndex + 1);
+    }
+  });
+
+  soundBtn.addEventListener('click', () => {
+    const isEnabled = synth.toggle();
+    soundBtn.textContent = isEnabled ? '🔊' : '🔇';
+    synth.play('click');
+    localStorage.setItem('codequest_sound', isEnabled ? '1' : '0');
+  });
+  
+  const savedSound = localStorage.getItem('codequest_sound');
+  if (savedSound === '0') {
+    synth.enabled = false;
+    soundBtn.textContent = '🔇';
+  }
+
+  // Language Selector Trigger
+  langSelect.addEventListener('change', (e) => {
+    synth.play('click');
+    currentLanguage = e.target.value;
+    localStorage.setItem('codequest_lang', currentLanguage);
+    
+    // Load Blockly bundle, then re-render workspace
+    loadBlocklyLocale(currentLanguage, () => {
+      applyTranslations(currentLanguage);
+      refreshLevelSelector();
+      loadLevel(currentLevelIndex);
+    });
+  });
+
+  // Help Modal
+  helpBtn.addEventListener('click', () => {
+    synth.play('click');
+    document.getElementById('help-modal').classList.remove('hidden');
+  });
+  
+  closeHelpBtn.addEventListener('click', () => {
+    synth.play('click');
+    document.getElementById('help-modal').classList.add('hidden');
+  });
+
+  resetProgressBtn.addEventListener('click', () => {
+    const promptMsg = currentLanguage === 'it' 
+      ? "Resettare tutti i progressi? Perderai tutti i tuoi cuori."
+      : "Reset all dungeon achievements? You will lose your hearts.";
+    if (confirm(promptMsg)) {
+      completedLevels = {};
+      localStorage.removeItem('codequest_completed');
+      synth.play('crash');
+      refreshLevelSelector();
+      updateHeartsDisplay();
+      loadLevel(0);
+    }
+  });
+
+  // Simulator controls
+  runBtn.addEventListener('click', () => {
+    runProgram();
+  });
+
+  stopBtn.addEventListener('click', () => {
+    synth.play('click');
+    simulator.stopSimulation();
+    stopBtn.disabled = true;
+    runBtn.disabled = false;
+    stepBtn.disabled = false;
+  });
+
+  stepBtn.addEventListener('click', () => {
+    stepProgram();
+  });
+
+  speedSlider.addEventListener('input', (e) => {
+    simulator.setSpeed(parseInt(e.target.value, 10));
+  });
+
+  // Modal actions
+  modalRetryBtn.addEventListener('click', () => {
+    synth.play('click');
+    document.getElementById('success-modal').classList.add('hidden');
+    loadLevel(currentLevelIndex);
+  });
+
+  modalNextBtn.addEventListener('click', () => {
+    synth.play('click');
+    document.getElementById('success-modal').classList.add('hidden');
+    if (currentLevelIndex < LEVELS.length - 1) {
+      loadLevel(currentLevelIndex + 1);
+    } else {
+      const victoryAlert = currentLanguage === 'it'
+        ? "🗝️ CONGRATULAZIONI! Hai ottenuto tutti i pezzi della Triforza e masterizzato cicli, variabili e logiche in Python! Link ha vinto!"
+        : "🗝️ CONGRATULATIONS! You secured all pieces of the Triforce and mastered Python loops, variables, and logic! Link is victorious!";
+      alert(victoryAlert);
+    }
+  });
+
+  copyCodeBtn.addEventListener('click', () => {
+    const code = document.getElementById('python-output').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      synth.play('click');
+      const originalText = copyCodeBtn.textContent;
+      copyCodeBtn.textContent = t('copied');
+      setTimeout(() => {
+        copyCodeBtn.textContent = t('copy');
+      }, 1500);
+    });
+  });
+
+  // Mode tabs events (Blocks vs Python Editor)
+  const tabBlocks = document.getElementById('tab-blocks');
+  const tabPython = document.getElementById('tab-python');
+  const blocklyContainer = document.getElementById('blockly-container');
+  const editorContainer = document.getElementById('editor-container');
+  const pyTextarea = document.getElementById('python-textarea');
+  
+  tabBlocks.addEventListener('click', () => {
+    if (currentMode === 'blocks') return;
+    synth.play('click');
+    
+    // Check if user changed the code in python mode
+    const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+    const blocksCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
+    const textareaCode = pyTextarea.value;
+    
+    if (blocksCode.trim() !== textareaCode.trim()) {
+      const confirmMsg = currentLanguage === 'it'
+        ? "Attenzione: Passando alla modalità Blocchi perderai le modifiche scritte a testo in Python. Vuoi continuare?"
+        : "Warning: Switching back to Blocks will discard changes you wrote in Python. Do you want to continue?";
+      if (!confirm(confirmMsg)) return;
+    }
+    
+    currentMode = 'blocks';
+    tabBlocks.classList.add('active');
+    tabPython.classList.remove('active');
+    
+    blocklyContainer.classList.remove('hidden');
+    editorContainer.classList.add('hidden');
+    
+    // Refresh workspace size
+    Blockly.svgResize(workspace);
+    updateCodeOutput();
+  });
+  
+  tabPython.addEventListener('click', () => {
+    if (currentMode === 'python') return;
+    synth.play('click');
+    
+    currentMode = 'python';
+    tabPython.classList.add('active');
+    tabBlocks.classList.remove('active');
+    
+    blocklyContainer.classList.add('hidden');
+    editorContainer.classList.remove('hidden');
+    
+    // Populate textarea with current blocks code
+    const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+    const blocksCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
+    pyTextarea.value = blocksCode;
+    
+    // Focus and update line numbers
+    pyTextarea.focus();
+    updateLineNumbers();
+    updateCodeOutput();
+  });
+  
+  // Textarea input event for line numbers and output highlights
+  pyTextarea.addEventListener('input', () => {
+    updateLineNumbers();
+    updateCodeOutput();
+  });
+  
+  // Sync scrolling of line numbers with textarea scroll
+  pyTextarea.addEventListener('scroll', () => {
+    const lineNumbers = document.getElementById('editor-line-numbers');
+    if (lineNumbers) {
+      lineNumbers.scrollTop = pyTextarea.scrollTop;
+    }
+  });
+}
+
+function initSimulator() {
+  // We feed translated logging hooks to the simulator
+  simulator = new GameSimulator('simulator-canvas', appendConsoleLine, playSynthSound);
+  
+  simulator.onFinishedCallback = (success, reason) => {
+    document.getElementById('run-btn').disabled = false;
+    document.getElementById('step-btn').disabled = false;
+    document.getElementById('stop-btn').disabled = true;
+    
+    if (success) {
+      markLevelCompleted(LEVELS[currentLevelIndex].id);
+      showSuccessModal();
+    }
+  };
+  
+  // Custom simulator status wrappers using i18n
+  simulator.onStatus = (msg, type) => {
+    // Check if the simulator sent a raw system action that we can translate
+    if (msg.startsWith("⚔️ hero.move_forward()")) {
+      appendConsoleLine(t('consoleMove', { x: simulator.x, y: simulator.y }), 'system');
+    } else if (msg.startsWith("⚔️ hero.turn_left()")) {
+      appendConsoleLine(t('consoleTurn', { dir: 'left', name: simulator.getDirectionName(simulator.dir) }), 'system');
+    } else if (msg.startsWith("⚔️ hero.turn_right()")) {
+      appendConsoleLine(t('consoleTurn', { dir: 'right', name: simulator.getDirectionName(simulator.dir) }), 'system');
+    } else if (msg.startsWith("💎 Rupee acquired!")) {
+      appendConsoleLine(t('consoleRupeeAcquired', { count: simulator.collectedCount }), 'output');
+    } else if (msg.startsWith("⚠️ hero.collect_rupee()")) {
+      appendConsoleLine(t('consoleRupeeWarn'), 'error');
+    } else if (msg.startsWith("🗝️ THE TRIFORCE SHINES!")) {
+      appendConsoleLine(t('consoleWin'), 'system');
+    } else if (msg.startsWith("⚠️ The Triforce gate is sealed")) {
+      appendConsoleLine(t('consoleRupeeSeal', { count: simulator.collectedCount, target: simulator.level.targetCrystals }), 'error');
+    } else if (msg.startsWith("⚠️ Almost cleared")) {
+      appendConsoleLine(t('consolePrintSeal'), 'error');
+    } else if (msg.startsWith("🧭 Link finished movements")) {
+      appendConsoleLine(t('consoleFinishIncomplete'), 'error');
+    } else if (msg.startsWith("💥 OOF!")) {
+      appendConsoleLine(t('consoleCrash'), 'error');
+    } else if (msg.startsWith("⚔️ Link has entered")) {
+      appendConsoleLine(t('consoleEnter'), 'system');
+    } else {
+      appendConsoleLine(msg, type);
+    }
+  };
+}
+
+function playSynthSound(type) {
+  synth.play(type);
+}
+
+// Load level configuration
+function loadLevel(index) {
+  // Reset back to blocks mode when loading level
+  currentMode = 'blocks';
+  const tabBlocks = document.getElementById('tab-blocks');
+  const tabPython = document.getElementById('tab-python');
+  const blocklyContainer = document.getElementById('blockly-container');
+  const editorContainer = document.getElementById('editor-container');
+  if (tabBlocks && tabPython && blocklyContainer && editorContainer) {
+    tabBlocks.classList.add('active');
+    tabPython.classList.remove('active');
+    blocklyContainer.classList.remove('hidden');
+    editorContainer.classList.add('hidden');
+  }
+
+  currentLevelIndex = index;
+  const level = LEVELS[index];
+  
+  document.getElementById('level-select').value = index;
+  
+  // Extract translations
+  const nameText = level.name[currentLanguage] || level.name['it'];
+  const storyText = level.story[currentLanguage] || level.story['it'];
+  const goalText = level.goalText[currentLanguage] || level.goalText['it'];
+  const tipText = level.tip[currentLanguage] || level.tip['it'];
+  
+  document.getElementById('quest-title').textContent = nameText;
+  document.getElementById('level-badge').textContent = t('roomBadge', { id: level.id, badge: level.badge });
+  document.getElementById('quest-desc').textContent = storyText;
+  document.getElementById('quest-goal').textContent = goalText;
+  document.getElementById('python-explanation-text').textContent = tipText;
+  
+  const consoleEl = document.getElementById('terminal-console');
+  consoleEl.innerHTML = '';
+  appendConsoleLine(t('consoleSystemStart', { name: nameText }), 'system');
+  
+  simulator.initLevel(level);
+  updateHeartsDisplay();
+  
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('step-btn').disabled = false;
+  document.getElementById('stop-btn').disabled = true;
+  
+  // Re-inject Blockly workspace
+  blocklyContainer.innerHTML = '<div id="blocklyDiv"></div>';
+  
+  workspace = Blockly.inject('blocklyDiv', {
+    toolbox: level.toolbox,
+    scrollbars: true,
+    trashcan: true,
+    zoom: {
+      controls: true,
+      wheel: true,
+      startScale: 1.0,
+      maxScale: 2.0,
+      minScale: 0.5,
+    },
+    theme: {
+      componentStyles: {
+        workspaceBackgroundColour: '#16110d',
+        toolboxBackgroundColour: '#3d2f26',
+        toolboxTextColour: '#f5efe6',
+        flyoutBackgroundColour: '#211914',
+        scrollbarColour: '#3d2f26',
+        scrollbarOpacity: 0.8
+      }
+    }
+  });
+
+  workspace.addChangeListener(updateCodeOutput);
+  Blockly.svgResize(workspace);
+  window.addEventListener('resize', onResizeWorkspace);
+  
+  // Automatically select and open the first toolbox category (Commands)
+  setTimeout(() => {
+    if (workspace && workspace.getToolbox()) {
+      workspace.getToolbox().selectItemByPosition(0);
+    }
+  }, 100);
+  
+  // Update placeholders
+  updateCodeOutput();
+}
+
+function onResizeWorkspace() {
+  if (workspace) {
+    Blockly.svgResize(workspace);
+  }
+}
+
+// Code Highlighter
+function updateCodeOutput() {
+  const outputEl = document.getElementById('python-output');
+  if (!outputEl) return;
+  
+  if (currentMode === 'python') {
+    const pyCode = document.getElementById('python-textarea').value;
+    if (pyCode.trim() === "") {
+      outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
+      return;
+    }
+    outputEl.innerHTML = highlightPython(pyCode);
+    return;
+  }
+  
+  const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+  const code = pyGen ? pyGen.workspaceToCode(workspace) : '';
+  
+  if (code.trim() === "") {
+    outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
+    return;
+  }
+  
+  outputEl.innerHTML = highlightPython(code);
+}
+
+function highlightPython(code) {
+  let escaped = code
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  
+  escaped = escaped.replace(/(#[^\n]*)/g, '<span class="py-comment">$1</span>');
+  escaped = escaped.replace(/(['"])(.*?)\1/g, '<span class="py-str">$1$2$1</span>');
+  escaped = escaped.replace(/\b(\d+)\b/g, '<span class="py-num">$1</span>');
+  
+  const keywords = ['def', 'for', 'in', 'range', 'if', 'else', 'while', 'return', 'pass'];
+  keywords.forEach(kw => {
+    const regex = new RegExp('\\b(' + kw + ')\\b', 'g');
+    escaped = escaped.replace(regex, '<span class="py-kw">$1</span>');
+  });
+  
+  const funcs = ['hero\\.move_forward', 'hero\\.collect_rupee', 'hero\\.turn_left', 'hero\\.turn_right', 'hero\\.scan_ahead', 'print'];
+  funcs.forEach(f => {
+    const regex = new RegExp('\\b(' + f + ')\\b', 'g');
+    escaped = escaped.replace(regex, '<span class="py-func">$1</span>');
+  });
+  
+  return escaped;
+}
+
+function appendConsoleLine(text, styleClass) {
+  const consoleEl = document.getElementById('terminal-console');
+  const line = document.createElement('div');
+  line.className = `terminal-line ${styleClass || ''}`;
+  line.textContent = text;
+  consoleEl.appendChild(line);
+  consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+// Code evaluation
+function runProgram() {
+  let jsCode = '';
+  if (currentMode === 'blocks') {
+    const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
+    jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
+  } else {
+    const pyCode = document.getElementById('python-textarea').value;
+    jsCode = transpilePythonToJS(pyCode);
+  }
+  
+  if (jsCode.trim() === "") {
+    synth.play('error');
+    appendConsoleLine(t('consoleErrorEmpty'), "error");
+    return;
+  }
+  
+  synth.play('click');
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('step-btn').disabled = true;
+  document.getElementById('stop-btn').disabled = false;
+  
+  const actionQueue = compileActionQueue(jsCode);
+  
+  simulator.initLevel(LEVELS[currentLevelIndex]);
+  simulator.loadActionQueue(actionQueue);
+}
+
+function stepProgram() {
+  let jsCode = '';
+  if (currentMode === 'blocks') {
+    const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
+    jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
+  } else {
+    const pyCode = document.getElementById('python-textarea').value;
+    jsCode = transpilePythonToJS(pyCode);
+  }
+  
+  if (jsCode.trim() === "") {
+    synth.play('error');
+    appendConsoleLine(t('consoleErrorEmpty'), "error");
+    return;
+  }
+  
+  if (!simulator.isPlaying) {
+    synth.play('click');
+    const actionQueue = compileActionQueue(jsCode);
+    simulator.initLevel(LEVELS[currentLevelIndex]);
+    simulator.actionQueue = actionQueue;
+    simulator.currentActionIndex = 0;
+    simulator.isPlaying = false;
+    appendConsoleLine(t('consoleStepMode'), "system");
+  }
+  
+  simulator.executeNextAction();
+}
+
+function compileActionQueue(jsCode) {
+  const actionQueue = [];
+  const level = LEVELS[currentLevelIndex];
+  
+  const shadowRobot = {
+    x: level.startX,
+    y: level.startY,
+    dir: level.startDir,
+    crystals: JSON.parse(JSON.stringify(simulator.crystals)),
+    crashed: false
+  };
+  
+  window.moveForward = () => {
+    if (shadowRobot.crashed) return;
+    
+    let nextX = shadowRobot.x;
+    let nextY = shadowRobot.y;
+    switch (shadowRobot.dir) {
+      case 0: nextX++; break;
+      case 1: nextY++; break;
+      case 2: nextX--; break;
+      case 3: nextY--; break;
+    }
+    
+    if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
+      shadowRobot.crashed = true;
+    } else if (level.grid[nextY][nextX] === 1) {
+      shadowRobot.crashed = true;
+    } else {
+      shadowRobot.x = nextX;
+      shadowRobot.y = nextY;
+    }
+    actionQueue.push({ type: 'MOVE_FORWARD' });
+  };
+  
+  window.turnLeft = () => {
+    if (shadowRobot.crashed) return;
+    shadowRobot.dir = (shadowRobot.dir + 3) % 4;
+    actionQueue.push({ type: 'TURN_LEFT' });
+  };
+  
+  window.turnRight = () => {
+    if (shadowRobot.crashed) return;
+    shadowRobot.dir = (shadowRobot.dir + 1) % 4;
+    actionQueue.push({ type: 'TURN_RIGHT' });
+  };
+  
+  window.collectRupee = () => {
+    if (shadowRobot.crashed) return;
+    const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
+    if (rupee) {
+      rupee.collected = true;
+    }
+    actionQueue.push({ type: 'COLLECT' });
+  };
+  
+  window.scanAhead = () => {
+    if (shadowRobot.crashed) return 'obstacle';
+    
+    let nextX = shadowRobot.x;
+    let nextY = shadowRobot.y;
+    switch (shadowRobot.dir) {
+      case 0: nextX++; break;
+      case 1: nextY++; break;
+      case 2: nextX--; break;
+      case 3: nextY--; break;
+    }
+    
+    if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
+      return "obstacle";
+    }
+    
+    const tile = level.grid[nextY][nextX];
+    if (tile === 1) return "obstacle";
+    if (tile === 2) return "portal";
+    
+    const rupee = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
+    if (rupee) return "crystal";
+    
+    return "empty";
+  };
+  
+  window.printConsole = (msg) => {
+    actionQueue.push({ type: 'PRINT', message: String(msg) });
+  };
+  
+  window.hero = {
+    move_forward: () => window.moveForward(),
+    collect_rupee: () => window.collectRupee(),
+    turn_left: () => window.turnLeft(),
+    turn_right: () => window.turnRight(),
+    scan_ahead: () => window.scanAhead()
+  };
+  
+  try {
+    eval(jsCode);
+  } catch (err) {
+    console.error("Evaluation error: ", err);
+    actionQueue.push({ type: 'PRINT', message: `❌ Runtime error: ${err.message}` });
+  }
+  
+  delete window.moveForward;
+  delete window.turnLeft;
+  delete window.turnRight;
+  delete window.collectRupee;
+  delete window.scanAhead;
+  delete window.printConsole;
+  delete window.hero;
+  
+  return actionQueue;
+}
+
+// Save achievements
+function markLevelCompleted(levelId) {
+  completedLevels[levelId] = true;
+  localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
+  refreshLevelSelector();
+  updateHeartsDisplay();
+}
+
+function loadProgress() {
+  const progressStr = localStorage.getItem('codequest_completed');
+  if (progressStr) {
+    try {
+      completedLevels = JSON.parse(progressStr);
+    } catch (e) {
+      completedLevels = {};
+    }
+  }
+}
+
+// Refresh checkmarks
+function refreshLevelSelector() {
+  const levelSelect = document.getElementById('level-select');
+  if (!levelSelect) return;
+  
+  levelSelect.innerHTML = '';
+  LEVELS.forEach((lvl, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    const check = completedLevels[lvl.id] ? " 🗝️" : "";
+    const badgeText = t('roomBadge', { id: lvl.id, badge: lvl.badge });
+    option.textContent = `${badgeText}${check}`;
+    levelSelect.appendChild(option);
+  });
+  
+  // Set back to current index
+  levelSelect.value = currentLevelIndex;
+}
+
+function updateHeartsDisplay() {
+  const display = document.getElementById('hearts-display');
+  if (!display) return;
+  
+  let heartsStr = "";
+  LEVELS.forEach(lvl => {
+    if (completedLevels[lvl.id]) {
+      heartsStr += "❤️";
+    } else {
+      heartsStr += "🖤";
+    }
+  });
+  
+  if (heartsStr === "🖤🖤🖤🖤🖤") {
+    heartsStr = "❤️🖤🖤🖤🖤";
+  }
+  display.textContent = heartsStr;
+}
+
+function showSuccessModal() {
+  const level = LEVELS[currentLevelIndex];
+  let pyCode = '';
+  if (currentMode === 'blocks') {
+    const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+    pyCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
+  } else {
+    pyCode = document.getElementById('python-textarea').value;
+  }
+  
+  const successText = currentLanguage === 'it'
+    ? `Link ha sbloccato con successo la Stanza ${level.id} e ha ottenuto il frammento della Triforza!`
+    : `Link successfully unlocked Room ${level.id} and secured the Triforce piece!`;
+  
+  document.getElementById('success-message').textContent = successText;
+  document.getElementById('success-code-text').textContent = pyCode || 'No spells cast.';
+  document.getElementById('success-modal').classList.remove('hidden');
+}
+
+// Text Editor line numbering helper
+function updateLineNumbers() {
+  const textarea = document.getElementById('python-textarea');
+  const lineNumbers = document.getElementById('editor-line-numbers');
+  if (!textarea || !lineNumbers) return;
+  
+  const linesCount = textarea.value.split('\n').length;
+  let numStr = '';
+  for (let i = 1; i <= linesCount; i++) {
+    numStr += i + '\n';
+  }
+  lineNumbers.textContent = numStr;
+}
+
+// Simple Python-to-JavaScript Transpiler
+function transpilePythonToJS(pyCode) {
+  const lines = pyCode.split('\n');
+  let jsCode = '';
+  let indentStack = [0];
+  
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    
+    // Skip empty lines or comment-only lines
+    if (line.trim() === '' || line.trim().startsWith('#')) {
+      jsCode += line + '\n';
+      continue;
+    }
+    
+    // Measure indentation
+    const match = line.match(/^(\s*)/);
+    const currentIndent = match ? match[1].length : 0;
+    
+    // If indentation decreased, close braces
+    while (indentStack[indentStack.length - 1] > currentIndent) {
+      indentStack.pop();
+      jsCode += ' '.repeat(indentStack[indentStack.length - 1]) + '}\n';
+    }
+    
+    let content = line.trim();
+    let isBlockHeader = false;
+    
+    // Translate Python syntax to JS syntax
+    if (content.startsWith('def ')) {
+      content = content.replace(/def\s+(\w+)\s*\((.*)\)\s*:/, 'function $1($2) {');
+      isBlockHeader = true;
+    } else if (content.startsWith('for ') && content.includes('in range(')) {
+      content = content.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*(\d+)\s*\)\s*:/, 'for (let $1 = 0; $1 < $2; $1++) {');
+      isBlockHeader = true;
+    } else if (content.startsWith('if ')) {
+      content = content.replace(/if\s+(.+)\s*:/, 'if ($1) {');
+      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!');
+      isBlockHeader = true;
+    } else if (content.startsWith('elif ')) {
+      content = content.replace(/elif\s+(.+)\s*:/, 'else if ($1) {');
+      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!');
+      isBlockHeader = true;
+    } else if (content.startsWith('else:')) {
+      content = 'else {';
+      isBlockHeader = true;
+    } else if (content.startsWith('while ')) {
+      content = content.replace(/while\s+(.+)\s*:/, 'while ($1) {');
+      isBlockHeader = true;
+    }
+    
+    // Translate custom commands
+    content = content.replace(/hero\.move_forward\(\)/g, 'moveForward()');
+    content = content.replace(/hero\.collect_rupee\(\)/g, 'collectRupee()');
+    content = content.replace(/hero\.turn_left\(\)/g, 'turnLeft()');
+    content = content.replace(/hero\.turn_right\(\)/g, 'turnRight()');
+    content = content.replace(/hero\.scan_ahead\(\)/g, 'scanAhead()');
+    
+    // Translate print() to printConsole()
+    content = content.replace(/print\s*\((.*)\)/g, 'printConsole($1)');
+    
+    // Append semicolons to expression lines (non-headers)
+    if (!isBlockHeader && !content.endsWith(';') && !content.endsWith('}')) {
+      content += ';';
+    }
+    
+    // If indentation increased, push to stack
+    if (isBlockHeader) {
+      let nextIndent = currentIndent + 4;
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].trim() !== '') {
+          const nextMatch = lines[j].match(/^(\s*)/);
+          nextIndent = nextMatch ? nextMatch[1].length : currentIndent + 4;
+          break;
+        }
+      }
+      if (nextIndent > currentIndent) {
+        indentStack.push(nextIndent);
+      }
+    }
+    
+    jsCode += ' '.repeat(currentIndent) + content + '\n';
+  }
+  
+  // Close any remaining open braces
+  while (indentStack.length > 1) {
+    indentStack.pop();
+    jsCode += ' '.repeat(indentStack[indentStack.length - 1]) + '}\n';
+  }
+  
+  return jsCode;
+}
+
