@@ -30,8 +30,13 @@ LEVELS.forEach((room, idx) => {
 
   // 2. Validate basic schema and properties
   runTest(`${roomLabel} - Basic Schema Verification`, () => {
-    assert.strictEqual(typeof room.id, 'number', 'id must be a number');
-    assert(room.id > 0, 'id must be positive');
+    assert(['number', 'string'].includes(typeof room.id), 'id must be a number or a string');
+    if (typeof room.id === 'number') {
+      assert(room.id > 0, 'id must be positive');
+    } else {
+      assert(room.id.length > 0, 'id string must not be empty');
+      assert(room.id.includes('/'), 'id string must include a slash separating the topic and room (e.g. topic/room)');
+    }
     
     // Check names & strings
     assert(room.name && room.name.it && room.name.en, 'name must have "it" and "en" translations');

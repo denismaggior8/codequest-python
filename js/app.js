@@ -564,7 +564,7 @@ function loadLevel(index) {
   const tipText = level.tip[currentLanguage] || level.tip['it'];
   
   document.getElementById('quest-title').textContent = nameText;
-  document.getElementById('level-badge').textContent = t('roomBadge', { id: level.id, badge: level.badge });
+  document.getElementById('level-badge').textContent = t('roomBadge', { id: getLevelDisplayId(level), badge: level.badge });
   document.getElementById('quest-desc').textContent = storyText;
   document.getElementById('quest-goal').textContent = goalText;
   document.getElementById('python-explanation-text').textContent = tipText;
@@ -880,6 +880,17 @@ function validateLevelConstructs(level) {
   }
 
   return null;
+}
+
+function getLevelDisplayId(level) {
+  if (typeof level.id === 'string') {
+    const match = level.id.match(/room(\d+)$/i);
+    if (match) {
+      return match[1];
+    }
+    return level.id;
+  }
+  return level.id;
 }
 
 function appendConsoleLine(text, styleClass) {
@@ -1213,8 +1224,7 @@ function refreshLevelSelector() {
         option.value = index;
         const isCompleted = completedLevels[lvl.id] || completedLevels[String(lvl.id)];
         const check = isCompleted ? " 🗝️" : "";
-        const badgeText = t('roomBadge', { id: lvl.id, badge: lvl.badge });
-        option.textContent = `${badgeText}${check}`;
+        option.textContent = `${lvl.id}${check}`;
         optgroup.appendChild(option);
       });
       
@@ -1230,25 +1240,38 @@ function updateHeartsDisplay() {
   const display = document.getElementById('hearts-display');
   if (!display) return;
   
-  let completedCount = 0;
-  let heartsStr = "";
+  // Group levels by topic (badge) in order of appearance
+  const topics = [];
   LEVELS.forEach(lvl => {
-    const isCompleted = completedLevels[lvl.id] || completedLevels[String(lvl.id)];
-    if (isCompleted) {
+    if (!topics.includes(lvl.badge)) {
+      topics.push(lvl.badge);
+    }
+  });
+  
+  let completedTopicsCount = 0;
+  let heartsStr = "";
+  
+  topics.forEach(topic => {
+    const topicLevels = LEVELS.filter(lvl => lvl.badge === topic);
+    const allCompleted = topicLevels.every(lvl => {
+      return completedLevels[lvl.id] || completedLevels[String(lvl.id)];
+    });
+    
+    if (allCompleted) {
       heartsStr += "❤️";
-      completedCount++;
+      completedTopicsCount++;
     } else {
       heartsStr += "🖤";
     }
   });
   
-  console.log("❤️ updateHeartsDisplay. completedLevels:", completedLevels, "heartsStr:", heartsStr, "completedCount:", completedCount);
+  console.log("❤️ updateHeartsDisplay. completedLevels:", completedLevels, "heartsStr:", heartsStr, "completedTopicsCount:", completedTopicsCount);
   display.textContent = heartsStr;
   
-  // Tooltip dinamico e localizzato
+  // Tooltip dinamico e localizzato per argomenti completati
   const tooltipText = currentLanguage === 'it'
-    ? `Stanze completate: ${completedCount} su ${LEVELS.length}`
-    : `Rooms cleared: ${completedCount} of ${LEVELS.length}`;
+    ? `Argomenti completati: ${completedTopicsCount} su ${topics.length}`
+    : `Topics completed: ${completedTopicsCount} of ${topics.length}`;
   display.title = tooltipText;
 }
 
@@ -1263,8 +1286,8 @@ function showSuccessModal() {
   }
   
   const successText = currentLanguage === 'it'
-    ? `Link ha sbloccato con successo la Stanza ${level.id} e ha ottenuto il frammento della Triforza!`
-    : `Link successfully unlocked Room ${level.id} and secured the Triforce piece!`;
+    ? `Link ha sbloccato con successo la Stanza ${getLevelDisplayId(level)} e ha ottenuto il frammento della Triforza!`
+    : `Link successfully unlocked Room ${getLevelDisplayId(level)} and secured the Triforce piece!`;
   
   document.getElementById('success-message').textContent = successText;
   document.getElementById('success-code-text').textContent = pyCode || 'No spells cast.';
