@@ -1,5 +1,5 @@
-const ROOM_5 = {
-  id: 5,
+const ROOM_FUNCTIONS_1 = {
+  id: "functions/room1",
   name: {
     it: "Stanza 5: Il Santuario della Triforza",
     en: "Room 5: The Triforce Chamber"
@@ -75,5 +75,5 @@ const ROOM_5 = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ROOM_5;
+  module.exports = ROOM_FUNCTIONS_1;
 }

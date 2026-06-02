@@ -1,5 +1,5 @@
-const ROOM_3 = {
-  id: 3,
+const ROOM_CONDITIONALS_1 = {
+  id: "conditionals/room1",
   name: {
     it: "Stanza 3: La Lente della Verità",
     en: "Room 3: Eye of Truth"
@@ -106,5 +106,5 @@ const ROOM_3 = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ROOM_3;
+  module.exports = ROOM_CONDITIONALS_1;
 }

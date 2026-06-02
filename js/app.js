@@ -842,6 +842,46 @@ function highlightPython(code) {
   return escaped;
 }
 
+function validateLevelConstructs(level) {
+  let hasIf = false;
+  let hasLoop = false;
+  let hasDef = false;
+
+  if (currentMode === 'blocks') {
+    if (typeof workspace !== 'undefined' && workspace) {
+      const blocks = workspace.getAllBlocks(false);
+      hasIf = blocks.some(b => b.type === 'controls_if');
+      hasLoop = blocks.some(b => ['controls_repeat_ext', 'controls_repeat', 'controls_whileUntil', 'controls_for'].includes(b.type));
+      hasDef = blocks.some(b => ['procedures_defnoreturn', 'procedures_defreturn'].includes(b.type));
+    }
+  } else {
+    const pyTextarea = document.getElementById('python-textarea');
+    const pyCode = pyTextarea ? pyTextarea.value : '';
+    // Strip comments to prevent cheating
+    const lines = pyCode.split('\n').map(line => {
+      const hashIdx = line.indexOf('#');
+      return hashIdx === -1 ? line : line.substring(0, hashIdx);
+    });
+    const cleanCode = lines.join('\n');
+    
+    hasIf = /\bif\b/.test(cleanCode) || /\belif\b/.test(cleanCode);
+    hasLoop = /\bfor\b/.test(cleanCode) || /\bwhile\b/.test(cleanCode);
+    hasDef = /\bdef\b/.test(cleanCode);
+  }
+
+  if (level.requireConditional && !hasIf) {
+    return t('consoleErrorRequireConditional');
+  }
+  if (level.requireLoop && !hasLoop) {
+    return t('consoleErrorRequireLoop');
+  }
+  if (level.requireFunction && !hasDef) {
+    return t('consoleErrorRequireFunction');
+  }
+
+  return null;
+}
+
 function appendConsoleLine(text, styleClass) {
   const consoleEl = document.getElementById('terminal-console');
   const line = document.createElement('div');
@@ -865,6 +905,13 @@ function runProgram() {
   if (jsCode.trim() === "") {
     synth.play('error');
     appendConsoleLine(t('consoleErrorEmpty'), "error");
+    return;
+  }
+  
+  const validationError = validateLevelConstructs(LEVELS[currentLevelIndex]);
+  if (validationError) {
+    synth.play('error');
+    appendConsoleLine(validationError, "error");
     return;
   }
   
@@ -892,6 +939,13 @@ function stepProgram() {
   if (jsCode.trim() === "") {
     synth.play('error');
     appendConsoleLine(t('consoleErrorEmpty'), "error");
+    return;
+  }
+  
+  const validationError = validateLevelConstructs(LEVELS[currentLevelIndex]);
+  if (validationError) {
+    synth.play('error');
+    appendConsoleLine(validationError, "error");
     return;
   }
   

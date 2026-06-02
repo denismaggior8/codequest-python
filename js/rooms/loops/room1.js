@@ -1,5 +1,5 @@
-const ROOM_4 = {
-  id: 4,
+const ROOM_LOOPS_1 = {
+  id: "loops/room1",
   name: {
     it: "Stanza 4: La Caverna delle Rupie",
     en: "Room 4: The Rupee Vault"
@@ -83,5 +83,5 @@ const ROOM_4 = {
 };
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ROOM_4;
+  module.exports = ROOM_LOOPS_1;
 }

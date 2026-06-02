@@ -44,6 +44,17 @@ LEVELS.forEach((room, idx) => {
     assert.strictEqual(typeof room.difficulty, 'string', 'difficulty must be a string');
     assert(['base', 'intermediate', 'advanced'].includes(room.difficulty), 'difficulty must be "base", "intermediate" or "advanced"');
     
+    // Check optional verification constraints
+    if (room.requireConditional !== undefined) {
+      assert.strictEqual(typeof room.requireConditional, 'boolean', 'requireConditional must be a boolean');
+    }
+    if (room.requireLoop !== undefined) {
+      assert.strictEqual(typeof room.requireLoop, 'boolean', 'requireLoop must be a boolean');
+    }
+    if (room.requireFunction !== undefined) {
+      assert.strictEqual(typeof room.requireFunction, 'boolean', 'requireFunction must be a boolean');
+    }
+    
     // Check documentation
     assert(room.docs && Array.isArray(room.docs.it) && Array.isArray(room.docs.en), 'docs must have "it" and "en" arrays');
     room.docs.it.forEach((doc, i) => {
