@@ -499,6 +499,34 @@ function loadLevel(index) {
   document.getElementById('quest-goal').textContent = goalText;
   document.getElementById('python-explanation-text').textContent = tipText;
   
+  // Render available spells guide
+  const docsListEl = document.getElementById('python-docs-list');
+  if (docsListEl) {
+    docsListEl.innerHTML = '';
+    const docs = level.docs ? (level.docs[currentLanguage] || level.docs['it'] || []) : [];
+    if (docs.length > 0) {
+      document.getElementById('python-docs-section').style.display = 'block';
+      docs.forEach(doc => {
+        const item = document.createElement('div');
+        item.className = 'docs-item';
+        
+        const codeDiv = document.createElement('div');
+        codeDiv.className = 'docs-code';
+        codeDiv.textContent = doc.code;
+        
+        const descDiv = document.createElement('div');
+        descDiv.className = 'docs-desc';
+        descDiv.textContent = doc.desc;
+        
+        item.appendChild(codeDiv);
+        item.appendChild(descDiv);
+        docsListEl.appendChild(item);
+      });
+    } else {
+      document.getElementById('python-docs-section').style.display = 'none';
+    }
+  }
+  
   const consoleEl = document.getElementById('terminal-console');
   consoleEl.innerHTML = '';
   appendConsoleLine(t('consoleSystemStart', { name: nameText }), 'system');

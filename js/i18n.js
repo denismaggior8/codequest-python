@@ -15,6 +15,7 @@ const TRANSLATIONS = {
     spellBook: "LIBRO INCANTESIMI",
     pythonScroll: "PERGAMENA PYTHON",
     pythonScrollWisdom: "SAGGEZZA DELLA PERGAMENA",
+    availableCommands: "INCANTESIMI DISPONIBILI",
     
     // Playback Controls
     run: "AVVIA",
@@ -80,6 +81,7 @@ const TRANSLATIONS = {
     spellBook: "SPELL BOOK",
     pythonScroll: "PYTHON SCROLL",
     pythonScrollWisdom: "PYTHON SCROLL WISDOM",
+    availableCommands: "AVAILABLE SPELLS",
     
     // Playback Controls
     run: "RUN",

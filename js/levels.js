@@ -22,6 +22,16 @@ const LEVELS = [
       en: "In Python, we call functions to perform actions. The command 'hero.move_forward()' tells the hero to move one square in the direction they are facing."
     },
     
+    // Command Docs
+    docs: {
+      it: [
+        { code: "hero.move_forward()", desc: "Fai camminare Link in avanti di una casella." }
+      ],
+      en: [
+        { code: "hero.move_forward()", desc: "Make Link walk forward one space." }
+      ]
+    },
+    
     gridSize: 5,
     grid: [
       [1, 1, 1, 1, 1],
@@ -33,7 +43,7 @@ const LEVELS = [
     
     startX: 1,
     startY: 2,
-    startDir: 0, // Right
+    startDir: 0,
     targetCrystals: 0,
     
     toolbox: {
@@ -69,6 +79,24 @@ const LEVELS = [
     tip: {
       it: "Una variabile è come uno scrigno in cui salvare valori. In Python, 'rupees = 0' crea una variabile per tracciare il conteggio. 'print(rupees)' mostra il valore nel registro del dungeon.",
       en: "A variable is like a chest to store values. In Python, 'rupees = 0' creates a variable to track our count. 'print(rupees)' shows its value in the dungeon log console."
+    },
+    
+    // Command Docs
+    docs: {
+      it: [
+        { code: "hero.move_forward()", desc: "Fai camminare Link in avanti." },
+        { code: "hero.collect_rupee()", desc: "Raccogli la rupia sulla casella corrente." },
+        { code: "rupees = 0", desc: "Inizializza una variabile 'rupees' col valore 0." },
+        { code: "rupees = rupees + 1", desc: "Aggiungi 1 al valore della variabile delle rupie." },
+        { code: "print(rupees)", desc: "Stampa il conteggio delle rupie a schermo." }
+      ],
+      en: [
+        { code: "hero.move_forward()", desc: "Make Link walk forward." },
+        { code: "hero.collect_rupee()", desc: "Collect the rupee on the current tile." },
+        { code: "rupees = 0", desc: "Initialize 'rupees' variable with value 0." },
+        { code: "rupees = rupees + 1", desc: "Add 1 to the current value of the rupees variable." },
+        { code: "print(rupees)", desc: "Print the rupee count into the log console." }
+      ]
     },
     
     gridSize: 6,
@@ -139,6 +167,24 @@ const LEVELS = [
       en: "Conditionals make decisions. In Python, 'if hero.scan_ahead() == \"obstacle\":' checks the tile in front. If it's blocked, Link will execute the code inside."
     },
     
+    // Command Docs
+    docs: {
+      it: [
+        { code: "hero.move_forward()", desc: "Cammina in avanti." },
+        { code: "hero.turn_right()", desc: "Gira a destra di 90 gradi." },
+        { code: "hero.scan_ahead()", desc: "Controlla la casella di fronte. Restituisce 'obstacle' se c'è un muro." },
+        { code: "if hero.scan_ahead() == \"obstacle\":", desc: "Se c'è un ostacolo di fronte, esegui i comandi indentati." },
+        { code: "else:", desc: "Altrimenti (se la casella è vuota), esegui i comandi inseriti sotto 'else:'." }
+      ],
+      en: [
+        { code: "hero.move_forward()", desc: "Walk forward." },
+        { code: "hero.turn_right()", desc: "Turn Link right 90 degrees." },
+        { code: "hero.scan_ahead()", desc: "Scan the tile directly ahead. Returns 'obstacle' if blocked." },
+        { code: "if hero.scan_ahead() == \"obstacle\":", desc: "If an obstacle is detected ahead, run the indented code below." },
+        { code: "else:", desc: "Otherwise, execute the indented code under else." }
+      ]
+    },
+    
     gridSize: 6,
     grid: [
       [1, 1, 1, 1, 1, 1],
@@ -152,7 +198,6 @@ const LEVELS = [
     startX: 1,
     startY: 4,
     startDir: 3, // UP
-    
     targetCrystals: 0,
     
     toolbox: {
@@ -232,6 +277,20 @@ const LEVELS = [
       en: "Loops repeat actions. In Python, 'for i in range(4):' runs instructions 4 times. This is vital to keep your code clean and dry (Don't Repeat Yourself)."
     },
     
+    // Command Docs
+    docs: {
+      it: [
+        { code: "hero.move_forward()", desc: "Cammina in avanti." },
+        { code: "hero.collect_rupee()", desc: "Raccogli la rupia corrente." },
+        { code: "for i in range(4):", desc: "Ripete tutti i comandi indentati sotto per 4 volte." }
+      ],
+      en: [
+        { code: "hero.move_forward()", desc: "Walk forward." },
+        { code: "hero.collect_rupee()", desc: "Collect the rupee on the tile." },
+        { code: "for i in range(4):", desc: "Loops and executes the indented code below 4 times." }
+      ]
+    },
+    
     gridSize: 8,
     grid: [
       [1, 1, 1, 1, 1, 1, 1, 1],
@@ -247,7 +306,6 @@ const LEVELS = [
     startX: 1,
     startY: 3,
     startDir: 0,
-    
     targetCrystals: 4,
     
     toolbox: {
@@ -306,6 +364,24 @@ const LEVELS = [
       en: "Functions group blocks of code together. In Python, 'def step_and_collect():' defines a custom block that can be run repeatedly by writing its name."
     },
     
+    // Command Docs
+    docs: {
+      it: [
+        { code: "hero.move_forward()", desc: "Cammina in avanti." },
+        { code: "hero.collect_rupee()", desc: "Raccogli la rupia." },
+        { code: "hero.turn_left() / turn_right()", desc: "Gira Link a sinistra o destra." },
+        { code: "def step_and_collect():", desc: "Crea una funzione/macro chiamata step_and_collect con all'interno i comandi indentati." },
+        { code: "step_and_collect()", desc: "Chiama ed esegui la funzione personalizzata creata." }
+      ],
+      en: [
+        { code: "hero.move_forward()", desc: "Walk forward." },
+        { code: "hero.collect_rupee()", desc: "Collect the rupee." },
+        { code: "hero.turn_left() / turn_right()", desc: "Turn Link 90 degrees left or right." },
+        { code: "def step_and_collect():", desc: "Defines a custom function/spell called step_and_collect." },
+        { code: "step_and_collect()", desc: "Calls and executes the custom function defined." }
+      ]
+    },
+    
     gridSize: 8,
     grid: [
       [1, 1, 1, 1, 1, 1, 1, 1],
@@ -321,7 +397,6 @@ const LEVELS = [
     startX: 1,
     startY: 6,
     startDir: 0,
-    
     targetCrystals: 3,
     
     toolbox: {

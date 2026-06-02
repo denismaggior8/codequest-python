@@ -587,7 +587,52 @@ header .logo .logo-main {
   margin-bottom: 0;
   font-size: 19px;
   min-height: 80px;
+  max-height: 250px;
+  overflow-y: auto;
 }
+
+.docs-header {
+  font-size: 10px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  border-top: 2px dashed var(--card-border-dark);
+  padding-top: 10px;
+}
+
+.docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.docs-item {
+  border-bottom: 2px dashed var(--card-border-dark);
+  padding-bottom: 8px;
+}
+
+.docs-item:last-child {
+  border-bottom: none;
+}
+
+.docs-code {
+  font-family: 'VT323', monospace;
+  color: #f39c12;
+  font-weight: bold;
+  font-size: 18px;
+  background-color: #070504;
+  padding: 1px 6px;
+  border: 1px solid var(--card-border-dark);
+  display: inline-block;
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+
+.docs-desc {
+  font-size: 17px;
+  color: #f5efe6;
+  padding-left: 2px;
+}
+
 
 .tip-header {
   font-size: 10px;
