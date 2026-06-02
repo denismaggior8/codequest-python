@@ -1,0 +1,10 @@
+{
+  "name": "codequest-python",
+  "version": "1.0.0",
+  "description": "CodeQuest Python - Educational Game",
+  "scripts": {
+    "test": "node tests/rooms.test.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

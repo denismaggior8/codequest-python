@@ -819,3 +819,11 @@ header .logo .logo-main {
   font-size: 21px;
 }
 
+/* Responsive Save/Load Buttons styling */
+@media (max-width: 1200px) {
+  #export-save-btn span, 
+  #import-save-btn span {
+    display: none;
+  }
+}
+

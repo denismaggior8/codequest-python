@@ -147,7 +147,9 @@ let currentLevelIndex = 0;
 let workspace = null;
 let simulator = null;
 let completedLevels = {};
+let levelsCodeCache = {};
 let currentMode = 'blocks';
+let isExecutingStart = false;
 
 // Translation interpolation helper
 function t(key, replacements = {}) {
@@ -200,6 +202,22 @@ function loadBlocklyLocale(lang, callback) {
 
 // Setup UI Interactivity
 function setupUIEventListeners() {
+  // One-time interaction to unlock/resume Web Audio API in modern browsers
+  const unlockAudio = () => {
+    synth.init();
+    if (synth.ctx && synth.ctx.state === 'suspended') {
+      synth.ctx.resume().then(() => {
+        console.log("🔊 AudioContext resumed successfully via user interaction.");
+      }).catch(err => {
+        console.warn("⚠️ Failed to resume AudioContext:", err);
+      });
+    }
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('keydown', unlockAudio);
+  };
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('keydown', unlockAudio);
+
   const prevBtn = document.getElementById('prev-level-btn');
   const nextBtn = document.getElementById('next-level-btn');
   const levelSelect = document.getElementById('level-select');
@@ -208,6 +226,10 @@ function setupUIEventListeners() {
   const closeHelpBtn = document.getElementById('close-help-btn');
   const resetProgressBtn = document.getElementById('reset-progress-btn');
   const langSelect = document.getElementById('lang-select');
+  
+  const exportSaveBtn = document.getElementById('export-save-btn');
+  const importSaveBtn = document.getElementById('import-save-btn');
+  const importSaveFile = document.getElementById('import-save-file');
   
   const runBtn = document.getElementById('run-btn');
   const stopBtn = document.getElementById('stop-btn');
@@ -278,13 +300,38 @@ function setupUIEventListeners() {
     document.getElementById('help-modal').classList.add('hidden');
   });
 
+  // Save Game and Load Game Button Triggers
+  if (exportSaveBtn) {
+    exportSaveBtn.addEventListener('click', () => {
+      exportGameState();
+    });
+  }
+  
+  if (importSaveBtn && importSaveFile) {
+    importSaveBtn.addEventListener('click', () => {
+      synth.play('click');
+      importSaveFile.click();
+    });
+    
+    importSaveFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        importGameState(file);
+      }
+      importSaveFile.value = '';
+    });
+  }
+
   resetProgressBtn.addEventListener('click', () => {
     const promptMsg = currentLanguage === 'it' 
       ? "Resettare tutti i progressi? Perderai tutti i tuoi cuori."
       : "Reset all dungeon achievements? You will lose your hearts.";
     if (confirm(promptMsg)) {
       completedLevels = {};
+      levelsCodeCache = {};
       localStorage.removeItem('codequest_completed');
+      localStorage.removeItem('codequest_levels_code');
+      localStorage.removeItem('codequest_current_level_idx');
       synth.play('crash');
       refreshLevelSelector();
       updateHeartsDisplay();
@@ -375,6 +422,14 @@ function setupUIEventListeners() {
     blocklyContainer.classList.remove('hidden');
     editorContainer.classList.add('hidden');
     
+    // Auto-save active tab change
+    const lvlId = LEVELS[currentLevelIndex].id;
+    if (!levelsCodeCache[lvlId]) {
+      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+    }
+    levelsCodeCache[lvlId].mode = 'blocks';
+    saveProgress();
+    
     // Refresh workspace size
     Blockly.svgResize(workspace);
     updateCodeOutput();
@@ -396,6 +451,15 @@ function setupUIEventListeners() {
     const blocksCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
     pyTextarea.value = blocksCode;
     
+    // Auto-save active tab change
+    const lvlId = LEVELS[currentLevelIndex].id;
+    if (!levelsCodeCache[lvlId]) {
+      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+    }
+    levelsCodeCache[lvlId].mode = 'python';
+    levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
+    saveProgress();
+    
     // Focus and update line numbers
     pyTextarea.focus();
     updateLineNumbers();
@@ -404,6 +468,15 @@ function setupUIEventListeners() {
   
   // Textarea input event for line numbers and output highlights
   pyTextarea.addEventListener('input', () => {
+    // Auto-save python code changes
+    const lvlId = LEVELS[currentLevelIndex].id;
+    if (!levelsCodeCache[lvlId]) {
+      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+    }
+    levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
+    levelsCodeCache[lvlId].mode = currentMode;
+    saveProgress();
+    
     updateLineNumbers();
     updateCodeOutput();
   });
@@ -425,6 +498,11 @@ function initSimulator() {
     document.getElementById('run-btn').disabled = false;
     document.getElementById('step-btn').disabled = false;
     document.getElementById('stop-btn').disabled = true;
+    
+    if (simulator) {
+      simulator.actionQueue = [];
+      simulator.currentActionIndex = 0;
+    }
     
     if (success) {
       markLevelCompleted(LEVELS[currentLevelIndex].id);
@@ -469,18 +547,10 @@ function playSynthSound(type) {
 
 // Load level configuration
 function loadLevel(index) {
-  // Reset back to blocks mode when loading level
-  currentMode = 'blocks';
   const tabBlocks = document.getElementById('tab-blocks');
   const tabPython = document.getElementById('tab-python');
   const blocklyContainer = document.getElementById('blockly-container');
   const editorContainer = document.getElementById('editor-container');
-  if (tabBlocks && tabPython && blocklyContainer && editorContainer) {
-    tabBlocks.classList.add('active');
-    tabPython.classList.remove('active');
-    blocklyContainer.classList.remove('hidden');
-    editorContainer.classList.add('hidden');
-  }
 
   currentLevelIndex = index;
   const level = LEVELS[index];
@@ -537,6 +607,15 @@ function loadLevel(index) {
   document.getElementById('run-btn').disabled = false;
   document.getElementById('step-btn').disabled = false;
   document.getElementById('stop-btn').disabled = true;
+
+  // Inject "on_start" into toolbox dynamically if not present
+  if (level.toolbox && level.toolbox.contents && level.toolbox.contents[0] && level.toolbox.contents[0].contents) {
+    const firstCatContents = level.toolbox.contents[0].contents;
+    const hasOnStart = firstCatContents.some(b => b.type === "on_start");
+    if (!hasOnStart) {
+      firstCatContents.unshift({ kind: "block", type: "on_start" });
+    }
+  }
   
   // Re-inject Blockly workspace
   blocklyContainer.innerHTML = '<div id="blocklyDiv"></div>';
@@ -545,6 +624,9 @@ function loadLevel(index) {
     toolbox: level.toolbox,
     scrollbars: true,
     trashcan: true,
+    maxInstances: {
+      'on_start': 1
+    },
     zoom: {
       controls: true,
       wheel: true,
@@ -564,7 +646,131 @@ function loadLevel(index) {
     }
   });
 
+  // Restore saved code/blocks state if exists
+  const levelId = level.id;
+  const savedState = levelsCodeCache[levelId];
+  const pyTextarea = document.getElementById('python-textarea');
+  
+  if (savedState) {
+    currentMode = savedState.mode || 'blocks';
+    
+    // Restore Blockly
+    if (savedState.blocksState) {
+      try {
+        if (Blockly.serialization && typeof savedState.blocksState === 'object') {
+          Blockly.serialization.workspaces.load(savedState.blocksState, workspace);
+        } else {
+          // Fallback XML
+          const xml = Blockly.Xml.textToDom(savedState.blocksState);
+          Blockly.Xml.domToWorkspace(xml, workspace);
+        }
+      } catch (e) {
+        console.warn("Failed to restore blockly state: ", e);
+      }
+    }
+    
+    // Restore Python text
+    if (savedState.pythonCode) {
+      if (pyTextarea) pyTextarea.value = savedState.pythonCode;
+    } else {
+      if (pyTextarea) pyTextarea.value = '';
+    }
+  } else {
+    currentMode = 'blocks';
+    if (pyTextarea) pyTextarea.value = '';
+  }
+
+  // Auto-create/restore on_start event block if it is missing
+  const allBlocks = workspace.getAllBlocks(false);
+  let startBlock = allBlocks.find(b => b.type === 'on_start');
+  if (!startBlock) {
+    startBlock = workspace.newBlock('on_start');
+    startBlock.initSvg();
+    startBlock.render();
+    startBlock.setDeletable(false);
+    startBlock.moveBy(380, 30);
+  } else {
+    startBlock.setDeletable(false);
+    // Automatically migrate old coordinates if the block is too close to the left boundary (covered by toolbox)
+    const pos = startBlock.getRelativeToSurfaceXY();
+    if (pos && pos.x < 350) {
+      startBlock.moveTo({ x: 380, y: 30 });
+    }
+  }
+
+  // Update Tab active UI
+  if (tabBlocks && tabPython && blocklyContainer && editorContainer) {
+    if (currentMode === 'python') {
+      tabPython.classList.add('active');
+      tabBlocks.classList.remove('active');
+      blocklyContainer.classList.add('hidden');
+      editorContainer.classList.remove('hidden');
+    } else {
+      tabBlocks.classList.add('active');
+      tabPython.classList.remove('active');
+      blocklyContainer.classList.remove('hidden');
+      editorContainer.classList.add('hidden');
+    }
+  }
+
   workspace.addChangeListener(updateCodeOutput);
+
+  // Auto-save blocks state listener
+  workspace.addChangeListener((event) => {
+    if (event.isUiEvent) return;
+    
+    const lvlId = LEVELS[currentLevelIndex].id;
+    if (!levelsCodeCache[lvlId]) {
+      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+    }
+    
+    try {
+      if (Blockly.serialization) {
+        levelsCodeCache[lvlId].blocksState = Blockly.serialization.workspaces.save(workspace);
+      } else {
+        const xml = Blockly.Xml.workspaceToDom(workspace);
+        levelsCodeCache[lvlId].blocksState = Blockly.Xml.domToText(xml);
+      }
+    } catch (e) {
+      console.warn("Failed to auto-save blockly state: ", e);
+    }
+    
+    levelsCodeCache[lvlId].mode = currentMode;
+    saveProgress();
+  });
+
+  // Visual disable listener for loose blocks not inside the on_start event block
+  workspace.addChangeListener((event) => {
+    if (event.type === Blockly.Events.BLOCK_MOVE || 
+        event.type === Blockly.Events.BLOCK_CREATE || 
+        event.type === Blockly.Events.BLOCK_CHANGE ||
+        event.type === Blockly.Events.FINISHED_LOADING) {
+      
+      const blocks = workspace.getAllBlocks(false);
+      const sBlock = blocks.find(b => b.type === 'on_start');
+      if (sBlock) {
+        const descendants = sBlock.getDescendants(false);
+        const connectedIds = new Set(descendants.map(b => b.id));
+        
+        Blockly.Events.disable();
+        try {
+          blocks.forEach(b => {
+            if (b.type === 'on_start') {
+              b.setEnabled(true);
+            } else {
+              const shouldBeEnabled = connectedIds.has(b.id);
+              if (b.isEnabled() !== shouldBeEnabled) {
+                b.setEnabled(shouldBeEnabled);
+              }
+            }
+          });
+        } finally {
+          Blockly.Events.enable();
+        }
+      }
+    }
+  });
+
   Blockly.svgResize(workspace);
   window.addEventListener('resize', onResizeWorkspace);
   
@@ -689,7 +895,7 @@ function stepProgram() {
     return;
   }
   
-  if (!simulator.isPlaying) {
+  if (!simulator.isPlaying && simulator.actionQueue.length === 0) {
     synth.play('click');
     const actionQueue = compileActionQueue(jsCode);
     simulator.initLevel(LEVELS[currentLevelIndex]);
@@ -714,7 +920,8 @@ function compileActionQueue(jsCode) {
     crashed: false
   };
   
-  window.moveForward = () => {
+  globalThis.moveForward = () => {
+    if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     
     let nextX = shadowRobot.x;
@@ -737,19 +944,22 @@ function compileActionQueue(jsCode) {
     actionQueue.push({ type: 'MOVE_FORWARD' });
   };
   
-  window.turnLeft = () => {
+  globalThis.turnLeft = () => {
+    if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     shadowRobot.dir = (shadowRobot.dir + 3) % 4;
     actionQueue.push({ type: 'TURN_LEFT' });
   };
   
-  window.turnRight = () => {
+  globalThis.turnRight = () => {
+    if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     shadowRobot.dir = (shadowRobot.dir + 1) % 4;
     actionQueue.push({ type: 'TURN_RIGHT' });
   };
   
-  window.collectRupee = () => {
+  globalThis.collectRupee = () => {
+    if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
     if (rupee) {
@@ -758,7 +968,8 @@ function compileActionQueue(jsCode) {
     actionQueue.push({ type: 'COLLECT' });
   };
   
-  window.scanAhead = () => {
+  globalThis.scanAhead = () => {
+    if (!isExecutingStart) return "obstacle";
     if (shadowRobot.crashed) return 'obstacle';
     
     let nextX = shadowRobot.x;
@@ -784,40 +995,86 @@ function compileActionQueue(jsCode) {
     return "empty";
   };
   
-  window.printConsole = (msg) => {
+  globalThis.printConsole = (msg) => {
+    if (!isExecutingStart) return;
     actionQueue.push({ type: 'PRINT', message: String(msg) });
   };
   
-  window.hero = {
-    move_forward: () => window.moveForward(),
-    collect_rupee: () => window.collectRupee(),
-    turn_left: () => window.turnLeft(),
-    turn_right: () => window.turnRight(),
-    scan_ahead: () => window.scanAhead()
+  globalThis.hero = {
+    move_forward: () => globalThis.moveForward(),
+    collect_rupee: () => globalThis.collectRupee(),
+    turn_left: () => globalThis.turnLeft(),
+    turn_right: () => globalThis.turnRight(),
+    scan_ahead: () => globalThis.scanAhead()
   };
   
   try {
-    eval(jsCode);
+    const boundJsCode = jsCode + "\n; if (typeof on_start === 'function') { globalThis.on_start = on_start; }";
+    eval(boundJsCode);
+    
+    // Check if on_start function is defined either locally or globally
+    let startFn = null;
+    if (typeof on_start === 'function') {
+      startFn = on_start;
+    } else if (typeof globalThis.on_start === 'function') {
+      startFn = globalThis.on_start;
+    }
+    
+    if (startFn) {
+      isExecutingStart = true;
+      startFn();
+    } else {
+      appendConsoleLine(t('consoleErrorNoStart'), "error");
+    }
   } catch (err) {
     console.error("Evaluation error: ", err);
     actionQueue.push({ type: 'PRINT', message: `❌ Runtime error: ${err.message}` });
+  } finally {
+    isExecutingStart = false;
   }
   
-  delete window.moveForward;
-  delete window.turnLeft;
-  delete window.turnRight;
-  delete window.collectRupee;
-  delete window.scanAhead;
-  delete window.printConsole;
-  delete window.hero;
+  delete globalThis.moveForward;
+  delete globalThis.turnLeft;
+  delete globalThis.turnRight;
+  delete globalThis.collectRupee;
+  delete globalThis.scanAhead;
+  delete globalThis.printConsole;
+  delete globalThis.hero;
+  delete globalThis.on_start;
   
   return actionQueue;
 }
 
-// Save achievements
+// Save achievements & progress helper
+// Save achievements & progress helper
+function saveProgress() {
+  try {
+    localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
+  } catch (e) {
+    console.error("Failed to save codequest_completed:", e);
+  }
+  
+  try {
+    localStorage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
+  } catch (e) {
+    console.error("Failed to save codequest_levels_code:", e);
+  }
+  
+  try {
+    localStorage.setItem('codequest_current_level_idx', currentLevelIndex);
+  } catch (e) {
+    console.error("Failed to save codequest_current_level_idx:", e);
+  }
+  
+  console.log("💾 saveProgress executed. completedLevels:", completedLevels, "levelsCodeCache keys:", Object.keys(levelsCodeCache), "currentLevelIndex:", currentLevelIndex);
+}
+
 function markLevelCompleted(levelId) {
+  console.log("🏆 markLevelCompleted called with id:", levelId);
   completedLevels[levelId] = true;
-  localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
+  completedLevels[String(levelId)] = true;
+  
+  saveProgress();
   refreshLevelSelector();
   updateHeartsDisplay();
 }
@@ -827,10 +1084,37 @@ function loadProgress() {
   if (progressStr) {
     try {
       completedLevels = JSON.parse(progressStr);
+      console.log("📂 loadProgress parsed completedLevels:", completedLevels);
     } catch (e) {
+      console.error("Failed to parse codequest_completed JSON:", e);
       completedLevels = {};
     }
+  } else {
+    completedLevels = {};
   }
+  
+  const savedCodeStr = localStorage.getItem('codequest_levels_code');
+  if (savedCodeStr) {
+    try {
+      levelsCodeCache = JSON.parse(savedCodeStr);
+    } catch (e) {
+      console.error("Failed to parse codequest_levels_code JSON:", e);
+      levelsCodeCache = {};
+    }
+  } else {
+    levelsCodeCache = {};
+  }
+  
+  const savedLvlIdx = localStorage.getItem('codequest_current_level_idx');
+  if (savedLvlIdx !== null) {
+    currentLevelIndex = parseInt(savedLvlIdx, 10);
+    // Boundary check
+    if (isNaN(currentLevelIndex) || currentLevelIndex < 0 || currentLevelIndex >= LEVELS.length) {
+      currentLevelIndex = 0;
+    }
+  }
+  
+  console.log("📂 loadProgress complete. completedLevels:", completedLevels, "currentLevelIndex:", currentLevelIndex);
 }
 
 // Refresh checkmarks
@@ -839,13 +1123,49 @@ function refreshLevelSelector() {
   if (!levelSelect) return;
   
   levelSelect.innerHTML = '';
+  
+  // Group levels by difficulty
+  const groups = {};
   LEVELS.forEach((lvl, index) => {
-    const option = document.createElement('option');
-    option.value = index;
-    const check = completedLevels[lvl.id] ? " 🗝️" : "";
-    const badgeText = t('roomBadge', { id: lvl.id, badge: lvl.badge });
-    option.textContent = `${badgeText}${check}`;
-    levelSelect.appendChild(option);
+    let diff = lvl.difficulty || 'base';
+    // Normalize difficulty names to handle cached files robustly
+    if (diff === 'Easy' || diff === 'base') {
+      diff = 'base';
+    } else if (diff === 'Medium' || diff === 'intermediate') {
+      diff = 'intermediate';
+    } else if (diff === 'Hard' || diff === 'advanced') {
+      diff = 'advanced';
+    } else {
+      diff = 'base';
+    }
+    
+    if (!groups[diff]) {
+      groups[diff] = [];
+    }
+    groups[diff].push({ lvl, index });
+  });
+  
+  // The order of difficulties we want to display
+  const diffOrder = ['base', 'intermediate', 'advanced'];
+  
+  diffOrder.forEach(diffKey => {
+    const items = groups[diffKey];
+    if (items && items.length > 0) {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = t(`difficulty_${diffKey}`);
+      
+      items.forEach(({ lvl, index }) => {
+        const option = document.createElement('option');
+        option.value = index;
+        const isCompleted = completedLevels[lvl.id] || completedLevels[String(lvl.id)];
+        const check = isCompleted ? " 🗝️" : "";
+        const badgeText = t('roomBadge', { id: lvl.id, badge: lvl.badge });
+        option.textContent = `${badgeText}${check}`;
+        optgroup.appendChild(option);
+      });
+      
+      levelSelect.appendChild(optgroup);
+    }
   });
   
   // Set back to current index
@@ -856,19 +1176,26 @@ function updateHeartsDisplay() {
   const display = document.getElementById('hearts-display');
   if (!display) return;
   
+  let completedCount = 0;
   let heartsStr = "";
   LEVELS.forEach(lvl => {
-    if (completedLevels[lvl.id]) {
+    const isCompleted = completedLevels[lvl.id] || completedLevels[String(lvl.id)];
+    if (isCompleted) {
       heartsStr += "❤️";
+      completedCount++;
     } else {
       heartsStr += "🖤";
     }
   });
   
-  if (heartsStr === "🖤🖤🖤🖤🖤") {
-    heartsStr = "❤️🖤🖤🖤🖤";
-  }
+  console.log("❤️ updateHeartsDisplay. completedLevels:", completedLevels, "heartsStr:", heartsStr, "completedCount:", completedCount);
   display.textContent = heartsStr;
+  
+  // Tooltip dinamico e localizzato
+  const tooltipText = currentLanguage === 'it'
+    ? `Stanze completate: ${completedCount} su ${LEVELS.length}`
+    : `Rooms cleared: ${completedCount} of ${LEVELS.length}`;
+  display.title = tooltipText;
 }
 
 function showSuccessModal() {
@@ -995,5 +1322,121 @@ function transpilePythonToJS(pyCode) {
   }
   
   return jsCode;
+}
+
+function exportGameState() {
+  synth.play('click');
+  
+  // Make sure current workspace is auto-saved first
+  if (workspace) {
+    const lvlId = LEVELS[currentLevelIndex].id;
+    if (!levelsCodeCache[lvlId]) {
+      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+    }
+    try {
+      if (Blockly.serialization) {
+        levelsCodeCache[lvlId].blocksState = Blockly.serialization.workspaces.save(workspace);
+      } else {
+        const xml = Blockly.Xml.workspaceToDom(workspace);
+        levelsCodeCache[lvlId].blocksState = Blockly.Xml.domToText(xml);
+      }
+    } catch (e) {
+      console.warn("Failed to serialize workspace on export: ", e);
+    }
+    levelsCodeCache[lvlId].mode = currentMode;
+    
+    const pyTextarea = document.getElementById('python-textarea');
+    if (pyTextarea) {
+      levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
+    }
+  }
+
+  const saveData = {
+    app: "codequest-python",
+    version: 1,
+    timestamp: Date.now(),
+    completedLevels: completedLevels,
+    levelsCode: levelsCodeCache,
+    settings: {
+      language: currentLanguage,
+      currentLevelIndex: currentLevelIndex
+    }
+  };
+
+  const dataStr = JSON.stringify(saveData, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const timestamp = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `codequest_save_${timestamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  appendConsoleLine("💾 " + (currentLanguage === 'it' ? "Stato del gioco esportato con successo!" : "Game state exported successfully!"), "system");
+}
+
+function importGameState(file) {
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      // Simple validation
+      if (data.app !== "codequest-python" || !data.completedLevels || !data.levelsCode) {
+        throw new Error(currentLanguage === 'it' 
+          ? "File di salvataggio non valido o corrotto." 
+          : "Invalid or corrupted save file.");
+      }
+      
+      // Load progress
+      completedLevels = data.completedLevels;
+      levelsCodeCache = data.levelsCode;
+      
+      if (data.settings) {
+        if (data.settings.language) {
+          currentLanguage = data.settings.language;
+          document.getElementById('lang-select').value = currentLanguage;
+        }
+        if (data.settings.currentLevelIndex !== undefined) {
+          currentLevelIndex = data.settings.currentLevelIndex;
+        }
+      }
+      
+      // Persist to local storage
+      saveProgress();
+      localStorage.setItem('codequest_lang', currentLanguage);
+      
+      // Play sound
+      synth.play('win');
+      
+      // Re-initialize UI
+      loadBlocklyLocale(currentLanguage, () => {
+        applyTranslations(currentLanguage);
+        refreshLevelSelector();
+        updateHeartsDisplay();
+        loadLevel(currentLevelIndex);
+        appendConsoleLine("📂 " + (currentLanguage === 'it' ? "Partita caricata con successo!" : "Game state loaded successfully!"), "system");
+      });
+      
+    } catch (err) {
+      synth.play('error');
+      alert((currentLanguage === 'it' ? "Errore nel caricamento del salvataggio: " : "Error loading save file: ") + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 

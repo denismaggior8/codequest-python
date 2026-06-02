@@ -6,6 +6,8 @@ const TRANSLATIONS = {
     logoSub: "EDIZIONE ZELDA",
     heartsTitle: "Cuori Guadagnati",
     resetQuest: "RESETTA QUEST",
+    exportSaveText: "SALVA PARTITA",
+    importSaveText: "CARICA PARTITA",
     
     // Panels
     dungeonQuest: "QUEST DEL DUNGEON",
@@ -59,19 +61,25 @@ const TRANSLATIONS = {
     consolePrintSeal: "⚠️ Quasi fatta, ma non hai eseguito il print() del conteggio delle rupie!",
     consoleFinishIncomplete: "🧭 Link ha finito i movimenti ma non ha raggiunto il portale della Triforza.",
     consoleErrorEmpty: "⚠️ Errore: Il libro degli incantesimi è vuoto!",
+    consoleErrorNoStart: "⚠️ Errore: Il codice deve essere inserito dentro 'def on_start():'!",
     consoleStepMode: "🏁 Modalità passo attivo.",
     consoleCrash: "💥 OUCH! Link ha urtato un muro di pietra. Stanza bloccata.",
     consoleSystemStart: "Sistema inizializzato in {name}...",
     
     // Levels/Blocks UI labels
     roomBadge: "STANZA {id}: {badge}",
-    objectiveLabel: "🎯 OBIETTIVO:"
+    objectiveLabel: "🎯 OBIETTIVO:",
+    difficulty_base: "Livello Base",
+    difficulty_intermediate: "Livello Intermedio",
+    difficulty_advanced: "Livello Avanzato"
   },
   en: {
     // Header
     logoSub: "ZELDA EDITION",
     heartsTitle: "Hearts Earned",
     resetQuest: "RESET QUEST",
+    exportSaveText: "SAVE GAME",
+    importSaveText: "LOAD GAME",
     
     // Panels
     dungeonQuest: "DUNGEON QUEST",
@@ -125,13 +133,17 @@ const TRANSLATIONS = {
     consolePrintSeal: "⚠️ Almost cleared, but you did not print() the rupee count!",
     consoleFinishIncomplete: "🧭 Link finished movements but did not reach the Triforce Gate.",
     consoleErrorEmpty: "⚠️ Error: Spell book is empty!",
+    consoleErrorNoStart: "⚠️ Error: All commands must be placed inside 'def on_start():'!",
     consoleStepMode: "🏁 Spell stepping mode active.",
     consoleCrash: "💥 OOF! Link collided with a stone wall boundary. Sector locked.",
     consoleSystemStart: "System initialized in {name}...",
     
     // Levels/Blocks UI labels
     roomBadge: "ROOM {id}: {badge}",
-    objectiveLabel: "🎯 MISSION:"
+    objectiveLabel: "🎯 MISSION:",
+    difficulty_base: "Basic Level",
+    difficulty_intermediate: "Intermediate Level",
+    difficulty_advanced: "Advanced Level"
   }
 };
 
@@ -139,7 +151,7 @@ let currentLanguage = 'it'; // Default language
 
 function applyTranslations(lang) {
   currentLanguage = lang || 'it';
-  const dict = TRANSLATIONS[currentLanguage];
+  const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['it'];
   
   // Find all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {

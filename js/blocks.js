@@ -25,6 +25,18 @@ function getTooltipText(key) {
 }
 
 // 1. Block Definitions
+Blockly.Blocks['on_start'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("def on_start():");
+    this.appendStatementInput("STACK")
+        .setCheck(null);
+    this.setColour(20);
+    this.setTooltip(() => typeof currentLanguage !== 'undefined' && currentLanguage === 'en' ? "Define what to do when start is pressed." : "Definisci cosa fare quando premi avvia.");
+    this.setHelpUrl("");
+  }
+};
+
 Blockly.Blocks['move_forward'] = {
   init: function() {
     this.appendDummyInput()
@@ -164,4 +176,19 @@ registerPy('text_print', function(block, generator) {
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const msg = gen ? (gen.valueToCode(block, 'TEXT', order) || "''") : "''";
   return 'print(' + msg + ')\n';
+});
+
+registerJS('on_start', function(block, generator) {
+  const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
+  const statements = gen ? (gen.statementToCode(block, 'STACK') || '') : '';
+  return 'function on_start() {\n' + statements + '}\n';
+});
+
+registerPy('on_start', function(block, generator) {
+  const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
+  let statements = gen ? (gen.statementToCode(block, 'STACK') || '') : '';
+  if (!statements.trim()) {
+    statements = '  pass\n';
+  }
+  return 'def on_start():\n' + statements + '\n';
 });

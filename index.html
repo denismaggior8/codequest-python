@@ -41,7 +41,7 @@
     </div>
 
     <div class="header-controls">
-      <div class="hearts-display" title="Hearts Earned" id="hearts-display">❤️❤️❤️❤️❤️</div>
+      <div class="hearts-display" title="Hearts Earned" id="hearts-display">🖤🖤🖤🖤🖤</div>
       
       <!-- Language Selector -->
       <div class="lang-select-container" style="display:inline-block; margin-right: 10px;">
@@ -53,6 +53,12 @@
 
       <button id="sound-btn" class="pixel-btn sound-btn" title="Toggle Sound">🔊</button>
       <button id="help-btn" class="pixel-btn help-btn" title="How to Play">?</button>
+      
+      <!-- Save & Load buttons -->
+      <button id="export-save-btn" class="pixel-btn font-vt" title="Save Game">💾 <span data-i18n="exportSaveText">SALVA PARTITA</span></button>
+      <button id="import-save-btn" class="pixel-btn font-vt" title="Load Game">📂 <span data-i18n="importSaveText">CARICA PARTITA</span></button>
+      <input type="file" id="import-save-file" accept=".json" style="display: none;">
+      
       <button id="reset-progress-btn" data-i18n="resetQuest" class="pixel-btn danger-btn font-vt" title="Reset all achievements">RESETTA QUEST</button>
     </div>
   </header>
@@ -191,7 +197,14 @@
     </div>
   </div>
 
-  <!-- Application Entry Scripts -->
+  <!-- Game Levels -->
+  <script src="js/rooms/room1.js"></script>
+  <script src="js/rooms/room2.js"></script>
+  <script src="js/rooms/room3.js"></script>
+  <script src="js/rooms/room4.js"></script>
+  <script src="js/rooms/room5.js"></script>
+  <script src="js/rooms/room6.js"></script>
+  <script src="js/rooms/room7.js"></script>
   <script src="js/levels.js"></script>
   <script src="js/blocks.js"></script>
   <script src="js/simulator.js"></script>
