@@ -190,3 +190,14 @@ function applyTranslations(lang) {
     updateCrtButtonText();
   }
 }
+
+// Translation interpolation helper
+function t(key, replacements = {}) {
+  const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['it'];
+  let text = dict[key] || TRANSLATIONS['en'][key] || key;
+  for (const placeholder in replacements) {
+    text = text.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
+  }
+  return text;
+}
+

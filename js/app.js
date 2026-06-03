@@ -1,176 +1,4 @@
-// The Legend of Python - Main Controller & Sound Synthesizer (i18n Zelda Theme)
-
-// Synthesizer Engine for retro Zelda sound effects
-class RetroSynth {
-  constructor() {
-    this.ctx = null;
-    this.enabled = true;
-  }
-  
-  init() {
-    if (!this.ctx) {
-      try {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      } catch (e) {
-        console.warn("Web Audio API is not supported or blocked in this browser:", e);
-        this.ctx = null;
-      }
-    }
-  }
-  
-  toggle() {
-    this.enabled = !this.enabled;
-    return this.enabled;
-  }
-  
-  play(type) {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    
-    try {
-      if (this.ctx.state === 'suspended') {
-        this.ctx.resume().catch(e => console.warn("Failed to resume AudioContext:", e));
-      }
-    } catch (e) {
-      console.warn("Error checking AudioContext state:", e);
-      return;
-    }
-    
-    const now = this.ctx.currentTime;
-    
-    switch (type) {
-      case 'click': {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(600, now);
-        osc.frequency.exponentialRampToValueAtTime(1000, now + 0.05);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.05);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.05);
-        break;
-      }
-      case 'step': {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(45, now + 0.08);
-        gain.gain.setValueAtTime(0.18, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.08);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.08);
-        break;
-      }
-      case 'turn': {
-        this.playTone(350, 0.03, 'square', 0.06, now);
-        this.playTone(450, 0.03, 'square', 0.06, now + 0.04);
-        break;
-      }
-      case 'collect': {
-        this.playTone(987.77, 0.07, 'square', 0.07, now); // B5
-        this.playTone(1318.51, 0.22, 'square', 0.07, now + 0.07); // E6
-        break;
-      }
-      case 'win': {
-        // Zelda Secret Discovered Melody (Ascending 8-Note Chime)
-        const notes = [783.99, 739.99, 622.25, 440.00, 415.30, 659.25, 830.61, 1046.50];
-        const tempo = 0.07;
-        notes.forEach((freq, idx) => {
-          this.playTone(freq, 0.06, 'square', 0.08, now + idx * tempo);
-        });
-        break;
-      }
-      case 'crash': {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(160, now);
-        osc.frequency.exponentialRampToValueAtTime(10, now + 0.22);
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.22);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.22);
-        break;
-      }
-      case 'print': {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1400, now);
-        osc.frequency.exponentialRampToValueAtTime(600, now + 0.03);
-        gain.gain.setValueAtTime(0.06, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.03);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.03);
-        break;
-      }
-      case 'error': {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(110, now);
-        osc.frequency.setValueAtTime(100, now + 0.1);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.2);
-        
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.2);
-        break;
-      }
-    }
-  }
-  
-  playTone(freq, duration, type, volume, startTime) {
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, startTime);
-    gain.gain.setValueAtTime(volume, startTime);
-    gain.gain.linearRampToValueAtTime(0, startTime + duration);
-    
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start(startTime);
-    osc.stop(startTime + duration);
-  }
-}
-
-// Global Game State
-const synth = new RetroSynth();
-let currentLevelIndex = 0;
-let workspace = null;
-let simulator = null;
-let completedLevels = {};
-let levelsCodeCache = {};
-let currentMode = 'blocks';
-let isExecutingStart = false;
-
-// Translation interpolation helper
-function t(key, replacements = {}) {
-  const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['it'];
-  let text = dict[key] || TRANSLATIONS['en'][key] || key;
-  for (const placeholder in replacements) {
-    text = text.replace(new RegExp(`{${placeholder}}`, 'g'), replacements[placeholder]);
-  }
-  return text;
-}
+// The Legend of Python - Main App Controller and UI Bindings
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -229,279 +57,302 @@ function setupUIEventListeners() {
   document.addEventListener('click', unlockAudio);
   document.addEventListener('keydown', unlockAudio);
 
-  const prevBtn = document.getElementById('prev-level-btn');
-  const nextBtn = document.getElementById('next-level-btn');
-  const levelSelect = document.getElementById('level-select');
-  const soundBtn = document.getElementById('sound-btn');
-  const helpBtn = document.getElementById('help-btn');
-  const closeHelpBtn = document.getElementById('close-help-btn');
-  const resetProgressBtn = document.getElementById('reset-progress-btn');
-  const langSelect = document.getElementById('lang-select');
-  
-  const exportSaveBtn = document.getElementById('export-save-btn');
-  const importSaveBtn = document.getElementById('import-save-btn');
-  const importSaveFile = document.getElementById('import-save-file');
-  
+  // Playback control button listeners
   const runBtn = document.getElementById('run-btn');
+  if (runBtn) {
+    runBtn.addEventListener('click', () => runProgram());
+  }
+  
   const stopBtn = document.getElementById('stop-btn');
+  if (stopBtn) {
+    stopBtn.addEventListener('click', () => {
+      synth.play('click');
+      simulator.stop();
+      appendConsoleLine("⏹️ " + (currentLanguage === 'it' ? "Simulazione interrotta." : "Simulation stopped."), "system");
+    });
+  }
+  
   const stepBtn = document.getElementById('step-btn');
+  if (stepBtn) {
+    stepBtn.addEventListener('click', () => stepProgram());
+  }
+
+  // Speed slider configuration
   const speedSlider = document.getElementById('speed-slider');
-  
-  const modalRetryBtn = document.getElementById('modal-retry-btn');
-  const modalNextBtn = document.getElementById('modal-next-btn');
-  const copyCodeBtn = document.getElementById('copy-code-btn');
-  
-  // Populate level select dropdown
-  refreshLevelSelector();
-
-  levelSelect.addEventListener('change', (e) => {
-    synth.play('click');
-    loadLevel(parseInt(e.target.value, 10));
-  });
-
-  prevBtn.addEventListener('click', () => {
-    synth.play('click');
-    if (currentLevelIndex > 0) {
-      loadLevel(currentLevelIndex - 1);
-    }
-  });
-
-  nextBtn.addEventListener('click', () => {
-    synth.play('click');
-    if (currentLevelIndex < LEVELS.length - 1) {
-      loadLevel(currentLevelIndex + 1);
-    }
-  });
-
-  soundBtn.addEventListener('click', () => {
-    const isEnabled = synth.toggle();
-    soundBtn.textContent = isEnabled ? '🔊' : '🔇';
-    synth.play('click');
-    localStorage.setItem('codequest_sound', isEnabled ? '1' : '0');
-  });
-  
-  const savedSound = localStorage.getItem('codequest_sound');
-  if (savedSound === '0') {
-    synth.enabled = false;
-    soundBtn.textContent = '🔇';
+  if (speedSlider) {
+    speedSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      let stepDelay = 400;
+      switch (val) {
+        case 1: stepDelay = 800; break;
+        case 2: stepDelay = 600; break;
+        case 3: stepDelay = 400; break;
+        case 4: stepDelay = 200; break;
+        case 5: stepDelay = 80; break;
+      }
+      if (simulator) {
+        simulator.stepDelay = stepDelay;
+      }
+    });
   }
 
-  // CRT Toggle setup
+  // Sound Synth toggle button listener
+  const soundBtn = document.getElementById('sound-btn');
+  if (soundBtn) {
+    soundBtn.addEventListener('click', () => {
+      const enabled = synth.toggle();
+      soundBtn.textContent = enabled ? '🔊' : '🔇';
+      soundBtn.style.opacity = enabled ? '1' : '0.6';
+    });
+  }
+  
+  // CRT visual effects toggler
   const crtBtn = document.getElementById('crt-btn');
-  window.updateCrtButtonText = function() {
-    if (!crtBtn) return;
-    const isOff = document.body.classList.contains('crt-off');
-    crtBtn.textContent = isOff ? t('crtOff') : t('crtOn');
-  };
-  
-  // Set initial CRT state
-  const savedCrt = localStorage.getItem('codequest_crt');
-  if (savedCrt === '0') {
-    document.body.classList.add('crt-off');
-  } else {
-    document.body.classList.remove('crt-off');
-  }
-  updateCrtButtonText();
-
   if (crtBtn) {
+    // Apply initial state from persistence (default ON)
+    const isCrtOn = localStorage.getItem('codequest_crt') !== 'false';
+    if (isCrtOn) {
+      document.body.classList.remove('no-crt');
+    } else {
+      document.body.classList.add('no-crt');
+    }
+    
+    const updateCrtButtonText = () => {
+      const active = !document.body.classList.contains('no-crt');
+      crtBtn.textContent = active ? t('crtOn') : t('crtOff');
+      crtBtn.style.opacity = active ? '1' : '0.6';
+    };
+    window.updateCrtButtonText = updateCrtButtonText;
+    updateCrtButtonText();
+    
     crtBtn.addEventListener('click', () => {
       synth.play('click');
-      const isOff = document.body.classList.toggle('crt-off');
+      document.body.classList.toggle('no-crt');
+      const active = !document.body.classList.contains('no-crt');
+      localStorage.setItem('codequest_crt', String(active));
       updateCrtButtonText();
-      localStorage.setItem('codequest_crt', isOff ? '0' : '1');
     });
   }
 
-  // Language Selector Trigger
-  langSelect.addEventListener('change', (e) => {
-    synth.play('click');
-    currentLanguage = e.target.value;
-    localStorage.setItem('codequest_lang', currentLanguage);
-    
-    // Load Blockly bundle, then re-render workspace
-    loadBlocklyLocale(currentLanguage, () => {
-      applyTranslations(currentLanguage);
-      refreshLevelSelector();
+  // Level selector list listener
+  const levelSelect = document.getElementById('level-select');
+  if (levelSelect) {
+    levelSelect.addEventListener('change', (e) => {
+      synth.play('click');
+      loadLevel(parseInt(e.target.value, 10));
+    });
+  }
+  
+  // Level navigation button listeners
+  const prevBtn = document.getElementById('prev-level-btn');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (currentLevelIndex > 0) {
+        synth.play('click');
+        loadLevel(currentLevelIndex - 1);
+      } else {
+        synth.play('error');
+      }
+    });
+  }
+  
+  const nextBtn = document.getElementById('next-level-btn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentLevelIndex < LEVELS.length - 1) {
+        synth.play('click');
+        loadLevel(currentLevelIndex + 1);
+      } else {
+        synth.play('error');
+      }
+    });
+  }
+
+  // Success Modal navigation buttons
+  const modalNextBtn = document.getElementById('modal-next-btn');
+  if (modalNextBtn) {
+    modalNextBtn.addEventListener('click', () => {
+      document.getElementById('success-modal').classList.add('hidden');
+      if (currentLevelIndex < LEVELS.length - 1) {
+        synth.play('click');
+        loadLevel(currentLevelIndex + 1);
+      } else {
+        synth.play('win');
+      }
+    });
+  }
+  
+  const modalRetryBtn = document.getElementById('modal-retry-btn');
+  if (modalRetryBtn) {
+    modalRetryBtn.addEventListener('click', () => {
+      document.getElementById('success-modal').classList.add('hidden');
+      synth.play('click');
       loadLevel(currentLevelIndex);
     });
-  });
+  }
 
-  // Help Modal
-  helpBtn.addEventListener('click', () => {
-    synth.play('click');
-    document.getElementById('help-modal').classList.remove('hidden');
-  });
-  
-  closeHelpBtn.addEventListener('click', () => {
-    synth.play('click');
-    document.getElementById('help-modal').classList.add('hidden');
-  });
-
-  // Save Game and Load Game Button Triggers
-  if (exportSaveBtn) {
-    exportSaveBtn.addEventListener('click', () => {
-      exportGameState();
+  // Help Modal listeners
+  const helpBtn = document.getElementById('help-btn');
+  if (helpBtn) {
+    helpBtn.addEventListener('click', () => {
+      synth.play('click');
+      document.getElementById('help-modal').classList.remove('hidden');
     });
   }
   
-  if (importSaveBtn && importSaveFile) {
-    importSaveBtn.addEventListener('click', () => {
+  const closeHelpBtn = document.getElementById('close-help-btn');
+  if (closeHelpBtn) {
+    closeHelpBtn.addEventListener('click', () => {
       synth.play('click');
-      importSaveFile.click();
+      document.getElementById('help-modal').classList.add('hidden');
     });
-    
-    importSaveFile.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        importGameState(file);
+  }
+
+  // Export / Import game state triggers
+  const exportBtn = document.getElementById('export-save-btn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => exportGameState());
+  }
+  
+  const importBtn = document.getElementById('import-save-btn');
+  const importFile = document.getElementById('import-save-file');
+  if (importBtn && importFile) {
+    importBtn.addEventListener('click', () => {
+      synth.play('click');
+      importFile.click();
+    });
+    importFile.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        importGameState(e.target.files[0]);
       }
-      importSaveFile.value = '';
     });
   }
 
-  resetProgressBtn.addEventListener('click', () => {
-    const promptMsg = currentLanguage === 'it' 
-      ? "Resettare tutti i progressi? Perderai tutti i tuoi cuori."
-      : "Reset all dungeon achievements? You will lose your hearts.";
-    if (confirm(promptMsg)) {
-      completedLevels = {};
-      levelsCodeCache = {};
-      localStorage.removeItem('codequest_completed');
-      localStorage.removeItem('codequest_levels_code');
-      localStorage.removeItem('codequest_current_level_idx');
-      synth.play('crash');
-      refreshLevelSelector();
-      updateHeartsDisplay();
-      loadLevel(0);
-    }
-  });
-
-  // Simulator controls
-  runBtn.addEventListener('click', () => {
-    runProgram();
-  });
-
-  stopBtn.addEventListener('click', () => {
-    synth.play('click');
-    simulator.stopSimulation();
-    stopBtn.disabled = true;
-    runBtn.disabled = false;
-    stepBtn.disabled = false;
-  });
-
-  stepBtn.addEventListener('click', () => {
-    stepProgram();
-  });
-
-  speedSlider.addEventListener('input', (e) => {
-    simulator.setSpeed(parseInt(e.target.value, 10));
-  });
-
-  // Modal actions
-  modalRetryBtn.addEventListener('click', () => {
-    synth.play('click');
-    document.getElementById('success-modal').classList.add('hidden');
-    loadLevel(currentLevelIndex);
-  });
-
-  modalNextBtn.addEventListener('click', () => {
-    synth.play('click');
-    document.getElementById('success-modal').classList.add('hidden');
-    if (currentLevelIndex < LEVELS.length - 1) {
-      loadLevel(currentLevelIndex + 1);
-    } else {
-      const victoryAlert = currentLanguage === 'it'
-        ? "🗝️ CONGRATULAZIONI! Hai ottenuto tutti i pezzi della Triforza e masterizzato cicli, variabili e logiche in Python! Link ha vinto!"
-        : "🗝️ CONGRATULATIONS! You secured all pieces of the Triforce and mastered Python loops, variables, and logic! Link is victorious!";
-      alert(victoryAlert);
-    }
-  });
-
-  copyCodeBtn.addEventListener('click', () => {
-    const code = document.getElementById('python-output').textContent;
-    navigator.clipboard.writeText(code).then(() => {
-      synth.play('click');
-      const originalText = copyCodeBtn.textContent;
-      copyCodeBtn.textContent = t('copied');
-      setTimeout(() => {
-        copyCodeBtn.textContent = t('copy');
-      }, 1500);
+  // Reset progress listener
+  const resetBtn = document.getElementById('reset-progress-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      const confirmMsg = currentLanguage === 'it'
+        ? "Sei sicuro di voler cancellare TUTTI i tuoi progressi nel gioco? Questa azione non può essere annullata."
+        : "Are you sure you want to reset ALL your achievements and code cache? This action cannot be undone.";
+      
+      if (confirm(confirmMsg)) {
+        synth.play('error');
+        localStorage.removeItem('codequest_completed');
+        localStorage.removeItem('codequest_levels_code');
+        localStorage.removeItem('codequest_current_level_idx');
+        completedLevels = {};
+        levelsCodeCache = {};
+        currentLevelIndex = 0;
+        
+        loadProgress();
+        refreshLevelSelector();
+        updateHeartsDisplay();
+        loadLevel(currentLevelIndex);
+        
+        appendConsoleLine("⚠️ " + (currentLanguage === 'it' ? "Progressi resettati!" : "Achievements reset!"), "error");
+      }
     });
-  });
+  }
 
-  // Mode tabs events (Blocks vs Python Editor)
+  // Tab switcher listeners for Blocks / Code Editor Modes
   const tabBlocks = document.getElementById('tab-blocks');
   const tabPython = document.getElementById('tab-python');
   const blocklyContainer = document.getElementById('blockly-container');
   const editorContainer = document.getElementById('editor-container');
   const pyTextarea = document.getElementById('python-textarea');
+
+  if (tabBlocks && tabPython && blocklyContainer && editorContainer && pyTextarea) {
+    tabBlocks.addEventListener('click', () => {
+      if (LEVELS[currentLevelIndex].pythonOnly) return;
+      
+      synth.play('click');
+      currentMode = 'blocks';
+      tabBlocks.classList.add('active');
+      tabPython.classList.remove('active');
+      blocklyContainer.classList.remove('hidden');
+      editorContainer.classList.add('hidden');
+      
+      // Auto-save active tab change
+      const lvlId = LEVELS[currentLevelIndex].id;
+      if (!levelsCodeCache[lvlId]) {
+        levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+      }
+      levelsCodeCache[lvlId].mode = 'blocks';
+      saveProgress();
+      
+      // Sync python text with blocks
+      updateCodeOutput();
+      
+      // Resize workspace
+      Blockly.svgResize(workspace);
+    });
+
+    tabPython.addEventListener('click', () => {
+      synth.play('click');
+      currentMode = 'python';
+      tabPython.classList.add('active');
+      tabBlocks.classList.remove('active');
+      blocklyContainer.classList.add('hidden');
+      editorContainer.classList.remove('hidden');
+      
+      // Auto-save active tab change
+      const lvlId = LEVELS[currentLevelIndex].id;
+      if (!levelsCodeCache[lvlId]) {
+        levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
+      }
+      levelsCodeCache[lvlId].mode = 'python';
+      levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
+      saveProgress();
+      
+      // Focus and update line numbers
+      pyTextarea.focus();
+      updateLineNumbers();
+      updateCodeOutput();
+    });
+  }
   
-  tabBlocks.addEventListener('click', () => {
-    if (currentMode === 'blocks') return;
-    synth.play('click');
-    
-    // Check if user changed the code in python mode
-    const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
-    const blocksCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
-    const textareaCode = pyTextarea.value;
-    
-    if (blocksCode.trim() !== textareaCode.trim()) {
-      const confirmMsg = currentLanguage === 'it'
-        ? "Attenzione: Passando alla modalità Blocchi perderai le modifiche scritte a testo in Python. Vuoi continuare?"
-        : "Warning: Switching back to Blocks will discard changes you wrote in Python. Do you want to continue?";
-      if (!confirm(confirmMsg)) return;
-    }
-    
-    currentMode = 'blocks';
-    tabBlocks.classList.add('active');
-    tabPython.classList.remove('active');
-    
-    blocklyContainer.classList.remove('hidden');
-    editorContainer.classList.add('hidden');
-    
-    // Auto-save active tab change
-    const lvlId = LEVELS[currentLevelIndex].id;
-    if (!levelsCodeCache[lvlId]) {
-      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
-    }
-    levelsCodeCache[lvlId].mode = 'blocks';
-    saveProgress();
-    
-    // Refresh workspace size
-    Blockly.svgResize(workspace);
-    updateCodeOutput();
-  });
+  // Language Selector trigger
+  const langSelect = document.getElementById('lang-select');
+  if (langSelect) {
+    langSelect.addEventListener('change', (e) => {
+      synth.play('click');
+      const newLang = e.target.value;
+      localStorage.setItem('codequest_lang', newLang);
+      
+      loadBlocklyLocale(newLang, () => {
+        applyTranslations(newLang);
+        refreshLevelSelector();
+        updateHeartsDisplay();
+        loadLevel(currentLevelIndex);
+      });
+    });
+  }
   
-  tabPython.addEventListener('click', () => {
-    if (currentMode === 'python') return;
-    synth.play('click');
-    
-    currentMode = 'python';
-    tabPython.classList.add('active');
-    tabBlocks.classList.remove('active');
-    
-    blocklyContainer.classList.add('hidden');
-    editorContainer.classList.remove('hidden');
-    
-    // Populate textarea with current blocks code
-    const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
-    const blocksCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
-    pyTextarea.value = blocksCode;
-    
-    // Auto-save active tab change
-    const lvlId = LEVELS[currentLevelIndex].id;
-    if (!levelsCodeCache[lvlId]) {
-      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
-    }
-    levelsCodeCache[lvlId].mode = 'python';
-    levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
-    saveProgress();
-    
-    // Focus and update line numbers
-    pyTextarea.focus();
-    updateLineNumbers();
-    updateCodeOutput();
-  });
+  // Copy to clipboard helper
+  const copyBtn = document.getElementById('copy-code-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      let code = '';
+      if (currentMode === 'blocks') {
+        const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+        code = pyGen ? pyGen.workspaceToCode(workspace) : '';
+      } else {
+        code = pyTextarea.value;
+      }
+      
+      navigator.clipboard.writeText(code).then(() => {
+        synth.play('win');
+        copyBtn.textContent = t('copied');
+        setTimeout(() => {
+          copyBtn.textContent = t('copy');
+        }, 1500);
+      }).catch(err => {
+        synth.play('error');
+        console.error("Failed to copy code: ", err);
+      });
+    });
+  }
   
   // Textarea input event for line numbers and output highlights
   pyTextarea.addEventListener('input', () => {
@@ -850,150 +701,15 @@ function onResizeWorkspace() {
   }
 }
 
-// Code Highlighter
-function updateCodeOutput() {
-  const outputEl = document.getElementById('python-output');
-  if (!outputEl) return;
-  
-  if (currentMode === 'python') {
-    const pyCode = document.getElementById('python-textarea').value;
-    if (pyCode.trim() === "") {
-      outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
-      return;
-    }
-    outputEl.innerHTML = highlightPython(pyCode);
-    return;
-  }
-  
-  const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
-  const code = pyGen ? pyGen.workspaceToCode(workspace) : '';
-  
-  if (code.trim() === "") {
-    outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
-    return;
-  }
-  
-  outputEl.innerHTML = highlightPython(code);
-}
-
-function highlightPython(code) {
-  const strings = [];
-  const comments = [];
-  
-  // 1. Protect strings
-  let processed = code.replace(/(['"])(.*?)\1/g, (match) => {
-    strings.push(match);
-    return `__STR_PLACEHOLDER_${strings.length - 1}__`;
-  });
-  
-  // 2. Protect comments
-  processed = processed.replace(/(#[^\n]*)/g, (match) => {
-    comments.push(match);
-    return `__COM_PLACEHOLDER_${comments.length - 1}__`;
-  });
-  
-  // 3. Highlight functions
-  const funcs = ['hero\\.move_forward', 'hero\\.collect_rupee', 'hero\\.turn_left', 'hero\\.turn_right', 'hero\\.scan_ahead', 'print', 'hero\\.unlock_gate'];
-  funcs.forEach(f => {
-    const regex = new RegExp('\\b(' + f + ')\\b', 'g');
-    processed = processed.replace(regex, '__FUNC_START__$1__FUNC_END__');
-  });
-  
-  // 4. Highlight keywords
-  const keywords = ['def', 'for', 'in', 'range', 'if', 'else', 'while', 'return', 'pass'];
-  keywords.forEach(kw => {
-    const regex = new RegExp('\\b(' + kw + ')\\b', 'g');
-    processed = processed.replace(regex, '__KW_START__$1__KW_END__');
-  });
-  
-  // 5. Highlight numbers
-  processed = processed.replace(/\b(\d+)\b/g, '__NUM_START__$1__NUM_END__');
-  
-  // 6. Escape HTML characters
-  let escaped = processed
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-  
-  // 7. Replace placeholders with actual HTML spans
-  escaped = escaped.replace(/__KW_START__(.*?)__KW_END__/g, '<span class="py-kw">$1</span>');
-  escaped = escaped.replace(/__FUNC_START__(.*?)__FUNC_END__/g, '<span class="py-func">$1</span>');
-  escaped = escaped.replace(/__NUM_START__(.*?)__NUM_END__/g, '<span class="py-num">$1</span>');
-  
-  escaped = escaped.replace(/__STR_PLACEHOLDER_(\d+)__/g, (match, id) => {
-    const originalStr = strings[parseInt(id)];
-    const escapedStr = originalStr
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    return `<span class="py-str">${escapedStr}</span>`;
-  });
-  
-  escaped = escaped.replace(/__COM_PLACEHOLDER_(\d+)__/g, (match, id) => {
-    const originalCom = comments[parseInt(id)];
-    const escapedCom = originalCom
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    return `<span class="py-comment">${escapedCom}</span>`;
-  });
-  
-  return escaped;
-}
-
-function validateLevelConstructs(level) {
-  let hasIf = false;
-  let hasLoop = false;
-  let hasDef = false;
-
-  if (currentMode === 'blocks') {
-    if (typeof workspace !== 'undefined' && workspace) {
-      const blocks = workspace.getAllBlocks(false);
-      hasIf = blocks.some(b => b.type === 'controls_if');
-      hasLoop = blocks.some(b => ['controls_repeat_ext', 'controls_repeat', 'controls_whileUntil', 'controls_for'].includes(b.type));
-      hasDef = blocks.some(b => ['procedures_defnoreturn', 'procedures_defreturn'].includes(b.type));
-    }
-  } else {
-    const pyTextarea = document.getElementById('python-textarea');
-    const pyCode = pyTextarea ? pyTextarea.value : '';
-    // Strip comments to prevent cheating
-    const lines = pyCode.split('\n').map(line => {
-      const hashIdx = line.indexOf('#');
-      return hashIdx === -1 ? line : line.substring(0, hashIdx);
-    });
-    const cleanCode = lines.join('\n');
-    
-    hasIf = /\bif\b/.test(cleanCode) || /\belif\b/.test(cleanCode);
-    hasLoop = /\bfor\b/.test(cleanCode) || /\bwhile\b/.test(cleanCode);
-    hasDef = /\bdef\b/.test(cleanCode);
-  }
-
-  if (level.requireConditional && !hasIf) {
-    return t('consoleErrorRequireConditional');
-  }
-  if (level.requireLoop && !hasLoop) {
-    return t('consoleErrorRequireLoop');
-  }
-  if (level.requireFunction && !hasDef) {
-    return t('consoleErrorRequireFunction');
-  }
-
-  return null;
-}
-
 function getLevelDisplayId(level) {
-  if (typeof level.id === 'string') {
-    const match = level.id.match(/room(\d+)$/i);
-    if (match) {
-      return match[1];
-    }
-    return level.id;
-  }
-  return level.id;
+  const idx = LEVELS.indexOf(level);
+  return idx !== -1 ? String(idx + 1) : "";
 }
 
 function appendConsoleLine(text, styleClass) {
   const consoleEl = document.getElementById('terminal-console');
+  if (!consoleEl) return;
+  
   const line = document.createElement('div');
   line.className = `terminal-line ${styleClass || ''}`;
   line.textContent = text;
@@ -1001,197 +717,6 @@ function appendConsoleLine(text, styleClass) {
   consoleEl.scrollTop = consoleEl.scrollHeight;
 }
 
-// Motore Python Pyodide in-browser runtime
-let pyodideInstance = null;
-let pyodideLoading = false;
-
-async function getPyodide() {
-  if (pyodideInstance) return pyodideInstance;
-  if (pyodideLoading) {
-    while (pyodideLoading) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    return pyodideInstance;
-  }
-  
-  pyodideLoading = true;
-  appendConsoleLine(currentLanguage === 'it' ? "🔮 Caricamento motore Python (Pyodide)..." : "🔮 Loading Python engine (Pyodide)...", "system");
-  
-  try {
-    if (!window.loadPyodide) {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-    
-    pyodideInstance = await loadPyodide();
-    
-    appendConsoleLine(currentLanguage === 'it' ? "📦 Installazione libreria 'enigmapython'..." : "📦 Installing library 'enigmapython'...", "system");
-    await pyodideInstance.loadPackage("micropip");
-    const micropip = pyodideInstance.pyimport("micropip");
-    await micropip.install("enigmapython");
-    
-    appendConsoleLine(currentLanguage === 'it' ? "✨ Motore Python pronto!" : "✨ Python engine ready!", "system");
-  } catch (err) {
-    appendConsoleLine(currentLanguage === 'it' ? `❌ Errore avvio motore Python: ${err.message}` : `❌ Python engine startup error: ${err.message}`, "error");
-    console.error(err);
-    pyodideInstance = null;
-  } finally {
-    pyodideLoading = false;
-  }
-  
-  return pyodideInstance;
-}
-
-async function compileActionQueuePyodide(pyCode) {
-  const actionQueue = [];
-  const level = LEVELS[currentLevelIndex];
-  
-  const shadowRobot = {
-    x: level.startX,
-    y: level.startY,
-    dir: level.startDir,
-    grid: JSON.parse(JSON.stringify(level.grid)),
-    crystals: JSON.parse(JSON.stringify(simulator.crystals)),
-    crashed: false
-  };
-  
-  const pyodide = await getPyodide();
-  if (!pyodide) {
-    throw new Error(currentLanguage === 'it' ? "Impossibile caricare il motore Python." : "Unable to load Python engine.");
-  }
-  
-  // Define hero JS callbacks exposed to Pyodide
-  const heroJS = {
-    move_forward: () => {
-      if (shadowRobot.crashed) return;
-      let nextX = shadowRobot.x;
-      let nextY = shadowRobot.y;
-      switch (shadowRobot.dir) {
-        case 0: nextX++; break;
-        case 1: nextY++; break;
-        case 2: nextX--; break;
-        case 3: nextY--; break;
-      }
-      if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
-        shadowRobot.crashed = true;
-      } else if (shadowRobot.grid[nextY][nextX] === 1) {
-        shadowRobot.crashed = true;
-      } else {
-        shadowRobot.x = nextX;
-        shadowRobot.y = nextY;
-      }
-      actionQueue.push({ type: 'MOVE_FORWARD' });
-    },
-    turn_left: () => {
-      if (shadowRobot.crashed) return;
-      shadowRobot.dir = (shadowRobot.dir + 3) % 4;
-      actionQueue.push({ type: 'TURN_LEFT' });
-    },
-    turn_right: () => {
-      if (shadowRobot.crashed) return;
-      shadowRobot.dir = (shadowRobot.dir + 1) % 4;
-      actionQueue.push({ type: 'TURN_RIGHT' });
-    },
-    collect_rupee: () => {
-      if (shadowRobot.crashed) return;
-      const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
-      if (rupee) {
-        rupee.collected = true;
-      }
-      actionQueue.push({ type: 'COLLECT' });
-    },
-    scan_ahead: () => {
-      if (shadowRobot.crashed) return 'obstacle';
-      let nextX = shadowRobot.x;
-      let nextY = shadowRobot.y;
-      switch (shadowRobot.dir) {
-        case 0: nextX++; break;
-        case 1: nextY++; break;
-        case 2: nextX--; break;
-        case 3: nextY--; break;
-      }
-      if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
-        return "obstacle";
-      }
-      const tile = shadowRobot.grid[nextY][nextX];
-      if (tile === 1) return "obstacle";
-      if (tile === 2) return "portal";
-      const rupee = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
-      if (rupee) return "crystal";
-      return "empty";
-    },
-    unlock_gate: (code) => {
-      if (shadowRobot.crashed) return;
-      actionQueue.push({ type: 'UNLOCK_GATE', code: String(code) });
-      if (code && String(code).toLowerCase().trim() === "triforza") {
-        const gateX = level.gateX !== undefined ? level.gateX : 2;
-        const gateY = level.gateY !== undefined ? level.gateY : 1;
-        shadowRobot.grid[gateY][gateX] = 0;
-      }
-    },
-    print_queue: (msg) => {
-      actionQueue.push({ type: 'PRINT', message: String(msg) });
-    }
-  };
-  
-  globalThis.hero_js = heroJS;
-  
-  try {
-    const setupPyCode = `
-import sys
-from js import hero_js
-
-class HeroWrapper:
-    def move_forward(self):
-        hero_js.move_forward()
-    def turn_left(self):
-        hero_js.turn_left()
-    def turn_right(self):
-        hero_js.turn_right()
-    def collect_rupee(self):
-        hero_js.collect_rupee()
-    def scan_ahead(self):
-        return hero_js.scan_ahead()
-    def unlock_gate(self, code):
-        hero_js.unlock_gate(code)
-
-hero = HeroWrapper()
-
-class QueueWriter:
-    def write(self, text):
-        if text and text != '\\n':
-            for line in text.split('\\n'):
-                if line:
-                    hero_js.print_queue(line)
-    def flush(self):
-        pass
-
-sys.stdout = QueueWriter()
-`;
-    pyodide.runPython(setupPyCode);
-    
-    // Exec code in Pyodide
-    pyodide.runPython(pyCode);
-    
-    const hasOnStart = pyodide.runPython("'on_start' in globals() and callable(globals()['on_start'])");
-    if (hasOnStart) {
-      pyodide.runPython("on_start()");
-    } else {
-      actionQueue.push({ type: 'PRINT', message: t('consoleErrorNoStart') });
-    }
-  } finally {
-    delete globalThis.hero_js;
-  }
-  
-  return actionQueue;
-}
-
-// Code evaluation
 async function runProgram() {
   const level = LEVELS[currentLevelIndex];
   let actionQueue = [];
@@ -1307,422 +832,6 @@ async function stepProgram() {
   simulator.executeNextAction();
 }
 
-function compileActionQueue(jsCode) {
-  const actionQueue = [];
-  const level = LEVELS[currentLevelIndex];
-  
-  const shadowRobot = {
-    x: level.startX,
-    y: level.startY,
-    dir: level.startDir,
-    grid: JSON.parse(JSON.stringify(level.grid)),
-    crystals: JSON.parse(JSON.stringify(simulator.crystals)),
-    crashed: false
-  };
-  
-  globalThis.moveForward = () => {
-    if (!isExecutingStart) return;
-    if (shadowRobot.crashed) return;
-    
-    let nextX = shadowRobot.x;
-    let nextY = shadowRobot.y;
-    switch (shadowRobot.dir) {
-      case 0: nextX++; break;
-      case 1: nextY++; break;
-      case 2: nextX--; break;
-      case 3: nextY--; break;
-    }
-    
-    if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
-      shadowRobot.crashed = true;
-    } else if (shadowRobot.grid[nextY][nextX] === 1) {
-      shadowRobot.crashed = true;
-    } else {
-      shadowRobot.x = nextX;
-      shadowRobot.y = nextY;
-    }
-    actionQueue.push({ type: 'MOVE_FORWARD' });
-  };
-  
-  globalThis.turnLeft = () => {
-    if (!isExecutingStart) return;
-    if (shadowRobot.crashed) return;
-    shadowRobot.dir = (shadowRobot.dir + 3) % 4;
-    actionQueue.push({ type: 'TURN_LEFT' });
-  };
-  
-  globalThis.turnRight = () => {
-    if (!isExecutingStart) return;
-    if (shadowRobot.crashed) return;
-    shadowRobot.dir = (shadowRobot.dir + 1) % 4;
-    actionQueue.push({ type: 'TURN_RIGHT' });
-  };
-  
-  globalThis.collectRupee = () => {
-    if (!isExecutingStart) return;
-    if (shadowRobot.crashed) return;
-    const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
-    if (rupee) {
-      rupee.collected = true;
-    }
-    actionQueue.push({ type: 'COLLECT' });
-  };
-  
-  globalThis.scanAhead = () => {
-    if (!isExecutingStart) return "obstacle";
-    if (shadowRobot.crashed) return 'obstacle';
-    
-    let nextX = shadowRobot.x;
-    let nextY = shadowRobot.y;
-    switch (shadowRobot.dir) {
-      case 0: nextX++; break;
-      case 1: nextY++; break;
-      case 2: nextX--; break;
-      case 3: nextY--; break;
-    }
-    
-    if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
-      return "obstacle";
-    }
-    
-    const tile = shadowRobot.grid[nextY][nextX];
-    if (tile === 1) return "obstacle";
-    if (tile === 2) return "portal";
-    
-    const rupee = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
-    if (rupee) return "crystal";
-    
-    return "empty";
-  };
-  
-  globalThis.printConsole = (msg) => {
-    if (!isExecutingStart) return;
-    actionQueue.push({ type: 'PRINT', message: String(msg) });
-  };
-  
-  globalThis.unlockGate = (code) => {
-    if (!isExecutingStart) return;
-    if (shadowRobot.crashed) return;
-    actionQueue.push({ type: 'UNLOCK_GATE', code: String(code) });
-    if (code && String(code).toLowerCase().trim() === "triforza") {
-      const gateX = level.gateX !== undefined ? level.gateX : 2;
-      const gateY = level.gateY !== undefined ? level.gateY : 1;
-      shadowRobot.grid[gateY][gateX] = 0;
-    }
-  };
-  
-  globalThis.hero = {
-    move_forward: () => globalThis.moveForward(),
-    collect_rupee: () => globalThis.collectRupee(),
-    turn_left: () => globalThis.turnLeft(),
-    turn_right: () => globalThis.turnRight(),
-    scan_ahead: () => globalThis.scanAhead(),
-    unlock_gate: (code) => globalThis.unlockGate(code)
-  };
-  
-  globalThis.SwappablePlugboard = class SwappablePlugboard {
-    constructor() {
-      this.swaps = {};
-    }
-    swap(c1, c2) {
-      this.swaps[c1] = c2;
-      this.swaps[c2] = c1;
-    }
-  };
-  globalThis.EnigmaM3RotorI = class EnigmaM3RotorI {
-    constructor(pos, ring) {
-      this.pos = pos;
-      this.ring = ring;
-    }
-  };
-  globalThis.EnigmaM3RotorII = class EnigmaM3RotorII {
-    constructor(pos, ring) {
-      this.pos = pos;
-      this.ring = ring;
-    }
-  };
-  globalThis.EnigmaM3RotorIII = class EnigmaM3RotorIII {
-    constructor(pos, ring) {
-      this.pos = pos;
-      this.ring = ring;
-    }
-  };
-  globalThis.ReflectorUKWB = class ReflectorUKWB {};
-  globalThis.EtwPassthrough = class EtwPassthrough {};
-  globalThis.EnigmaM3 = class EnigmaM3 {
-    constructor(plugboard, rotor3, rotor2, rotor1, reflector, etw, auto) {
-      this.plugboard = plugboard;
-      this.rotor3 = rotor3;
-      this.rotor2 = rotor2;
-      this.rotor1 = rotor1;
-      this.reflector = reflector;
-      this.etw = etw;
-      this.auto = auto;
-    }
-    input_string(text) {
-      const pbOk = this.plugboard && this.plugboard.swaps &&
-                   ((this.plugboard.swaps['a'] === 'z' && this.plugboard.swaps['z'] === 'a'));
-      const r1Ok = this.rotor1 && this.rotor1.pos === 1 && this.rotor1.ring === 4;
-      const r2Ok = this.rotor2 && this.rotor2.pos === 1 && this.rotor2.ring === 2;
-      const r3Ok = this.rotor3 && this.rotor3.pos === 1 && this.rotor3.ring === 6;
-      if (text === "codjzbcl" && pbOk && r1Ok && r2Ok && r3Ok) {
-        return "triforza";
-      }
-      return "";
-    }
-  };
-  
-  try {
-    const boundJsCode = jsCode + "\n; if (typeof on_start === 'function') { globalThis.on_start = on_start; }";
-    eval(boundJsCode);
-    
-    // Check if on_start function is defined either locally or globally
-    let startFn = null;
-    if (typeof on_start === 'function') {
-      startFn = on_start;
-    } else if (typeof globalThis.on_start === 'function') {
-      startFn = globalThis.on_start;
-    }
-    
-    if (startFn) {
-      isExecutingStart = true;
-      startFn();
-    } else {
-      appendConsoleLine(t('consoleErrorNoStart'), "error");
-    }
-  } catch (err) {
-    console.error("Evaluation error: ", err);
-    actionQueue.push({ type: 'PRINT', message: `❌ Runtime error: ${err.message}` });
-  } finally {
-    isExecutingStart = false;
-  }
-  
-  delete globalThis.moveForward;
-  delete globalThis.turnLeft;
-  delete globalThis.turnRight;
-  delete globalThis.collectRupee;
-  delete globalThis.scanAhead;
-  delete globalThis.printConsole;
-  delete globalThis.unlockGate;
-  delete globalThis.hero;
-  delete globalThis.on_start;
-  delete globalThis.SwappablePlugboard;
-  delete globalThis.EnigmaM3RotorI;
-  delete globalThis.EnigmaM3RotorII;
-  delete globalThis.EnigmaM3RotorIII;
-  delete globalThis.ReflectorUKWB;
-  delete globalThis.EtwPassthrough;
-  delete globalThis.EnigmaM3;
-  
-  return actionQueue;
-}
-
-// Save achievements & progress helper
-// Save achievements & progress helper
-function saveProgress() {
-  try {
-    localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
-  } catch (e) {
-    console.error("Failed to save codequest_completed:", e);
-  }
-  
-  try {
-    localStorage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
-  } catch (e) {
-    console.error("Failed to save codequest_levels_code:", e);
-  }
-  
-  try {
-    localStorage.setItem('codequest_current_level_idx', currentLevelIndex);
-  } catch (e) {
-    console.error("Failed to save codequest_current_level_idx:", e);
-  }
-  
-  console.log("💾 saveProgress executed. completedLevels:", completedLevels, "levelsCodeCache keys:", Object.keys(levelsCodeCache), "currentLevelIndex:", currentLevelIndex);
-}
-
-function markLevelCompleted(levelId) {
-  console.log("🏆 markLevelCompleted called with id:", levelId);
-  completedLevels[levelId] = true;
-  completedLevels[String(levelId)] = true;
-  
-  saveProgress();
-  refreshLevelSelector();
-  updateHeartsDisplay();
-}
-
-function migrateOldSaveData() {
-  const mapping = {
-    "1": "sequences/room1",
-    "2": "variables/room1",
-    "3": "conditionals/room1",
-    "4": "loops/room1",
-    "5": "functions/room1",
-    "6": "lists/room1",
-    "7": "recursion/room1"
-  };
-
-  let migratedCompleted = false;
-  for (const oldId in mapping) {
-    const newId = mapping[oldId];
-    if (completedLevels[oldId] && !completedLevels[newId]) {
-      completedLevels[newId] = true;
-      migratedCompleted = true;
-    }
-  }
-
-  let migratedCode = false;
-  for (const oldId in mapping) {
-    const newId = mapping[oldId];
-    if (levelsCodeCache[oldId] && !levelsCodeCache[newId]) {
-      levelsCodeCache[newId] = levelsCodeCache[oldId];
-      migratedCode = true;
-    }
-  }
-
-  if (migratedCompleted || migratedCode) {
-    console.log("🔄 Migrated old numeric save data keys to new string path namespaces.");
-    try {
-      localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
-      localStorage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
-    } catch (e) {
-      console.warn("Failed to write migrated data: ", e);
-    }
-  }
-}
-
-function loadProgress() {
-  const progressStr = localStorage.getItem('codequest_completed');
-  if (progressStr) {
-    try {
-      completedLevels = JSON.parse(progressStr);
-      console.log("📂 loadProgress parsed completedLevels:", completedLevels);
-    } catch (e) {
-      console.error("Failed to parse codequest_completed JSON:", e);
-      completedLevels = {};
-    }
-  } else {
-    completedLevels = {};
-  }
-  
-  const savedCodeStr = localStorage.getItem('codequest_levels_code');
-  if (savedCodeStr) {
-    try {
-      levelsCodeCache = JSON.parse(savedCodeStr);
-    } catch (e) {
-      console.error("Failed to parse codequest_levels_code JSON:", e);
-      levelsCodeCache = {};
-    }
-  } else {
-    levelsCodeCache = {};
-  }
-  
-  const savedLvlIdx = localStorage.getItem('codequest_current_level_idx');
-  if (savedLvlIdx !== null) {
-    currentLevelIndex = parseInt(savedLvlIdx, 10);
-    // Boundary check
-    if (isNaN(currentLevelIndex) || currentLevelIndex < 0 || currentLevelIndex >= LEVELS.length) {
-      currentLevelIndex = 0;
-    }
-  }
-  
-  migrateOldSaveData();
-  console.log("📂 loadProgress complete. completedLevels:", completedLevels, "currentLevelIndex:", currentLevelIndex);
-}
-
-// Refresh checkmarks
-function refreshLevelSelector() {
-  const levelSelect = document.getElementById('level-select');
-  if (!levelSelect) return;
-  
-  levelSelect.innerHTML = '';
-  
-  // Group levels by difficulty
-  const groups = {};
-  LEVELS.forEach((lvl, index) => {
-    let diff = lvl.difficulty || 'base';
-    // Normalize difficulty names to handle cached files robustly
-    if (diff === 'Easy' || diff === 'base') {
-      diff = 'base';
-    } else if (diff === 'Medium' || diff === 'intermediate') {
-      diff = 'intermediate';
-    } else if (diff === 'Hard' || diff === 'advanced') {
-      diff = 'advanced';
-    } else {
-      diff = 'base';
-    }
-    
-    if (!groups[diff]) {
-      groups[diff] = [];
-    }
-    groups[diff].push({ lvl, index });
-  });
-  
-  // The order of difficulties we want to display
-  const diffOrder = ['base', 'intermediate', 'advanced'];
-  
-  diffOrder.forEach(diffKey => {
-    const items = groups[diffKey];
-    if (items && items.length > 0) {
-      const optgroup = document.createElement('optgroup');
-      optgroup.label = t(`difficulty_${diffKey}`);
-      
-      items.forEach(({ lvl, index }) => {
-        const option = document.createElement('option');
-        option.value = index;
-        const isCompleted = completedLevels[lvl.id] || completedLevels[String(lvl.id)];
-        const check = isCompleted ? " 🗝️" : "";
-        option.textContent = `${lvl.id}${check}`;
-        optgroup.appendChild(option);
-      });
-      
-      levelSelect.appendChild(optgroup);
-    }
-  });
-  
-  // Set back to current index
-  levelSelect.value = currentLevelIndex;
-}
-
-function updateHeartsDisplay() {
-  const display = document.getElementById('hearts-display');
-  if (!display) return;
-  
-  // Group levels by topic (badge) in order of appearance
-  const topics = [];
-  LEVELS.forEach(lvl => {
-    if (!topics.includes(lvl.badge)) {
-      topics.push(lvl.badge);
-    }
-  });
-  
-  let completedTopicsCount = 0;
-  let heartsStr = "";
-  
-  topics.forEach(topic => {
-    const topicLevels = LEVELS.filter(lvl => lvl.badge === topic);
-    const allCompleted = topicLevels.every(lvl => {
-      return completedLevels[lvl.id] || completedLevels[String(lvl.id)];
-    });
-    
-    if (allCompleted) {
-      heartsStr += "❤️";
-      completedTopicsCount++;
-    } else {
-      heartsStr += "🖤";
-    }
-  });
-  
-  console.log("❤️ updateHeartsDisplay. completedLevels:", completedLevels, "heartsStr:", heartsStr, "completedTopicsCount:", completedTopicsCount);
-  display.textContent = heartsStr;
-  
-  // Tooltip dinamico e localizzato per argomenti completati
-  const tooltipText = currentLanguage === 'it'
-    ? `Argomenti completati: ${completedTopicsCount} su ${topics.length}`
-    : `Topics completed: ${completedTopicsCount} of ${topics.length}`;
-  display.title = tooltipText;
-}
-
 function showSuccessModal() {
   const level = LEVELS[currentLevelIndex];
   let pyCode = '';
@@ -1734,8 +843,8 @@ function showSuccessModal() {
   }
   
   const successText = currentLanguage === 'it'
-    ? `Link ha sbloccato con successo la Stanza ${getLevelDisplayId(level)} e ha ottenuto il frammento della Triforza!`
-    : `Link successfully unlocked Room ${getLevelDisplayId(level)} and secured the Triforce piece!`;
+    ? `Link ha sbloccato con successo la Stanza ${level.id} e ha ottenuto il frammento della Triforza!`
+    : `Link successfully unlocked Room ${level.id} and secured the Triforce piece!`;
   
   document.getElementById('success-message').textContent = successText;
   document.getElementById('success-code-text').textContent = pyCode || 'No spells cast.';
@@ -1755,377 +864,3 @@ function updateLineNumbers() {
   }
   lineNumbers.textContent = numStr;
 }
-
-function translateTernaryInLine(line) {
-  while (true) {
-    const ifMatch = line.match(/\bif\b/);
-    const elseMatchActual = line.match(/\belse\b/);
-    
-    if (!ifMatch || !elseMatchActual) {
-      break;
-    }
-    
-    const ifIdx = ifMatch.index;
-    const elseIdx = elseMatchActual.index;
-    
-    if (ifIdx > elseIdx) {
-      break;
-    }
-    
-    const B = line.substring(ifIdx + ifMatch[0].length, elseIdx).trim();
-    
-    // Scan left to find A
-    let parenDepth = 0;
-    let bracketDepth = 0;
-    let leftIdx = ifIdx;
-    while (leftIdx > 0) {
-      leftIdx--;
-      const char = line[leftIdx];
-      if (char === ')') parenDepth++;
-      else if (char === '(') {
-        if (parenDepth === 0) {
-          leftIdx++;
-          break;
-        }
-        parenDepth--;
-      }
-      else if (char === ']') bracketDepth++;
-      else if (char === '[') {
-        if (bracketDepth === 0) {
-          leftIdx++;
-          break;
-        }
-        bracketDepth--;
-      }
-      else if (parenDepth === 0 && bracketDepth === 0) {
-        if (char === '=' || char === ',' || char === ';' || char === ':') {
-          leftIdx++;
-          break;
-        }
-      }
-    }
-    const A = line.substring(leftIdx, ifIdx).trim();
-    
-    // Scan right to find C
-    parenDepth = 0;
-    bracketDepth = 0;
-    const startC = elseIdx + elseMatchActual[0].length;
-    let rightIdx = startC;
-    while (rightIdx < line.length) {
-      const char = line[rightIdx];
-      if (char === '(') parenDepth++;
-      else if (char === ')') {
-        if (parenDepth === 0) {
-          break;
-        }
-        parenDepth--;
-      }
-      else if (char === '[') bracketDepth++;
-      else if (char === ']') {
-        if (bracketDepth === 0) {
-          break;
-        }
-        bracketDepth--;
-      }
-      else if (parenDepth === 0 && bracketDepth === 0) {
-        if (char === ',' || char === ';') {
-          break;
-        }
-      }
-      rightIdx++;
-    }
-    const C = line.substring(startC, rightIdx).trim();
-    
-    const jsTernary = `(${B} ? ${A} : ${C})`;
-    line = line.substring(0, leftIdx) + jsTernary + line.substring(rightIdx);
-  }
-  return line;
-}
-
-// Simple Python-to-JavaScript Transpiler
-function transpilePythonToJS(pyCode) {
-  const lines = pyCode.split('\n');
-  let jsCode = '';
-  let indentStack = [0];
-  
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
-    
-    // Measure indentation on the original line
-    const match = line.match(/^(\s*)/);
-    const currentIndent = match ? match[1].length : 0;
-    
-    // Extract strings to prevent transpiling keywords inside them
-    const strings = [];
-    let processedLine = line.replace(/(['"])(.*?)\1/g, (match) => {
-      strings.push(match);
-      return `__STR_${strings.length - 1}__`;
-    });
-    
-    // Handle comments: replace '#' with '//' in the code portion
-    let comment = '';
-    const hashIdx = processedLine.indexOf('#');
-    if (hashIdx !== -1) {
-      comment = '//' + processedLine.substring(hashIdx + 1);
-      processedLine = processedLine.substring(0, hashIdx);
-    }
-    
-    let content = processedLine.trim();
-    
-    // If indentation decreased, close braces
-    while (indentStack[indentStack.length - 1] > currentIndent) {
-      indentStack.pop();
-      jsCode += ' '.repeat(indentStack[indentStack.length - 1]) + '}\n';
-    }
-    
-    // If the line is empty (excluding comments), output just the comment or empty line
-    if (content === '') {
-      if (comment !== '') {
-        jsCode += ' '.repeat(currentIndent) + comment + '\n';
-      } else {
-        jsCode += '\n';
-      }
-      continue;
-    }
-    
-    // Skip import lines (but output as a comment to preserve line count & debuggability)
-    if (content.startsWith('import ') || /^import\b/.test(content) || content.startsWith('from ') || /^from\b/.test(content)) {
-      jsCode += ' '.repeat(currentIndent) + '// ' + content + (comment ? ' ' + comment : '') + '\n';
-      continue;
-    }
-    
-    // Skip 'global' declaration lines (but output as a comment to preserve line count & debuggability)
-    if (content.startsWith('global ') || /^global\b/.test(content)) {
-      jsCode += ' '.repeat(currentIndent) + '// ' + content + (comment ? ' ' + comment : '') + '\n';
-      continue;
-    }
-    
-    let isBlockHeader = false;
-    
-    // Translate Python syntax to JS syntax
-    if (content.startsWith('def ')) {
-      content = content.replace(/def\s+(\w+)\s*\((.*)\)\s*:/, 'function $1($2) {');
-      isBlockHeader = true;
-    } else if (content.startsWith('for ') && content.includes('in range(')) {
-      if (content.includes(',')) {
-        // e.g., for i in range(1, limit): -> for (let i = 1; i < limit; i++) {
-        content = content.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)\s*:/, 'for (let $1 = $2; $1 < $3; $1++) {');
-      } else {
-        // e.g., for i in range(limit): -> for (let i = 0; i < limit; i++) {
-        content = content.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*([^)]+)\s*\)\s*:/, 'for (let $1 = 0; $1 < $2; $1++) {');
-      }
-      isBlockHeader = true;
-    } else if (content.startsWith('if ')) {
-      content = content.replace(/if\s+(.+)\s*:/, 'if ($1) {');
-      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
-      isBlockHeader = true;
-    } else if (content.startsWith('elif ')) {
-      content = content.replace(/elif\s+(.+)\s*:/, 'else if ($1) {');
-      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
-      isBlockHeader = true;
-    } else if (content.startsWith('else:')) {
-      content = 'else {';
-      isBlockHeader = true;
-    } else if (content.startsWith('while ')) {
-      content = content.replace(/while\s+(.+)\s*:/, 'while ($1) {');
-      content = content.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s*/g, '!');
-      isBlockHeader = true;
-    }
-    
-    // Translate isinstance(var, type) to typeof or Array checks
-    content = content.replace(/isinstance\s*\(\s*([^,]+)\s*,\s*(\w+)\s*\)/g, (match, varName, typeName) => {
-      if (['Number', 'int', 'float'].includes(typeName)) {
-        return `(typeof ${varName} === 'number')`;
-      }
-      if (['str'].includes(typeName)) {
-        return `(typeof ${varName} === 'string')`;
-      }
-      if (['bool'].includes(typeName)) {
-        return `(typeof ${varName} === 'boolean')`;
-      }
-      if (['list'].includes(typeName)) {
-        return `Array.isArray(${varName})`;
-      }
-      return `(${varName} instanceof ${typeName})`;
-    });
-    
-    // Translate Python ternary operator (expr1 if cond else expr2) to JS ternary (cond ? expr1 : expr2)
-    content = translateTernaryInLine(content);
-    
-    // Translate other general boolean & null keywords globally in the line
-    content = content.replace(/\band\b/g, '&&')
-                     .replace(/\bor\b/g, '||')
-                     .replace(/\bnot\s*/g, '!')
-                     .replace(/\bTrue\b/g, 'true')
-                     .replace(/\bFalse\b/g, 'false')
-                     .replace(/\bNone\b/g, 'null')
-                     .replace(/\bpass\b/g, '');
-    
-    // Translate custom commands
-    content = content.replace(/hero\.move_forward\(\)/g, 'moveForward()');
-    content = content.replace(/hero\.collect_rupee\(\)/g, 'collectRupee()');
-    content = content.replace(/hero\.turn_left\(\)/g, 'turnLeft()');
-    content = content.replace(/hero\.turn_right\(\)/g, 'turnRight()');
-    content = content.replace(/hero\.scan_ahead\(\)/g, 'scanAhead()');
-    content = content.replace(/hero\.unlock_gate\((.*)\)/g, 'unlockGate($1)');
-    
-    // Translate print() to printConsole()
-    content = content.replace(/print\s*\((.*)\)/g, 'printConsole($1)');
-    
-    // Append semicolons to expression lines (non-headers)
-    if (!isBlockHeader && !content.endsWith(';') && !content.endsWith('}')) {
-      if (content.trim() !== '') {
-        content += ';';
-      }
-    }
-    
-    // Restore string literals
-    content = content.replace(/__STR_(\d+)__/g, (match, id) => {
-      return strings[parseInt(id)];
-    });
-    
-    // If indentation increased, push to stack
-    if (isBlockHeader) {
-      let nextIndent = currentIndent + 4;
-      for (let j = i + 1; j < lines.length; j++) {
-        if (lines[j].trim() !== '') {
-          const nextMatch = lines[j].match(/^(\s*)/);
-          nextIndent = nextMatch ? nextMatch[1].length : currentIndent + 4;
-          break;
-        }
-      }
-      if (nextIndent > currentIndent) {
-        indentStack.push(nextIndent);
-      }
-    }
-    
-    jsCode += ' '.repeat(currentIndent) + content + (comment ? ' ' + comment : '') + '\n';
-  }
-  
-  // Close any remaining open braces
-  while (indentStack.length > 1) {
-    indentStack.pop();
-    jsCode += ' '.repeat(indentStack[indentStack.length - 1]) + '}\n';
-  }
-  
-  return jsCode;
-}
-
-function exportGameState() {
-  synth.play('click');
-  
-  // Make sure current workspace is auto-saved first
-  if (workspace) {
-    const lvlId = LEVELS[currentLevelIndex].id;
-    if (!levelsCodeCache[lvlId]) {
-      levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
-    }
-    try {
-      if (Blockly.serialization) {
-        levelsCodeCache[lvlId].blocksState = Blockly.serialization.workspaces.save(workspace);
-      } else {
-        const xml = Blockly.Xml.workspaceToDom(workspace);
-        levelsCodeCache[lvlId].blocksState = Blockly.Xml.domToText(xml);
-      }
-    } catch (e) {
-      console.warn("Failed to serialize workspace on export: ", e);
-    }
-    levelsCodeCache[lvlId].mode = currentMode;
-    
-    const pyTextarea = document.getElementById('python-textarea');
-    if (pyTextarea) {
-      levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
-    }
-  }
-
-  const saveData = {
-    app: "codequest-python",
-    version: 1,
-    timestamp: Date.now(),
-    completedLevels: completedLevels,
-    levelsCode: levelsCodeCache,
-    settings: {
-      language: currentLanguage,
-      currentLevelIndex: currentLevelIndex
-    }
-  };
-
-  const dataStr = JSON.stringify(saveData, null, 2);
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  const timestamp = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `codequest_save_${timestamp}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  appendConsoleLine("💾 " + (currentLanguage === 'it' ? "Stato del gioco esportato con successo!" : "Game state exported successfully!"), "system");
-}
-
-function importGameState(file) {
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      
-      // Simple validation
-      if (data.app !== "codequest-python" || !data.completedLevels || !data.levelsCode) {
-        throw new Error(currentLanguage === 'it' 
-          ? "File di salvataggio non valido o corrotto." 
-          : "Invalid or corrupted save file.");
-      }
-      
-      // Load progress
-      completedLevels = data.completedLevels;
-      levelsCodeCache = data.levelsCode;
-      
-      migrateOldSaveData();
-      
-      if (data.settings) {
-        if (data.settings.language) {
-          currentLanguage = data.settings.language;
-          document.getElementById('lang-select').value = currentLanguage;
-        }
-        if (data.settings.currentLevelIndex !== undefined) {
-          currentLevelIndex = data.settings.currentLevelIndex;
-        }
-      }
-      
-      // Persist to local storage
-      saveProgress();
-      localStorage.setItem('codequest_lang', currentLanguage);
-      
-      // Play sound
-      synth.play('win');
-      
-      // Re-initialize UI
-      loadBlocklyLocale(currentLanguage, () => {
-        applyTranslations(currentLanguage);
-        refreshLevelSelector();
-        updateHeartsDisplay();
-        loadLevel(currentLevelIndex);
-        appendConsoleLine("📂 " + (currentLanguage === 'it' ? "Partita caricata con successo!" : "Game state loaded successfully!"), "system");
-      });
-      
-    } catch (err) {
-      synth.play('error');
-      alert((currentLanguage === 'it' ? "Errore nel caricamento del salvataggio: " : "Error loading save file: ") + err.message);
-    }
-  };
-  reader.readAsText(file);
-}
-

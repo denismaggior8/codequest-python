@@ -178,7 +178,7 @@ LEVELS.forEach((room, idx) => {
 });
 
 const fs = require('fs');
-const appContent = fs.readFileSync(path.join(__dirname, '../js/app.js'), 'utf8');
+const appContent = fs.readFileSync(path.join(__dirname, '../js/transpiler.js'), 'utf8');
 const startIdx = appContent.indexOf('function translateTernaryInLine(line) {');
 
 if (startIdx !== -1) {
