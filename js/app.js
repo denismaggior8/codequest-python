@@ -286,6 +286,32 @@ function setupUIEventListeners() {
     soundBtn.textContent = '🔇';
   }
 
+  // CRT Toggle setup
+  const crtBtn = document.getElementById('crt-btn');
+  window.updateCrtButtonText = function() {
+    if (!crtBtn) return;
+    const isOff = document.body.classList.contains('crt-off');
+    crtBtn.textContent = isOff ? t('crtOff') : t('crtOn');
+  };
+  
+  // Set initial CRT state
+  const savedCrt = localStorage.getItem('codequest_crt');
+  if (savedCrt === '0') {
+    document.body.classList.add('crt-off');
+  } else {
+    document.body.classList.remove('crt-off');
+  }
+  updateCrtButtonText();
+
+  if (crtBtn) {
+    crtBtn.addEventListener('click', () => {
+      synth.play('click');
+      const isOff = document.body.classList.toggle('crt-off');
+      updateCrtButtonText();
+      localStorage.setItem('codequest_crt', isOff ? '0' : '1');
+    });
+  }
+
   // Language Selector Trigger
   langSelect.addEventListener('change', (e) => {
     synth.play('click');

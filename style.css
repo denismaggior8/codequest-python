@@ -51,6 +51,15 @@ body.retro-theme {
   overflow: hidden;
 }
 
+/* CRT Off styles for clean text reading */
+body.retro-theme.crt-off {
+  background-image: 
+    radial-gradient(#241a15 15%, transparent 15%),
+    radial-gradient(#19120e 15%, transparent 15%);
+  background-size: 40px 40px, 40px 40px;
+  background-position: 0 0, 20px 20px;
+}
+
 /* CRT Scanline overlay */
 .scanlines {
   position: fixed;
@@ -65,6 +74,10 @@ body.retro-theme {
   background-size: 100% 4px;
   z-index: 9999;
   pointer-events: none;
+}
+
+body.crt-off .scanlines {
+  display: none;
 }
 
 /* Utility Helper Classes */

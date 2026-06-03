@@ -26,6 +26,8 @@ const TRANSLATIONS = {
     speed: "VELOCITÀ:",
     copy: "COPIA",
     copied: "COPIATO!",
+    crtOn: "📺 CRT ACCESO",
+    crtOff: "📺 CRT SPENTO",
     
     // Tooltips & Default texts
     dragSpells: "# Trascina i blocchi per generare codice Python!",
@@ -101,6 +103,8 @@ const TRANSLATIONS = {
     speed: "SPEED:",
     copy: "COPY",
     copied: "COPIED!",
+    crtOn: "📺 CRT ON",
+    crtOff: "📺 CRT OFF",
     
     // Tooltips & Default texts
     dragSpells: "# Drag blocks to write spells and generate Python code!",
@@ -176,4 +180,9 @@ function applyTranslations(lang) {
   document.title = currentLanguage === 'it' 
     ? "The Legend of Python - Impara a programmare in un dungeon 2D a 8 bit"
     : "The Legend of Python - Learn programming in a 2D 8-bit dungeon";
+
+  // Update CRT button label based on active language
+  if (typeof updateCrtButtonText === 'function') {
+    updateCrtButtonText();
+  }
 }
