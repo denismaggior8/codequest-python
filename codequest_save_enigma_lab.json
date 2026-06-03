@@ -1,0 +1,127 @@
+{
+  "app": "codequest-python",
+  "version": 1,
+  "timestamp": 1772618400000,
+  "completedLevels": [
+    "sequences/room1",
+    "variables/room1",
+    "conditionals/room1",
+    "loops/room1",
+    "functions/room1",
+    "lists/room1"
+  ],
+  "levelsCode": {
+    "objects/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start_block",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "hero_unlock_gate",
+                    "id": "unlock_gate_block",
+                    "inputs": {
+                      "CODE": {
+                        "block": {
+                          "type": "enigma_input_string",
+                          "id": "input_string_block",
+                          "fields": {
+                            "TEXT": "codjzbcl"
+                          },
+                          "inputs": {
+                            "ENIGMA": {
+                              "block": {
+                                "type": "enigma_m3",
+                                "id": "enigma_m3_block",
+                                "fields": {
+                                  "AUTO": "TRUE"
+                                },
+                                "inputs": {
+                                  "PLUGBOARD": {
+                                    "block": {
+                                      "type": "swappable_plugboard",
+                                      "id": "plugboard_block",
+                                      "fields": {
+                                        "CHAR1": "a",
+                                        "CHAR2": "z"
+                                      }
+                                    }
+                                  },
+                                  "ROTOR3": {
+                                    "block": {
+                                      "type": "enigma_m3_rotor3",
+                                      "id": "rotor3_block",
+                                      "fields": {
+                                        "POS": 1,
+                                        "RING": 6
+                                      }
+                                    }
+                                  },
+                                  "ROTOR2": {
+                                    "block": {
+                                      "type": "enigma_m3_rotor2",
+                                      "id": "rotor2_block",
+                                      "fields": {
+                                        "POS": 1,
+                                        "RING": 2
+                                      }
+                                    }
+                                  },
+                                  "ROTOR1": {
+                                    "block": {
+                                      "type": "enigma_m3_rotor1",
+                                      "id": "rotor1_block",
+                                      "fields": {
+                                        "POS": 1,
+                                        "RING": 4
+                                      }
+                                    }
+                                  },
+                                  "REFLECTOR": {
+                                    "block": {
+                                      "type": "reflector_ukwb",
+                                      "id": "reflector_block"
+                                    }
+                                  },
+                                  "ETW": {
+                                    "block": {
+                                      "type": "etw_passthrough",
+                                      "id": "etw_block"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "move_forward_block"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "from enigmapython.SwappablePlugboard import SwappablePlugboard\nfrom enigmapython.EnigmaM3RotorI import EnigmaM3RotorI\nfrom enigmapython.EnigmaM3RotorII import EnigmaM3RotorII\nfrom enigmapython.EnigmaM3RotorIII import EnigmaM3RotorIII\nfrom enigmapython.ReflectorUKWB import ReflectorUKWB\nfrom enigmapython.EtwPassthrough import EtwPassthrough\nfrom enigmapython.EnigmaM3 import EnigmaM3\n\ndef on_start():\n  hero.unlock_gate(EnigmaM3(SwappablePlugboard(chars={\"a\": \"z\"}), EnigmaM3RotorIII(1, 6), EnigmaM3RotorII(1, 2), EnigmaM3RotorI(1, 4), ReflectorUKWB(), EtwPassthrough(), True).input_string(\"codjzbcl\"))\n  hero.move_forward()\n"
+    }
+  },
+  "settings": {
+    "language": "it",
+    "currentLevelIndex": 6
+  }
+}
