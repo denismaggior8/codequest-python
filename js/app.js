@@ -572,6 +572,10 @@ function initSimulator() {
       appendConsoleLine(t('consoleCrash'), 'error');
     } else if (msg.startsWith("⚔️ Link has entered")) {
       appendConsoleLine(t('consoleEnter'), 'system');
+    } else if (msg.startsWith("🗝️ GATE UNLOCKED!")) {
+      appendConsoleLine(t('consoleGateUnlocked'), 'system');
+    } else if (msg.startsWith("⚠️ Code is incorrect!")) {
+      appendConsoleLine(t('consoleGateLocked'), 'error');
     } else {
       appendConsoleLine(msg, type);
     }
@@ -688,33 +692,42 @@ function loadLevel(index) {
   const savedState = levelsCodeCache[levelId];
   const pyTextarea = document.getElementById('python-textarea');
   
-  if (savedState) {
-    currentMode = savedState.mode || 'blocks';
-    
-    // Restore Blockly
-    if (savedState.blocksState) {
-      try {
-        if (Blockly.serialization && typeof savedState.blocksState === 'object') {
-          Blockly.serialization.workspaces.load(savedState.blocksState, workspace);
-        } else {
-          // Fallback XML
-          const xml = Blockly.Xml.textToDom(savedState.blocksState);
-          Blockly.Xml.domToWorkspace(xml, workspace);
-        }
-      } catch (e) {
-        console.warn("Failed to restore blockly state: ", e);
-      }
-    }
-    
-    // Restore Python text
-    if (savedState.pythonCode) {
+  if (level.pythonOnly) {
+    currentMode = 'python';
+    if (savedState && savedState.pythonCode) {
       if (pyTextarea) pyTextarea.value = savedState.pythonCode;
     } else {
       if (pyTextarea) pyTextarea.value = '';
     }
   } else {
-    currentMode = 'blocks';
-    if (pyTextarea) pyTextarea.value = '';
+    if (savedState) {
+      currentMode = savedState.mode || 'blocks';
+      
+      // Restore Blockly
+      if (savedState.blocksState) {
+        try {
+          if (Blockly.serialization && typeof savedState.blocksState === 'object') {
+            Blockly.serialization.workspaces.load(savedState.blocksState, workspace);
+          } else {
+            // Fallback XML
+            const xml = Blockly.Xml.textToDom(savedState.blocksState);
+            Blockly.Xml.domToWorkspace(xml, workspace);
+          }
+        } catch (e) {
+          console.warn("Failed to restore blockly state: ", e);
+        }
+      }
+      
+      // Restore Python text
+      if (savedState.pythonCode) {
+        if (pyTextarea) pyTextarea.value = savedState.pythonCode;
+      } else {
+        if (pyTextarea) pyTextarea.value = '';
+      }
+    } else {
+      currentMode = 'blocks';
+      if (pyTextarea) pyTextarea.value = '';
+    }
   }
 
   // Auto-create/restore on_start event block if it is missing
@@ -737,16 +750,25 @@ function loadLevel(index) {
 
   // Update Tab active UI
   if (tabBlocks && tabPython && blocklyContainer && editorContainer) {
-    if (currentMode === 'python') {
+    if (level.pythonOnly) {
+      tabBlocks.style.display = 'none';
       tabPython.classList.add('active');
       tabBlocks.classList.remove('active');
       blocklyContainer.classList.add('hidden');
       editorContainer.classList.remove('hidden');
     } else {
-      tabBlocks.classList.add('active');
-      tabPython.classList.remove('active');
-      blocklyContainer.classList.remove('hidden');
-      editorContainer.classList.add('hidden');
+      tabBlocks.style.display = 'block';
+      if (currentMode === 'python') {
+        tabPython.classList.add('active');
+        tabBlocks.classList.remove('active');
+        blocklyContainer.classList.add('hidden');
+        editorContainer.classList.remove('hidden');
+      } else {
+        tabBlocks.classList.add('active');
+        tabPython.classList.remove('active');
+        blocklyContainer.classList.remove('hidden');
+        editorContainer.classList.add('hidden');
+      }
     }
   }
 
@@ -939,28 +961,237 @@ function appendConsoleLine(text, styleClass) {
   consoleEl.scrollTop = consoleEl.scrollHeight;
 }
 
-// Code evaluation
-function runProgram() {
-  let jsCode = '';
-  if (currentMode === 'blocks') {
-    const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
-    jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
+// Motore Python Pyodide in-browser runtime
+let pyodideInstance = null;
+let pyodideLoading = false;
+
+async function getPyodide() {
+  if (pyodideInstance) return pyodideInstance;
+  if (pyodideLoading) {
+    while (pyodideLoading) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return pyodideInstance;
+  }
+  
+  pyodideLoading = true;
+  appendConsoleLine(currentLanguage === 'it' ? "🔮 Caricamento motore Python (Pyodide)..." : "🔮 Loading Python engine (Pyodide)...", "system");
+  
+  try {
+    if (!window.loadPyodide) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    pyodideInstance = await loadPyodide();
+    
+    appendConsoleLine(currentLanguage === 'it' ? "📦 Installazione libreria 'enigmapython'..." : "📦 Installing library 'enigmapython'...", "system");
+    await pyodideInstance.loadPackage("micropip");
+    const micropip = pyodideInstance.pyimport("micropip");
+    await micropip.install("enigmapython");
+    
+    appendConsoleLine(currentLanguage === 'it' ? "✨ Motore Python pronto!" : "✨ Python engine ready!", "system");
+  } catch (err) {
+    appendConsoleLine(currentLanguage === 'it' ? `❌ Errore avvio motore Python: ${err.message}` : `❌ Python engine startup error: ${err.message}`, "error");
+    console.error(err);
+    pyodideInstance = null;
+  } finally {
+    pyodideLoading = false;
+  }
+  
+  return pyodideInstance;
+}
+
+async function compileActionQueuePyodide(pyCode) {
+  const actionQueue = [];
+  const level = LEVELS[currentLevelIndex];
+  
+  const shadowRobot = {
+    x: level.startX,
+    y: level.startY,
+    dir: level.startDir,
+    grid: JSON.parse(JSON.stringify(level.grid)),
+    crystals: JSON.parse(JSON.stringify(simulator.crystals)),
+    crashed: false
+  };
+  
+  const pyodide = await getPyodide();
+  if (!pyodide) {
+    throw new Error(currentLanguage === 'it' ? "Impossibile caricare il motore Python." : "Unable to load Python engine.");
+  }
+  
+  // Define hero JS callbacks exposed to Pyodide
+  const heroJS = {
+    move_forward: () => {
+      if (shadowRobot.crashed) return;
+      let nextX = shadowRobot.x;
+      let nextY = shadowRobot.y;
+      switch (shadowRobot.dir) {
+        case 0: nextX++; break;
+        case 1: nextY++; break;
+        case 2: nextX--; break;
+        case 3: nextY--; break;
+      }
+      if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
+        shadowRobot.crashed = true;
+      } else if (shadowRobot.grid[nextY][nextX] === 1) {
+        shadowRobot.crashed = true;
+      } else {
+        shadowRobot.x = nextX;
+        shadowRobot.y = nextY;
+      }
+      actionQueue.push({ type: 'MOVE_FORWARD' });
+    },
+    turn_left: () => {
+      if (shadowRobot.crashed) return;
+      shadowRobot.dir = (shadowRobot.dir + 3) % 4;
+      actionQueue.push({ type: 'TURN_LEFT' });
+    },
+    turn_right: () => {
+      if (shadowRobot.crashed) return;
+      shadowRobot.dir = (shadowRobot.dir + 1) % 4;
+      actionQueue.push({ type: 'TURN_RIGHT' });
+    },
+    collect_rupee: () => {
+      if (shadowRobot.crashed) return;
+      const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
+      if (rupee) {
+        rupee.collected = true;
+      }
+      actionQueue.push({ type: 'COLLECT' });
+    },
+    scan_ahead: () => {
+      if (shadowRobot.crashed) return 'obstacle';
+      let nextX = shadowRobot.x;
+      let nextY = shadowRobot.y;
+      switch (shadowRobot.dir) {
+        case 0: nextX++; break;
+        case 1: nextY++; break;
+        case 2: nextX--; break;
+        case 3: nextY--; break;
+      }
+      if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
+        return "obstacle";
+      }
+      const tile = shadowRobot.grid[nextY][nextX];
+      if (tile === 1) return "obstacle";
+      if (tile === 2) return "portal";
+      const rupee = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
+      if (rupee) return "crystal";
+      return "empty";
+    },
+    unlock_gate: (code) => {
+      if (shadowRobot.crashed) return;
+      actionQueue.push({ type: 'UNLOCK_GATE', code: String(code) });
+      if (code && String(code).toLowerCase().trim() === "triforza") {
+        const gateX = level.gateX !== undefined ? level.gateX : 2;
+        const gateY = level.gateY !== undefined ? level.gateY : 1;
+        shadowRobot.grid[gateY][gateX] = 0;
+      }
+    },
+    print_queue: (msg) => {
+      actionQueue.push({ type: 'PRINT', message: String(msg) });
+    }
+  };
+  
+  pyodide.registerJsProxy("hero_js", heroJS);
+  
+  const setupPyCode = `
+import sys
+from js import hero_js
+
+class HeroWrapper:
+    def move_forward(self):
+        hero_js.move_forward()
+    def turn_left(self):
+        hero_js.turn_left()
+    def turn_right(self):
+        hero_js.turn_right()
+    def collect_rupee(self):
+        hero_js.collect_rupee()
+    def scan_ahead(self):
+        return hero_js.scan_ahead()
+    def unlock_gate(self, code):
+        hero_js.unlock_gate(code)
+
+hero = HeroWrapper()
+
+class QueueWriter:
+    def write(self, text):
+        if text and text != '\\n':
+            for line in text.split('\\n'):
+                if line:
+                    hero_js.print_queue(line)
+    def flush(self):
+        pass
+
+sys.stdout = QueueWriter()
+`;
+  pyodide.runPython(setupPyCode);
+  
+  // Exec code in Pyodide
+  pyodide.runPython(pyCode);
+  
+  const hasOnStart = pyodide.runPython("'on_start' in globals() and callable(globals()['on_start'])");
+  if (hasOnStart) {
+    pyodide.runPython("on_start()");
   } else {
-    const pyCode = document.getElementById('python-textarea').value;
-    jsCode = transpilePythonToJS(pyCode);
+    actionQueue.push({ type: 'PRINT', message: t('consoleErrorNoStart') });
   }
   
-  if (jsCode.trim() === "") {
-    synth.play('error');
-    appendConsoleLine(t('consoleErrorEmpty'), "error");
-    return;
-  }
+  return actionQueue;
+}
+
+// Code evaluation
+async function runProgram() {
+  const level = LEVELS[currentLevelIndex];
+  let actionQueue = [];
+  const runBtn = document.getElementById('run-btn');
+  const stepBtn = document.getElementById('step-btn');
   
-  const validationError = validateLevelConstructs(LEVELS[currentLevelIndex]);
-  if (validationError) {
-    synth.play('error');
-    appendConsoleLine(validationError, "error");
-    return;
+  if (level.runWithPyodide) {
+    runBtn.disabled = true;
+    stepBtn.disabled = true;
+    try {
+      const pyCode = currentMode === 'blocks'
+        ? (Blockly.Python ? Blockly.Python.workspaceToCode(workspace) : '')
+        : document.getElementById('python-textarea').value;
+      actionQueue = await compileActionQueuePyodide(pyCode);
+    } catch (err) {
+      appendConsoleLine(`❌ Error: ${err.message}`, "error");
+      runBtn.disabled = false;
+      stepBtn.disabled = false;
+      return;
+    }
+  } else {
+    let jsCode = '';
+    if (currentMode === 'blocks') {
+      const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
+      jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
+    } else {
+      const pyCode = document.getElementById('python-textarea').value;
+      jsCode = transpilePythonToJS(pyCode);
+    }
+    
+    if (jsCode.trim() === "") {
+      synth.play('error');
+      appendConsoleLine(t('consoleErrorEmpty'), "error");
+      return;
+    }
+    
+    const validationError = validateLevelConstructs(level);
+    if (validationError) {
+      synth.play('error');
+      appendConsoleLine(validationError, "error");
+      return;
+    }
+    
+    actionQueue = compileActionQueue(jsCode);
   }
   
   synth.play('click');
@@ -968,39 +1199,61 @@ function runProgram() {
   document.getElementById('step-btn').disabled = true;
   document.getElementById('stop-btn').disabled = false;
   
-  const actionQueue = compileActionQueue(jsCode);
-  
-  simulator.initLevel(LEVELS[currentLevelIndex]);
+  simulator.initLevel(level);
   simulator.loadActionQueue(actionQueue);
 }
 
-function stepProgram() {
-  let jsCode = '';
-  if (currentMode === 'blocks') {
-    const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
-    jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
-  } else {
-    const pyCode = document.getElementById('python-textarea').value;
-    jsCode = transpilePythonToJS(pyCode);
-  }
-  
-  if (jsCode.trim() === "") {
-    synth.play('error');
-    appendConsoleLine(t('consoleErrorEmpty'), "error");
-    return;
-  }
-  
-  const validationError = validateLevelConstructs(LEVELS[currentLevelIndex]);
-  if (validationError) {
-    synth.play('error');
-    appendConsoleLine(validationError, "error");
-    return;
-  }
+async function stepProgram() {
+  const level = LEVELS[currentLevelIndex];
+  const runBtn = document.getElementById('run-btn');
+  const stepBtn = document.getElementById('step-btn');
   
   if (!simulator.isPlaying && simulator.actionQueue.length === 0) {
+    let actionQueue = [];
+    if (level.runWithPyodide) {
+      runBtn.disabled = true;
+      stepBtn.disabled = true;
+      try {
+        const pyCode = currentMode === 'blocks'
+          ? (Blockly.Python ? Blockly.Python.workspaceToCode(workspace) : '')
+          : document.getElementById('python-textarea').value;
+        actionQueue = await compileActionQueuePyodide(pyCode);
+      } catch (err) {
+        appendConsoleLine(`❌ Error: ${err.message}`, "error");
+        runBtn.disabled = false;
+        stepBtn.disabled = false;
+        return;
+      }
+      runBtn.disabled = false;
+      stepBtn.disabled = false;
+    } else {
+      let jsCode = '';
+      if (currentMode === 'blocks') {
+        const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
+        jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
+      } else {
+        const pyCode = document.getElementById('python-textarea').value;
+        jsCode = transpilePythonToJS(pyCode);
+      }
+      
+      if (jsCode.trim() === "") {
+        synth.play('error');
+        appendConsoleLine(t('consoleErrorEmpty'), "error");
+        return;
+      }
+      
+      const validationError = validateLevelConstructs(level);
+      if (validationError) {
+        synth.play('error');
+        appendConsoleLine(validationError, "error");
+        return;
+      }
+      
+      actionQueue = compileActionQueue(jsCode);
+    }
+    
     synth.play('click');
-    const actionQueue = compileActionQueue(jsCode);
-    simulator.initLevel(LEVELS[currentLevelIndex]);
+    simulator.initLevel(level);
     simulator.actionQueue = actionQueue;
     simulator.currentActionIndex = 0;
     simulator.isPlaying = false;
@@ -1018,6 +1271,7 @@ function compileActionQueue(jsCode) {
     x: level.startX,
     y: level.startY,
     dir: level.startDir,
+    grid: JSON.parse(JSON.stringify(level.grid)),
     crystals: JSON.parse(JSON.stringify(simulator.crystals)),
     crashed: false
   };
@@ -1037,7 +1291,7 @@ function compileActionQueue(jsCode) {
     
     if (nextX < 0 || nextX >= level.gridSize || nextY < 0 || nextY >= level.gridSize) {
       shadowRobot.crashed = true;
-    } else if (level.grid[nextY][nextX] === 1) {
+    } else if (shadowRobot.grid[nextY][nextX] === 1) {
       shadowRobot.crashed = true;
     } else {
       shadowRobot.x = nextX;
@@ -1087,7 +1341,7 @@ function compileActionQueue(jsCode) {
       return "obstacle";
     }
     
-    const tile = level.grid[nextY][nextX];
+    const tile = shadowRobot.grid[nextY][nextX];
     if (tile === 1) return "obstacle";
     if (tile === 2) return "portal";
     
@@ -1102,12 +1356,24 @@ function compileActionQueue(jsCode) {
     actionQueue.push({ type: 'PRINT', message: String(msg) });
   };
   
+  globalThis.unlockGate = (code) => {
+    if (!isExecutingStart) return;
+    if (shadowRobot.crashed) return;
+    actionQueue.push({ type: 'UNLOCK_GATE', code: String(code) });
+    if (code && String(code).toLowerCase().trim() === "triforza") {
+      const gateX = level.gateX !== undefined ? level.gateX : 2;
+      const gateY = level.gateY !== undefined ? level.gateY : 1;
+      shadowRobot.grid[gateY][gateX] = 0;
+    }
+  };
+  
   globalThis.hero = {
     move_forward: () => globalThis.moveForward(),
     collect_rupee: () => globalThis.collectRupee(),
     turn_left: () => globalThis.turnLeft(),
     turn_right: () => globalThis.turnRight(),
-    scan_ahead: () => globalThis.scanAhead()
+    scan_ahead: () => globalThis.scanAhead(),
+    unlock_gate: (code) => globalThis.unlockGate(code)
   };
   
   try {
@@ -1141,6 +1407,7 @@ function compileActionQueue(jsCode) {
   delete globalThis.collectRupee;
   delete globalThis.scanAhead;
   delete globalThis.printConsole;
+  delete globalThis.unlockGate;
   delete globalThis.hero;
   delete globalThis.on_start;
   
@@ -1597,6 +1864,7 @@ function transpilePythonToJS(pyCode) {
     content = content.replace(/hero\.turn_left\(\)/g, 'turnLeft()');
     content = content.replace(/hero\.turn_right\(\)/g, 'turnRight()');
     content = content.replace(/hero\.scan_ahead\(\)/g, 'scanAhead()');
+    content = content.replace(/hero\.unlock_gate\((.*)\)/g, 'unlockGate($1)');
     
     // Translate print() to printConsole()
     content = content.replace(/print\s*\((.*)\)/g, 'printConsole($1)');

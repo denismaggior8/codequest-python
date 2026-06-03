@@ -148,7 +148,8 @@ LEVELS.forEach((room, idx) => {
         
         if (nx >= 0 && nx < size && ny >= 0 && ny < size) {
           const nextCell = grid[ny][nx];
-          if (nextCell !== 1 && !visited.has(key)) {
+          const isGate = (room.gateX !== undefined && nx === room.gateX && room.gateY !== undefined && ny === room.gateY);
+          if ((nextCell !== 1 || isGate) && !visited.has(key)) {
             visited.add(key);
             queue.push([nx, ny]);
           }
@@ -194,6 +195,12 @@ if (startIdx !== -1) {
       assert(js.includes('function on_start() {'), 'Should translate def to function');
       assert(js.includes('moveForward();'), 'Should translate hero.move_forward()');
       assert(js.includes('collectRupee();'), 'Should translate hero.collect_rupee()');
+    });
+
+    runTest('Transpiler - unlock_gate command', () => {
+      const py = 'def on_start():\n    hero.unlock_gate("secret")';
+      const js = transpilePythonToJS(py);
+      assert(js.includes('unlockGate("secret");'), 'Should translate hero.unlock_gate("secret")');
     });
 
     runTest('Transpiler - Global variable declarations', () => {

@@ -417,6 +417,9 @@ class GameSimulator {
       case 'COLLECT':
         this.collectRupeeAtCurrent();
         break;
+      case 'UNLOCK_GATE':
+        this.unlockGate(action.code);
+        break;
       case 'PRINT':
         this.onStatus(action.message, "output");
         this.onSound('print');
@@ -430,6 +433,21 @@ class GameSimulator {
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "crashed");
       }
+    }
+  }
+
+  unlockGate(code) {
+    if (code && code.toLowerCase().trim() === "triforza") {
+      const gateX = this.level.gateX !== undefined ? this.level.gateX : 2;
+      const gateY = this.level.gateY !== undefined ? this.level.gateY : 1;
+      if (this.grid[gateY][gateX] === 1) {
+        this.grid[gateY][gateX] = 0; // Clear the wall
+        this.onStatus("🗝️ GATE UNLOCKED! The iron gate opens.", "system");
+        this.onSound('win');
+      }
+    } else {
+      this.onStatus(`⚠️ Code is incorrect! The gate remains sealed.`, "error");
+      this.onSound('error');
     }
   }
 

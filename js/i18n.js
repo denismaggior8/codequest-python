@@ -70,6 +70,8 @@ const TRANSLATIONS = {
     consoleStepMode: "🏁 Modalità passo attivo.",
     consoleCrash: "💥 OUCH! Link ha urtato un muro di pietra. Stanza bloccata.",
     consoleSystemStart: "Sistema inizializzato in {name}...",
+    consoleGateUnlocked: "🗝️ PORTALE SBLOCCATO! La porta di ferro si apre.",
+    consoleGateLocked: "⚠️ Codice non corretto! La porta rimane sigillata.",
     
     // Levels/Blocks UI labels
     roomBadge: "STANZA {id}: {badge}",
@@ -147,6 +149,8 @@ const TRANSLATIONS = {
     consoleStepMode: "🏁 Spell stepping mode active.",
     consoleCrash: "💥 OOF! Link collided with a stone wall boundary. Sector locked.",
     consoleSystemStart: "System initialized in {name}...",
+    consoleGateUnlocked: "🗝️ GATE UNLOCKED! The iron gate opens.",
+    consoleGateLocked: "⚠️ Code is incorrect! The gate remains sealed.",
     
     // Levels/Blocks UI labels
     roomBadge: "ROOM {id}: {badge}",
