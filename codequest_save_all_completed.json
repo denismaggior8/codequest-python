@@ -1,0 +1,661 @@
+{
+  "app": "codequest-python",
+  "version": 1,
+  "timestamp": 1772618400000,
+  "completedLevels": [
+    "sequences/room1",
+    "variables/room1",
+    "conditionals/room1",
+    "loops/room1",
+    "functions/room1",
+    "lists/room1",
+    "objects/room1"
+  ],
+  "levelsCode": {
+    "sequences/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "move_forward",
+                    "id": "mf1",
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf2"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def on_start():\n  hero.move_forward()\n  hero.move_forward()\n"
+    },
+    "variables/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "vset1",
+                    "fields": {
+                      "VAR": "rupees"
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "block": {
+                          "type": "math_number",
+                          "id": "num0",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf1",
+                        "next": {
+                          "block": {
+                            "type": "collect_rupee",
+                            "id": "cr1",
+                            "next": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": "vset2",
+                                "fields": {
+                                  "VAR": "rupees"
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "block": {
+                                      "type": "math_arithmetic",
+                                      "id": "add1",
+                                      "fields": {
+                                        "OP": "ADD"
+                                      },
+                                      "inputs": {
+                                        "A": {
+                                          "block": {
+                                            "type": "variables_get",
+                                            "id": "vget1",
+                                            "fields": {
+                                              "VAR": "rupees"
+                                            }
+                                          }
+                                        },
+                                        "B": {
+                                          "block": {
+                                            "type": "math_number",
+                                            "id": "num1",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "move_forward",
+                                    "id": "mf2",
+                                    "next": {
+                                      "block": {
+                                        "type": "collect_rupee",
+                                        "id": "cr2",
+                                        "next": {
+                                          "block": {
+                                            "type": "variables_set",
+                                            "id": "vset3",
+                                            "fields": {
+                                              "VAR": "rupees"
+                                            },
+                                            "inputs": {
+                                              "VALUE": {
+                                                "block": {
+                                                  "type": "math_arithmetic",
+                                                  "id": "add2",
+                                                  "fields": {
+                                                    "OP": "ADD"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "vget2",
+                                                        "fields": {
+                                                          "VAR": "rupees"
+                                                        }
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "block": {
+                                                        "type": "math_number",
+                                                        "id": "num2",
+                                                        "fields": {
+                                                          "NUM": 1
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "text_print",
+                                                "id": "print1",
+                                                "inputs": {
+                                                  "TEXT": {
+                                                    "block": {
+                                                      "type": "variables_get",
+                                                      "id": "vget3",
+                                                      "fields": {
+                                                        "VAR": "rupees"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "move_forward",
+                                                    "id": "mf3"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def on_start():\n  rupees = 0\n  hero.move_forward()\n  hero.collect_rupee()\n  rupees = rupees + 1\n  hero.move_forward()\n  hero.collect_rupee()\n  rupees = rupees + 1\n  print(rupees)\n  hero.move_forward()\n"
+    },
+    "conditionals/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "move_forward",
+                    "id": "mf1",
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf2",
+                        "next": {
+                          "block": {
+                            "type": "controls_if",
+                            "id": "if1",
+                            "inputs": {
+                              "IF0": {
+                                "block": {
+                                  "type": "logic_compare",
+                                  "id": "comp1",
+                                  "fields": {
+                                    "OP": "EQ"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "block": {
+                                        "type": "scan_ahead",
+                                        "id": "scan1"
+                                      }
+                                    },
+                                    "B": {
+                                      "block": {
+                                        "type": "text",
+                                        "id": "text1",
+                                        "fields": {
+                                          "TEXT": "obstacle"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "DO0": {
+                                "block": {
+                                  "type": "turn_right",
+                                  "id": "tr1"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "move_forward",
+                                "id": "mf3",
+                                "next": {
+                                  "block": {
+                                    "type": "move_forward",
+                                    "id": "mf4",
+                                    "next": {
+                                      "block": {
+                                        "type": "move_forward",
+                                        "id": "mf5"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def on_start():\n  hero.move_forward()\n  hero.move_forward()\n  if hero.scan_ahead() == \"obstacle\":\n    hero.turn_right()\n  hero.move_forward()\n  hero.move_forward()\n  hero.move_forward()\n"
+    },
+    "loops/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "controls_repeat_ext",
+                    "id": "rep1",
+                    "inputs": {
+                      "TIMES": {
+                        "block": {
+                          "type": "math_number",
+                          "id": "num4",
+                          "fields": {
+                            "NUM": 4
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "move_forward",
+                          "id": "mf1",
+                          "next": {
+                            "type": "collect_rupee",
+                            "id": "cr1"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf2",
+                        "next": {
+                          "block": {
+                            "type": "move_forward",
+                            "id": "mf3"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def on_start():\n  for i in range(4):\n    hero.move_forward()\n    hero.collect_rupee()\n  hero.move_forward()\n  hero.move_forward()\n"
+    },
+    "functions/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "procedures_defnoreturn",
+              "id": "def1",
+              "x": 50,
+              "y": 50,
+              "fields": {
+                "NAME": "step_and_collect"
+              },
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "move_forward",
+                    "id": "mf1",
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf2",
+                        "next": {
+                          "block": {
+                            "type": "collect_rupee",
+                            "id": "cr1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "procedures_callnoreturn",
+                    "id": "call1",
+                    "extraState": {
+                      "name": "step_and_collect"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turn_left",
+                        "id": "tl1",
+                        "next": {
+                          "block": {
+                            "type": "procedures_callnoreturn",
+                            "id": "call2",
+                            "extraState": {
+                              "name": "step_and_collect"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turn_right",
+                                "id": "tr1",
+                                "next": {
+                                  "block": {
+                                    "type": "procedures_callnoreturn",
+                                    "id": "call3",
+                                    "extraState": {
+                                      "name": "step_and_collect"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "turn_left",
+                                        "id": "tl2",
+                                        "next": {
+                                          "block": {
+                                            "type": "procedures_callnoreturn",
+                                            "id": "call4",
+                                            "extraState": {
+                                              "name": "step_and_collect"
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "turn_right",
+                                                "id": "tr2",
+                                                "next": {
+                                                  "block": {
+                                                    "type": "move_forward",
+                                                    "id": "mf3",
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "move_forward",
+                                                        "id": "mf4"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def step_and_collect():\n  hero.move_forward()\n  hero.move_forward()\n  hero.collect_rupee()\n\ndef on_start():\n  step_and_collect()\n  hero.turn_left()\n  step_and_collect()\n  hero.turn_right()\n  step_and_collect()\n  hero.turn_left()\n  step_and_collect()\n  hero.turn_right()\n  hero.move_forward()\n  hero.move_forward()\n"
+    },
+    "lists/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "move_forward",
+                    "id": "mf1",
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf2"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def on_start():\n  hero.move_forward()\n  hero.move_forward()\n"
+    },
+    "objects/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "hero_unlock_gate",
+                    "id": "ug1",
+                    "inputs": {
+                      "CODE": {
+                        "block": {
+                          "type": "enigma_input_string",
+                          "id": "eis1",
+                          "fields": {
+                            "TEXT": "codjzbcl"
+                          },
+                          "inputs": {
+                            "ENIGMA": {
+                              "block": {
+                                "type": "enigma_m3",
+                                "id": "em3",
+                                "fields": {
+                                  "AUTO": "TRUE"
+                                },
+                                "inputs": {
+                                  "PLUGBOARD": {
+                                    "block": {
+                                      "type": "swappable_plugboard",
+                                      "id": "spb",
+                                      "fields": {
+                                        "CHAR1": "a",
+                                        "CHAR2": "z"
+                                      }
+                                    }
+                                  },
+                                  "ROTOR3": {
+                                    "block": {
+                                      "type": "enigma_m3_rotor3",
+                                      "id": "r3",
+                                      "fields": {
+                                        "POS": 1,
+                                        "RING": 6
+                                      }
+                                    }
+                                  },
+                                  "ROTOR2": {
+                                    "block": {
+                                      "type": "enigma_m3_rotor2",
+                                      "id": "r2",
+                                      "fields": {
+                                        "POS": 1,
+                                        "RING": 2
+                                      }
+                                    }
+                                  },
+                                  "ROTOR1": {
+                                    "block": {
+                                      "type": "enigma_m3_rotor1",
+                                      "id": "r1",
+                                      "fields": {
+                                        "POS": 1,
+                                        "RING": 4
+                                      }
+                                    }
+                                  },
+                                  "REFLECTOR": {
+                                    "block": {
+                                      "type": "reflector_ukwb",
+                                      "id": "ref"
+                                    }
+                                  },
+                                  "ETW": {
+                                    "block": {
+                                      "type": "etw_passthrough",
+                                      "id": "etw"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "from enigmapython.SwappablePlugboard import SwappablePlugboard\nfrom enigmapython.EnigmaM3RotorI import EnigmaM3RotorI\nfrom enigmapython.EnigmaM3RotorII import EnigmaM3RotorII\nfrom enigmapython.EnigmaM3RotorIII import EnigmaM3RotorIII\nfrom enigmapython.ReflectorUKWB import ReflectorUKWB\nfrom enigmapython.EtwPassthrough import EtwPassthrough\nfrom enigmapython.EnigmaM3 import EnigmaM3\n\ndef on_start():\n  hero.unlock_gate(EnigmaM3(SwappablePlugboard(chars={\"a\": \"z\"}), EnigmaM3RotorIII(1, 6), EnigmaM3RotorII(1, 2), EnigmaM3RotorI(1, 4), ReflectorUKWB(), EtwPassthrough(), True).input_string(\"codjzbcl\"))\n  hero.move_forward()\n"
+    },
+    "recursion/room1": {
+      "mode": "blocks",
+      "blocksState": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "on_start",
+              "id": "start",
+              "x": 380,
+              "y": 30,
+              "deletable": false,
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "move_forward",
+                    "id": "mf1",
+                    "next": {
+                      "block": {
+                        "type": "move_forward",
+                        "id": "mf2"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "pythonCode": "def on_start():\n  hero.move_forward()\n  hero.move_forward()\n"
+    }
+  },
+  "settings": {
+    "language": "it",
+    "currentLevelIndex": 0
+  }
+}
