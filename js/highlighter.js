@@ -24,7 +24,10 @@ function updateCodeOutput(highlightLine = null) {
   }
   
   const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
-  const code = (pyGen && workspace) ? pyGen.workspaceToCode(workspace) : '';
+  let code = (pyGen && workspace) ? pyGen.workspaceToCode(workspace) : '';
+  
+  // Clean block_id parameters from the visual scroll representation
+  code = code.replace(/(?:,\s*)?block_id=['"][^'"]*['"]/g, '');
   
   if (code.trim() === "") {
     outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;

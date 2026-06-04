@@ -340,6 +340,7 @@ function setupUIEventListeners() {
       if (currentMode === 'blocks') {
         const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
         code = pyGen ? pyGen.workspaceToCode(workspace) : '';
+        code = code.replace(/(?:,\s*)?block_id=['"][^'"]*['"]/g, '');
       } else {
         code = pyTextarea.value;
       }
@@ -848,6 +849,7 @@ function showSuccessModal() {
   if (currentMode === 'blocks') {
     const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
     pyCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
+    pyCode = pyCode.replace(/(?:,\s*)?block_id=['"][^'"]*['"]/g, '');
   } else {
     pyCode = document.getElementById('python-textarea').value;
   }
