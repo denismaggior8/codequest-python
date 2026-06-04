@@ -548,7 +548,19 @@ function loadLevel(index) {
   const goalText = level.goalText[currentLanguage] || level.goalText['it'];
   const tipText = level.tip[currentLanguage] || level.tip['it'];
   
-  document.getElementById('quest-title').textContent = nameText;
+  let cleanName = nameText;
+  if (nameText.includes(": ")) {
+    cleanName = nameText.split(": ").slice(1).join(": ");
+  }
+
+  const questHeader = document.getElementById('dungeon-quest-header');
+  if (questHeader) {
+    questHeader.textContent = cleanName.toUpperCase();
+  }
+  const questTitle = document.getElementById('quest-title');
+  if (questTitle) {
+    questTitle.textContent = cleanName;
+  }
   document.getElementById('level-badge').textContent = t('roomBadge', { id: getLevelDisplayId(level), badge: level.badge });
   document.getElementById('quest-desc').textContent = storyText;
   document.getElementById('quest-goal').textContent = goalText;
@@ -804,6 +816,12 @@ function onResizeWorkspace() {
 }
 
 function getLevelDisplayId(level) {
+  if (level && level.id) {
+    const match = level.id.match(/\/room(\d+)/);
+    if (match) {
+      return match[1];
+    }
+  }
   const idx = LEVELS.indexOf(level);
   return idx !== -1 ? String(idx + 1) : "";
 }

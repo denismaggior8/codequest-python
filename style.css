@@ -906,3 +906,8 @@ header .logo .logo-main {
   filter: drop-shadow(0 0 8px #f1c40f) !important;
 }
 
+#quest-title {
+  display: none;
+}
+
+
