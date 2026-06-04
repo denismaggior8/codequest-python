@@ -113,13 +113,13 @@ function setupUIEventListeners() {
     // Apply initial state from persistence (default ON)
     const isCrtOn = localStorage.getItem('codequest_crt') !== 'false';
     if (isCrtOn) {
-      document.body.classList.remove('no-crt');
+      document.body.classList.remove('crt-off');
     } else {
-      document.body.classList.add('no-crt');
+      document.body.classList.add('crt-off');
     }
     
     const updateCrtButtonText = () => {
-      const active = !document.body.classList.contains('no-crt');
+      const active = !document.body.classList.contains('crt-off');
       crtBtn.title = t('titleCrt') + (active ? ' (ON)' : ' (OFF)');
       crtBtn.style.opacity = active ? '1' : '0.6';
     };
@@ -128,8 +128,8 @@ function setupUIEventListeners() {
     
     crtBtn.addEventListener('click', () => {
       synth.play('click');
-      document.body.classList.toggle('no-crt');
-      const active = !document.body.classList.contains('no-crt');
+      document.body.classList.toggle('crt-off');
+      const active = !document.body.classList.contains('crt-off');
       localStorage.setItem('codequest_crt', String(active));
       updateCrtButtonText();
     });
