@@ -65,18 +65,18 @@ The interface includes full localization support for English (**EN**) and Italia
 Levels are organized in the selection dropdown under difficulty groupings:
 
 ### 🟢 Basic Level (Livello Base)
-- **Room 1: Sequences** (`sequences/room1`): Linear instructions (`hero.move_forward()`).
-- **Room 2: Variables** (`variables/room1`): Declaring, incrementing variables (`rupees = rupees + 1`), and outputting results (`print(rupees)`).
-- **Room 3: Conditionals** (`conditionals/room1`): Checking environment tiles using sensors (`if hero.scan_ahead() == "obstacle":`).
-- **Room 4: Loops** (`loops/room1`): Repeating routines cleanly (`for i in range(4):`).
-- **Room 5: Functions** (`functions/room1`): Defining custom macros (`def step_and_collect():`) to navigate mazes.
+- **Sequences room 1: The Hero's Awakening** (`sequences/room1`) - Linear instructions (`hero.move_forward()`).
+- **Variables room 1: The Rupee Caves** (`variables/room1`) - Declaring, incrementing variables (`rupees = rupees + 1`), and outputting results (`print(rupees)`).
+- **Conditionals room 1: Eye of Truth** (`conditionals/room1`) - Checking environment tiles using sensors (`if hero.scan_ahead() == "obstacle":`).
+- **Loops room 1: The Rupee Vault** (`loops/room1`) - Repeating routines cleanly (`for i in range(4):`).
+- **Functions room 1: The Triforce Chamber** (`functions/room1`) - Defining custom macros (`def step_and_collect():`) to navigate mazes.
 
 ### 🟡 Intermediate Level (Livello Intermedio)
-- **Room 6: Lists** (`lists/room1`): Using array structures to store coordinates or move queues.
-- **Room 7: Objects & Enigma** (`objects/room1`): Emulating historical Enigma M3 cryptographic hardware by configuring swappable plugboards, rotors, reflectors, and entry wheels using object instantiation.
+- **Lists room 1: Path of Crystals** (`lists/room1`) - Using array structures to store coordinates or move queues.
+- **Objects room 1: Enigma and Objects** (`objects/room1`) - Emulating historical Enigma M3 cryptographic hardware by configuring swappable plugboards, rotors, reflectors, and entry wheels using object instantiation.
 
 ### 🔴 Advanced Level (Livello Avanzato)
-- **Room 8: Recursion** (`recursion/room1`): Using recursive calls to solve winding portals and nested chambers.
+- **Recursion room 1: Recursive Maze** (`recursion/room1`) - Using recursive calls to solve winding portals and nested chambers.
 
 ---
 
