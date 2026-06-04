@@ -21,8 +21,8 @@ The application features a dark, 8-bit retro theme with harmonic HSL colors and 
 
 ## ⚡ Core Features
 
-### 1. Dual Programming Workspace
-Players can toggle seamlessly between a visual **Blockly** editor and a text-based **Python** editor. Changes in Blockly automatically translate to real-time Python code, bridging the gap between block-based and text-based syntax.
+### 1. Dual Programming Workspace & Synchronization
+Players can toggle seamlessly between a visual **Blockly** editor and a text-based **Python** editor. Changes in Blockly automatically translate to real-time Python code, bridging the gap between block-based and text-based syntax. When transitioning to the Python tab, code is automatically synced; manual edits in the Python code-area lock it to prevent accidental overwriting unless cleared.
 
 ### 2. Event-Driven Execution (`on_start`)
 To align with standard programming conventions, code must be placed inside the `on_start()` function context:
@@ -38,13 +38,24 @@ To prevent players from bypassing the learning objectives (e.g. writing repeatin
 - **Functions Room**: Requires at least one custom function declaration (`def`).
 - *Note:* In Python mode, comments are automatically stripped during validation to prevent cheating (e.g., `# using a for loop` will not bypass the check).
 
-### 4. Interactive Step-by-Step Debugger
-In addition to the **Run (AVVIA)** button, players can use the **Step (PASSO)** debugger to execute commands one-by-one. The simulator advances Link step-by-step and inspects console outputs without resetting his position between steps, aiding in debugging complex algorithms.
+### 4. Interactive Step-by-Step Debugger & Active Highlighting
+In addition to the **Run (AVVIA)** button, players can use the **Step (PASSO)** debugger to execute commands one-by-one. The simulator advances Link step-by-step and inspects console outputs without resetting his position between steps.
+During execution, the active Blockly block glows with a golden outline on the canvas, or the active statement line is highlighted with a gold retro bar in the Python code editor gutter and Python Scroll pane.
 
-### 5. Retro Sound Synthesizer (`RetroSynth`)
+### 5. WebAssembly Python Sandbox (Pyodide) & Dynamic Modules
+Advanced rooms (like the Enigma level) are executed client-side using a sandboxed WebAssembly **Pyodide** environment. If the challenge requires custom external libraries (e.g., `enigmapython`), the engine dynamically installs them using `micropip` and invalidates Python's import caches via `importlib.invalidate_caches()` to make them immediately importable.
+
+### 6. Expert Mode (Python-Only)
+Players can toggle "Expert Mode" (via the 🧠 button in the header) which hides the visual Blockly workspace entirely, forcing the player to code solely in Python text. The preference persists in local storage.
+
+### 7. Space-Saving Iconized Controls & Dynamic Titles
+- **Header Controls**: Switched to square, emoji-based icon buttons (🔊, 📺, 🧠, ?, 💾, 📂, 🔄) to prevent layout overflows. Tooltips are localized and dynamically updated with state info, such as `(ON)` / `(OFF)`.
+- **Dynamic Box Header**: The left panel header dynamically loads the current level's title (e.g., `"LA LENTE DELLA VERITÀ"`) from `room.js` with full translation support, replacing generic labels.
+
+### 8. Retro Sound Synthesizer (`RetroSynth`)
 Built using the browser's Web Audio API, a custom synthesizer generates authentic 8-bit sound effects (chimes, clicks, rupee collections, step movements, victory fanfares, and error blips) without loading external audio assets. An interaction unlock listener automatically initializes the AudioContext on the first user click/keypress to comply with browser autoplay restrictions.
 
-### 6. i18n Translation Engine
+### 9. i18n Translation Engine
 The interface includes full localization support for English (**EN**) and Italian (**IT**). Story dialogs, objectives, command documentation, help menus, console logs, and Blockly block labels translate dynamically.
 
 ---
@@ -62,9 +73,10 @@ Levels are organized in the selection dropdown under difficulty groupings:
 
 ### 🟡 Intermediate Level (Livello Intermedio)
 - **Room 6: Lists** (`lists/room1`): Using array structures to store coordinates or move queues.
+- **Room 7: Objects & Enigma** (`objects/room1`): Emulating historical Enigma M3 cryptographic hardware by configuring swappable plugboards, rotors, reflectors, and entry wheels using object instantiation.
 
 ### 🔴 Advanced Level (Livello Avanzato)
-- **Room 7: Recursion** (`recursion/room1`): Using recursive calls to solve winding portals and nested chambers.
+- **Room 8: Recursion** (`recursion/room1`): Using recursive calls to solve winding portals and nested chambers.
 
 ---
 
