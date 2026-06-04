@@ -30,6 +30,13 @@ const TRANSLATIONS = {
     crtOff: "📺 CRT SPENTO",
     expertOn: "🧠 ESPERTO: ON",
     expertOff: "🧠 ESPERTO: OFF",
+    titleSound: "Attiva/Disattiva Audio",
+    titleCrt: "Effetto CRT (ON/OFF)",
+    titleExpert: "Modalità Esperto (ON/OFF)",
+    titleHelp: "Come Giocare",
+    titleSave: "Salva Partita",
+    titleLoad: "Carica Partita",
+    titleReset: "Resetta Progressi Quest",
     
     // Tooltips & Default texts
     dragSpells: "# Trascina i blocchi per generare codice Python!",
@@ -111,6 +118,13 @@ const TRANSLATIONS = {
     crtOff: "📺 CRT OFF",
     expertOn: "🧠 EXPERT: ON",
     expertOff: "🧠 EXPERT: OFF",
+    titleSound: "Toggle Sound",
+    titleCrt: "CRT Effect (ON/OFF)",
+    titleExpert: "Expert Mode (ON/OFF)",
+    titleHelp: "How to Play",
+    titleSave: "Save Game",
+    titleLoad: "Load Game",
+    titleReset: "Reset Quest Progress",
     
     // Tooltips & Default texts
     dragSpells: "# Drag blocks to write spells and generate Python code!",
@@ -181,6 +195,14 @@ function applyTranslations(lang) {
       } else {
         el.innerHTML = dict[key];
       }
+    }
+  });
+
+  // Translate title tooltips
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (dict[key]) {
+      el.setAttribute('title', dict[key]);
     }
   });
   

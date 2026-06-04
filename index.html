@@ -51,17 +51,17 @@
         </select>
       </div>
 
-      <button id="sound-btn" class="pixel-btn sound-btn" title="Toggle Sound">🔊</button>
-      <button id="crt-btn" class="pixel-btn crt-btn" title="Toggle CRT Effect">📺 CRT ON</button>
-      <button id="expert-btn" class="pixel-btn expert-btn" title="Toggle Expert Mode">🧠 MODO ESPERTO: OFF</button>
-      <button id="help-btn" class="pixel-btn help-btn" title="How to Play">?</button>
+      <button id="sound-btn" class="pixel-btn sound-btn icon-btn" data-i18n-title="titleSound" title="Toggle Sound">🔊</button>
+      <button id="crt-btn" class="pixel-btn crt-btn icon-btn" data-i18n-title="titleCrt" title="CRT Effect (ON/OFF)">📺</button>
+      <button id="expert-btn" class="pixel-btn expert-btn icon-btn" data-i18n-title="titleExpert" title="Expert Mode (ON/OFF)">🧠</button>
+      <button id="help-btn" class="pixel-btn help-btn icon-btn" data-i18n-title="titleHelp" title="How to Play">?</button>
       
       <!-- Save & Load buttons -->
-      <button id="export-save-btn" class="pixel-btn font-vt" title="Save Game">💾 <span data-i18n="exportSaveText">SALVA PARTITA</span></button>
-      <button id="import-save-btn" class="pixel-btn font-vt" title="Load Game">📂 <span data-i18n="importSaveText">CARICA PARTITA</span></button>
+      <button id="export-save-btn" class="pixel-btn icon-btn" data-i18n-title="titleSave" title="Save Game">💾</button>
+      <button id="import-save-btn" class="pixel-btn icon-btn" data-i18n-title="titleLoad" title="Load Game">📂</button>
       <input type="file" id="import-save-file" accept=".json" style="display: none;">
       
-      <button id="reset-progress-btn" data-i18n="resetQuest" class="pixel-btn danger-btn font-vt" title="Reset all achievements">RESETTA QUEST</button>
+      <button id="reset-progress-btn" class="pixel-btn danger-btn icon-btn" data-i18n-title="titleReset" title="Reset all achievements">🔄</button>
     </div>
   </header>
 

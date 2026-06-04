@@ -120,7 +120,7 @@ function setupUIEventListeners() {
     
     const updateCrtButtonText = () => {
       const active = !document.body.classList.contains('no-crt');
-      crtBtn.textContent = active ? t('crtOn') : t('crtOff');
+      crtBtn.title = t('titleCrt') + (active ? ' (ON)' : ' (OFF)');
       crtBtn.style.opacity = active ? '1' : '0.6';
     };
     window.updateCrtButtonText = updateCrtButtonText;
@@ -142,7 +142,7 @@ function setupUIEventListeners() {
     isExpertMode = localStorage.getItem('codequest_expert') === 'true';
     
     const updateExpertButtonText = () => {
-      expertBtn.textContent = isExpertMode ? t('expertOn') : t('expertOff');
+      expertBtn.title = t('titleExpert') + (isExpertMode ? ' (ON)' : ' (OFF)');
       expertBtn.style.opacity = isExpertMode ? '1' : '0.6';
     };
     window.updateExpertButtonText = updateExpertButtonText;
