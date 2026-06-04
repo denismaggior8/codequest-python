@@ -1,5 +1,7 @@
 # The Legend of Python
 
+![The Legend of Python Gameplay](img/gameplay.png)
+
 **The Legend of Python** is an educational, browser-based retro programming game designed to teach Python and programming logic using a visual, gamified environment inspired by retro Zelda classics. 
 
 Players guide the hero, **Link**, through grid-based stone dungeons to reach the gold **Triforce Warp Gate**, using either visual **Blockly** blocks or writing raw **Python** code.

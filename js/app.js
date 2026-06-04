@@ -135,6 +135,47 @@ function setupUIEventListeners() {
     });
   }
 
+  // Expert Mode toggler
+  const expertBtn = document.getElementById('expert-btn');
+  if (expertBtn) {
+    // Apply initial state from persistence (default OFF)
+    isExpertMode = localStorage.getItem('codequest_expert') === 'true';
+    
+    const updateExpertButtonText = () => {
+      expertBtn.textContent = isExpertMode ? t('expertOn') : t('expertOff');
+      expertBtn.style.opacity = isExpertMode ? '1' : '0.6';
+    };
+    window.updateExpertButtonText = updateExpertButtonText;
+    updateExpertButtonText();
+    
+    expertBtn.addEventListener('click', () => {
+      synth.play('click');
+      isExpertMode = !isExpertMode;
+      localStorage.setItem('codequest_expert', String(isExpertMode));
+      updateExpertButtonText();
+      
+      // Update tab layout and active mode
+      const tabBlocks = document.getElementById('tab-blocks');
+      const tabPython = document.getElementById('tab-python');
+      if (tabBlocks && tabPython) {
+        if (isExpertMode) {
+          // Hide blocks tab
+          tabBlocks.style.display = 'none';
+          // Switch to Python mode if we are in blocks
+          if (currentMode === 'blocks') {
+            tabPython.click();
+          }
+        } else {
+          // Show blocks tab (unless the level itself is pythonOnly)
+          const level = LEVELS[currentLevelIndex];
+          if (level && !level.pythonOnly) {
+            tabBlocks.style.display = 'block';
+          }
+        }
+      }
+    });
+  }
+
   // Level selector list listener
   const levelSelect = document.getElementById('level-select');
   if (levelSelect) {
@@ -596,7 +637,7 @@ function loadLevel(index) {
   const savedState = levelsCodeCache[levelId];
   const pyTextarea = document.getElementById('python-textarea');
   
-  if (level.pythonOnly) {
+  if (level.pythonOnly || isExpertMode) {
     currentMode = 'python';
   } else {
     if (savedState) {
@@ -662,7 +703,7 @@ function loadLevel(index) {
 
   // Update Tab active UI
   if (tabBlocks && tabPython && blocklyContainer && editorContainer) {
-    if (level.pythonOnly) {
+    if (level.pythonOnly || isExpertMode) {
       tabBlocks.style.display = 'none';
       tabPython.classList.add('active');
       tabBlocks.classList.remove('active');

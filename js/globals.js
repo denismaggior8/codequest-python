@@ -161,6 +161,7 @@ let completedLevels = {};
 let levelsCodeCache = {};
 let currentMode = 'blocks';
 let isExecutingStart = false;
+let isExpertMode = false;
 
 // Pyodide variables
 let pyodideInstance = null;

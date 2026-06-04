@@ -28,6 +28,8 @@ const TRANSLATIONS = {
     copied: "COPIATO!",
     crtOn: "📺 CRT ACCESO",
     crtOff: "📺 CRT SPENTO",
+    expertOn: "🧠 ESPERTO: ON",
+    expertOff: "🧠 ESPERTO: OFF",
     
     // Tooltips & Default texts
     dragSpells: "# Trascina i blocchi per generare codice Python!",
@@ -107,6 +109,8 @@ const TRANSLATIONS = {
     copied: "COPIED!",
     crtOn: "📺 CRT ON",
     crtOff: "📺 CRT OFF",
+    expertOn: "🧠 EXPERT: ON",
+    expertOff: "🧠 EXPERT: OFF",
     
     // Tooltips & Default texts
     dragSpells: "# Drag blocks to write spells and generate Python code!",
@@ -188,6 +192,10 @@ function applyTranslations(lang) {
   // Update CRT button label based on active language
   if (typeof updateCrtButtonText === 'function') {
     updateCrtButtonText();
+  }
+  // Update Expert button label based on active language
+  if (typeof updateExpertButtonText === 'function') {
+    updateExpertButtonText();
   }
 }
 
