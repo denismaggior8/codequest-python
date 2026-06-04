@@ -299,11 +299,22 @@ function setupUIEventListeners() {
       blocklyContainer.classList.add('hidden');
       editorContainer.classList.remove('hidden');
       
-      // Auto-save active tab change
       const lvlId = LEVELS[currentLevelIndex].id;
       if (!levelsCodeCache[lvlId]) {
         levelsCodeCache[lvlId] = { mode: 'blocks', blocksState: null, pythonCode: '' };
       }
+      
+      // Auto-populate python editor with generated code if empty or not customized by the user
+      if (!levelsCodeCache[lvlId].isPythonDirty || pyTextarea.value.trim() === '') {
+        const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+        let generatedPyCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
+        // Clean block_id parameters
+        generatedPyCode = generatedPyCode.replace(/(?:,\s*)?block_id=['"][^'"]*['"]/g, '');
+        pyTextarea.value = generatedPyCode;
+        levelsCodeCache[lvlId].isPythonDirty = false; // Reset to clean
+      }
+      
+      // Auto-save active tab change
       levelsCodeCache[lvlId].mode = 'python';
       levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
       saveProgress();
@@ -367,6 +378,14 @@ function setupUIEventListeners() {
     }
     levelsCodeCache[lvlId].pythonCode = pyTextarea.value;
     levelsCodeCache[lvlId].mode = currentMode;
+    
+    // Mark if user has customized code (if empty, allow auto-generation again)
+    if (pyTextarea.value.trim() === '') {
+      levelsCodeCache[lvlId].isPythonDirty = false;
+    } else {
+      levelsCodeCache[lvlId].isPythonDirty = true;
+    }
+    
     saveProgress();
     
     updateLineNumbers();
@@ -380,6 +399,29 @@ function setupUIEventListeners() {
       lineNumbers.scrollTop = pyTextarea.scrollTop;
     }
   });
+
+  // Handle clicking/tapping the trashcan icon to delete the currently selected block
+  const handleTrashInteraction = (e) => {
+    const trash = e.target.closest('.blocklyTrash');
+    if (trash) {
+      const selectedBlock = Blockly.common ? Blockly.common.getSelected() : Blockly.selected;
+      if (selectedBlock) {
+        if (typeof selectedBlock.checkAndDelete === 'function') {
+          selectedBlock.checkAndDelete();
+        } else if (typeof selectedBlock.dispose === 'function') {
+          selectedBlock.dispose(true);
+        }
+        if (typeof synth !== 'undefined' && typeof synth.play === 'function') {
+          synth.play('error');
+        }
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }
+  };
+  document.addEventListener('pointerdown', handleTrashInteraction, true);
+  document.addEventListener('mousedown', handleTrashInteraction, true);
+  document.addEventListener('touchstart', handleTrashInteraction, true);
 }
 
 function initSimulator() {
@@ -556,11 +598,6 @@ function loadLevel(index) {
   
   if (level.pythonOnly) {
     currentMode = 'python';
-    if (savedState && savedState.pythonCode) {
-      if (pyTextarea) pyTextarea.value = savedState.pythonCode;
-    } else {
-      if (pyTextarea) pyTextarea.value = '';
-    }
   } else {
     if (savedState) {
       currentMode = savedState.mode || 'blocks';
@@ -579,16 +616,8 @@ function loadLevel(index) {
           console.warn("Failed to restore blockly state: ", e);
         }
       }
-      
-      // Restore Python text
-      if (savedState.pythonCode) {
-        if (pyTextarea) pyTextarea.value = savedState.pythonCode;
-      } else {
-        if (pyTextarea) pyTextarea.value = '';
-      }
     } else {
       currentMode = 'blocks';
-      if (pyTextarea) pyTextarea.value = '';
     }
   }
 
@@ -607,6 +636,27 @@ function loadLevel(index) {
     const pos = startBlock.getRelativeToSurfaceXY();
     if (pos && pos.x < 350) {
       startBlock.moveTo({ x: 380, y: 30 });
+    }
+  }
+
+  // Restore or generate Python text editor content
+  if (pyTextarea) {
+    if (savedState && savedState.pythonCode) {
+      pyTextarea.value = savedState.pythonCode;
+    } else if (level.pythonOnly) {
+      pyTextarea.value = '';
+    } else {
+      // Auto-generate clean Python code from initial Blockly workspace
+      const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
+      let generatedPyCode = pyGen ? pyGen.workspaceToCode(workspace) : '';
+      generatedPyCode = generatedPyCode.replace(/(?:,\s*)?block_id=['"][^'"]*['"]/g, '');
+      pyTextarea.value = generatedPyCode;
+      
+      // Save it in the cache too so it's persistent
+      if (!levelsCodeCache[levelId]) {
+        levelsCodeCache[levelId] = { mode: currentMode, blocksState: null, pythonCode: '' };
+      }
+      levelsCodeCache[levelId].pythonCode = pyTextarea.value;
     }
   }
 
