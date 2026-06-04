@@ -44,11 +44,11 @@ function getTooltipText(key) {
 
 // 1. Block Definitions
 Blockly.Blocks['on_start'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("def on_start():");
+      .appendField("def on_start():");
     this.appendStatementInput("STACK")
-        .setCheck(null);
+      .setCheck(null);
     this.setColour(20);
     this.setTooltip(() => typeof currentLanguage !== 'undefined' && currentLanguage === 'en' ? "Define what to do when start is pressed." : "Definisci cosa fare quando premi avvia.");
     this.setHelpUrl("");
@@ -56,9 +56,9 @@ Blockly.Blocks['on_start'] = {
 };
 
 Blockly.Blocks['move_forward'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("hero.move_forward()");
+      .appendField("hero.move_forward()");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(120); // Green
@@ -68,9 +68,9 @@ Blockly.Blocks['move_forward'] = {
 };
 
 Blockly.Blocks['collect_rupee'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("hero.collect_rupee()");
+      .appendField("hero.collect_rupee()");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(290); // Purple
@@ -80,9 +80,9 @@ Blockly.Blocks['collect_rupee'] = {
 };
 
 Blockly.Blocks['turn_left'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("hero.turn_left()");
+      .appendField("hero.turn_left()");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(220); // Blue
@@ -92,9 +92,9 @@ Blockly.Blocks['turn_left'] = {
 };
 
 Blockly.Blocks['turn_right'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("hero.turn_right()");
+      .appendField("hero.turn_right()");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(220); // Blue
@@ -104,9 +104,9 @@ Blockly.Blocks['turn_right'] = {
 };
 
 Blockly.Blocks['scan_ahead'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("hero.scan_ahead()");
+      .appendField("hero.scan_ahead()");
     this.setOutput(true, "String");
     this.setColour(45); // Orange/Yellow
     this.setTooltip(() => getTooltipText('scan_ahead'));
@@ -144,65 +144,65 @@ function registerPy(blockType, func) {
 }
 
 // 3. Register Generators
-registerJS('move_forward', function(block) {
+registerJS('move_forward', function (block) {
   return `moveForward("${block.id}");\n`;
 });
-registerPy('move_forward', function(block) {
+registerPy('move_forward', function (block) {
   return `hero.move_forward(block_id="${block.id}")\n`;
 });
 
-registerJS('collect_rupee', function(block) {
+registerJS('collect_rupee', function (block) {
   return `collectRupee("${block.id}");\n`;
 });
-registerPy('collect_rupee', function(block) {
+registerPy('collect_rupee', function (block) {
   return `hero.collect_rupee(block_id="${block.id}")\n`;
 });
 
-registerJS('turn_left', function(block) {
+registerJS('turn_left', function (block) {
   return `turnLeft("${block.id}");\n`;
 });
-registerPy('turn_left', function(block) {
+registerPy('turn_left', function (block) {
   return `hero.turn_left(block_id="${block.id}")\n`;
 });
 
-registerJS('turn_right', function(block) {
+registerJS('turn_right', function (block) {
   return `turnRight("${block.id}");\n`;
 });
-registerPy('turn_right', function(block) {
+registerPy('turn_right', function (block) {
   return `hero.turn_right(block_id="${block.id}")\n`;
 });
 
-registerJS('scan_ahead', function(block, generator) {
+registerJS('scan_ahead', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_FUNCTION_CALL || 0) : 0;
   return [`scanAhead("${block.id}")`, order];
 });
-registerPy('scan_ahead', function(block, generator) {
+registerPy('scan_ahead', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_FUNCTION_CALL || 0) : 0;
   return [`hero.scan_ahead(block_id="${block.id}")`, order];
 });
 
-registerJS('text_print', function(block, generator) {
+registerJS('text_print', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const msg = gen ? (gen.valueToCode(block, 'TEXT', order) || "''") : "''";
   return 'printConsole(' + msg + ', "' + block.id + '");\n';
 });
-registerPy('text_print', function(block, generator) {
+registerPy('text_print', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const msg = gen ? (gen.valueToCode(block, 'TEXT', order) || "''") : "''";
   return 'print(' + msg + ', block_id="' + block.id + '")\n';
 });
 
-registerJS('on_start', function(block, generator) {
+registerJS('on_start', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const statements = gen ? (gen.statementToCode(block, 'STACK') || '') : '';
   return 'function on_start() {\n' + statements + '}\n';
 });
 
-registerPy('on_start', function(block, generator) {
+registerPy('on_start', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   let statements = gen ? (gen.statementToCode(block, 'STACK') || '') : '';
   if (!statements.trim()) {
@@ -213,13 +213,13 @@ registerPy('on_start', function(block, generator) {
 
 // 4. Enigma M3 Blocks Definition
 Blockly.Blocks['swappable_plugboard'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("SwappablePlugboard(swap")
-        .appendField(new Blockly.FieldTextInput("a"), "CHAR1")
-        .appendField(",")
-        .appendField(new Blockly.FieldTextInput("z"), "CHAR2")
-        .appendField(")");
+      .appendField("SwappablePlugboard(swap")
+      .appendField(new Blockly.FieldTextInput("a"), "CHAR1")
+      .appendField(",")
+      .appendField(new Blockly.FieldTextInput("z"), "CHAR2")
+      .appendField(")");
     this.setOutput(true, "Plugboard");
     this.setColour(200);
     this.setTooltip(() => getTooltipText('swappable_plugboard'));
@@ -227,14 +227,14 @@ Blockly.Blocks['swappable_plugboard'] = {
 };
 
 Blockly.Blocks['plugboard_swap'] = {
-  init: function() {
+  init: function () {
     this.appendValueInput("PLUGBOARD").setCheck("Plugboard");
     this.appendDummyInput()
-        .appendField(".swap(")
-        .appendField(new Blockly.FieldTextInput("a"), "CHAR1")
-        .appendField(",")
-        .appendField(new Blockly.FieldTextInput("z"), "CHAR2")
-        .appendField(")");
+      .appendField(".swap(")
+      .appendField(new Blockly.FieldTextInput("a"), "CHAR1")
+      .appendField(",")
+      .appendField(new Blockly.FieldTextInput("z"), "CHAR2")
+      .appendField(")");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(200);
@@ -243,13 +243,13 @@ Blockly.Blocks['plugboard_swap'] = {
 };
 
 Blockly.Blocks['enigma_m3_rotor1'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("EnigmaM3RotorI(")
-        .appendField(new Blockly.FieldNumber(1, 1, 26), "POS")
-        .appendField(",")
-        .appendField(new Blockly.FieldNumber(1, 1, 26), "RING")
-        .appendField(")");
+      .appendField("EnigmaM3RotorI(")
+      .appendField(new Blockly.FieldNumber(1, 1, 26), "POS")
+      .appendField(",")
+      .appendField(new Blockly.FieldNumber(1, 1, 26), "RING")
+      .appendField(")");
     this.setOutput(true, "Rotor");
     this.setColour(230);
     this.setTooltip(() => getTooltipText('enigma_m3_rotor1'));
@@ -257,13 +257,13 @@ Blockly.Blocks['enigma_m3_rotor1'] = {
 };
 
 Blockly.Blocks['enigma_m3_rotor2'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("EnigmaM3RotorII(")
-        .appendField(new Blockly.FieldNumber(1, 1, 26), "POS")
-        .appendField(",")
-        .appendField(new Blockly.FieldNumber(1, 1, 26), "RING")
-        .appendField(")");
+      .appendField("EnigmaM3RotorII(")
+      .appendField(new Blockly.FieldNumber(1, 1, 26), "POS")
+      .appendField(",")
+      .appendField(new Blockly.FieldNumber(1, 1, 26), "RING")
+      .appendField(")");
     this.setOutput(true, "Rotor");
     this.setColour(230);
     this.setTooltip(() => getTooltipText('enigma_m3_rotor2'));
@@ -271,13 +271,13 @@ Blockly.Blocks['enigma_m3_rotor2'] = {
 };
 
 Blockly.Blocks['enigma_m3_rotor3'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput()
-        .appendField("EnigmaM3RotorIII(")
-        .appendField(new Blockly.FieldNumber(1, 1, 26), "POS")
-        .appendField(",")
-        .appendField(new Blockly.FieldNumber(1, 1, 26), "RING")
-        .appendField(")");
+      .appendField("EnigmaM3RotorIII(")
+      .appendField(new Blockly.FieldNumber(1, 1, 26), "POS")
+      .appendField(",")
+      .appendField(new Blockly.FieldNumber(1, 1, 26), "RING")
+      .appendField(")");
     this.setOutput(true, "Rotor");
     this.setColour(230);
     this.setTooltip(() => getTooltipText('enigma_m3_rotor3'));
@@ -285,7 +285,7 @@ Blockly.Blocks['enigma_m3_rotor3'] = {
 };
 
 Blockly.Blocks['reflector_ukwb'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput().appendField("ReflectorUKWB()");
     this.setOutput(true, "Reflector");
     this.setColour(250);
@@ -294,7 +294,7 @@ Blockly.Blocks['reflector_ukwb'] = {
 };
 
 Blockly.Blocks['etw_passthrough'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput().appendField("EtwPassthrough()");
     this.setOutput(true, "Etw");
     this.setColour(270);
@@ -303,16 +303,16 @@ Blockly.Blocks['etw_passthrough'] = {
 };
 
 Blockly.Blocks['enigma_m3'] = {
-  init: function() {
+  init: function () {
     this.appendDummyInput().appendField("EnigmaM3");
     this.appendValueInput("PLUGBOARD").setCheck("Plugboard").appendField("plugboard:");
-    this.appendValueInput("ROTOR3").setCheck("Rotor").appendField("rotor L (III):");
+    this.appendValueInput("ROTOR3").setCheck("Rotor").appendField("rotor R (III):");
     this.appendValueInput("ROTOR2").setCheck("Rotor").appendField("rotor M (II):");
-    this.appendValueInput("ROTOR1").setCheck("Rotor").appendField("rotor R (I):");
+    this.appendValueInput("ROTOR1").setCheck("Rotor").appendField("rotor L (I):");
     this.appendValueInput("REFLECTOR").setCheck("Reflector").appendField("reflector:");
     this.appendValueInput("ETW").setCheck("Etw").appendField("etw:");
     this.appendDummyInput().appendField("auto_increment:")
-                          .appendField(new Blockly.FieldCheckbox("TRUE"), "AUTO");
+      .appendField(new Blockly.FieldCheckbox("TRUE"), "AUTO");
     this.setOutput(true, "Enigma");
     this.setColour(290);
     this.setTooltip(() => getTooltipText('enigma_m3'));
@@ -320,11 +320,11 @@ Blockly.Blocks['enigma_m3'] = {
 };
 
 Blockly.Blocks['enigma_input_string'] = {
-  init: function() {
+  init: function () {
     this.appendValueInput("ENIGMA").setCheck("Enigma").appendField("enigma");
     this.appendDummyInput().appendField(".input_string(")
-                          .appendField(new Blockly.FieldTextInput("codjabrn"), "TEXT")
-                          .appendField(")");
+      .appendField(new Blockly.FieldTextInput("codjabrn"), "TEXT")
+      .appendField(")");
     this.setOutput(true, "String");
     this.setColour(310);
     this.setTooltip(() => getTooltipText('enigma_input_string'));
@@ -332,7 +332,7 @@ Blockly.Blocks['enigma_input_string'] = {
 };
 
 Blockly.Blocks['hero_unlock_gate'] = {
-  init: function() {
+  init: function () {
     this.appendValueInput("CODE").setCheck("String").appendField("hero.unlock_gate(");
     this.appendDummyInput().appendField(")");
     this.setPreviousStatement(true, null);
@@ -343,13 +343,13 @@ Blockly.Blocks['hero_unlock_gate'] = {
 };
 
 // JS Generators for Enigma Blocks
-registerJS('swappable_plugboard', function(block) {
+registerJS('swappable_plugboard', function (block) {
   const char1 = block.getFieldValue('CHAR1') || 'a';
   const char2 = block.getFieldValue('CHAR2') || 'z';
   return [`new SwappablePlugboard({"${char1}": "${char2}"})`, 0];
 });
 
-registerJS('plugboard_swap', function(block, generator) {
+registerJS('plugboard_swap', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const pb = gen ? (gen.valueToCode(block, 'PLUGBOARD', order) || 'null') : 'null';
@@ -358,33 +358,33 @@ registerJS('plugboard_swap', function(block, generator) {
   return `${pb}.swap("${char1}", "${char2}");\n`;
 });
 
-registerJS('enigma_m3_rotor1', function(block) {
+registerJS('enigma_m3_rotor1', function (block) {
   const pos = block.getFieldValue('POS') || 1;
   const ring = block.getFieldValue('RING') || 1;
   return [`new EnigmaM3RotorI(${pos}, ${ring})`, 0];
 });
 
-registerJS('enigma_m3_rotor2', function(block) {
+registerJS('enigma_m3_rotor2', function (block) {
   const pos = block.getFieldValue('POS') || 1;
   const ring = block.getFieldValue('RING') || 1;
   return [`new EnigmaM3RotorII(${pos}, ${ring})`, 0];
 });
 
-registerJS('enigma_m3_rotor3', function(block) {
+registerJS('enigma_m3_rotor3', function (block) {
   const pos = block.getFieldValue('POS') || 1;
   const ring = block.getFieldValue('RING') || 1;
   return [`new EnigmaM3RotorIII(${pos}, ${ring})`, 0];
 });
 
-registerJS('reflector_ukwb', function(block) {
+registerJS('reflector_ukwb', function (block) {
   return ['new ReflectorUKWB()', 0];
 });
 
-registerJS('etw_passthrough', function(block) {
+registerJS('etw_passthrough', function (block) {
   return ['new EtwPassthrough()', 0];
 });
 
-registerJS('enigma_m3', function(block, generator) {
+registerJS('enigma_m3', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const pb = gen ? (gen.valueToCode(block, 'PLUGBOARD', order) || 'null') : 'null';
@@ -397,7 +397,7 @@ registerJS('enigma_m3', function(block, generator) {
   return [`new EnigmaM3(${pb}, ${r3}, ${r2}, ${r1}, ${ref}, ${etw}, ${auto})`, 0];
 });
 
-registerJS('enigma_input_string', function(block, generator) {
+registerJS('enigma_input_string', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const enigma = gen ? (gen.valueToCode(block, 'ENIGMA', order) || 'null') : 'null';
@@ -405,7 +405,7 @@ registerJS('enigma_input_string', function(block, generator) {
   return [`(${enigma} ? ${enigma}.input_string("${text}") : "")`, 0];
 });
 
-registerJS('hero_unlock_gate', function(block, generator) {
+registerJS('hero_unlock_gate', function (block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const code = gen ? (gen.valueToCode(block, 'CODE', order) || '""') : '""';
@@ -413,7 +413,7 @@ registerJS('hero_unlock_gate', function(block, generator) {
 });
 
 // Python Generators for Enigma Blocks
-registerPy('swappable_plugboard', function(block) {
+registerPy('swappable_plugboard', function (block) {
   const gen = Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_swappableplugboard'] = 'from enigmapython.SwappablePlugboard import SwappablePlugboard';
@@ -423,7 +423,7 @@ registerPy('swappable_plugboard', function(block) {
   return [`SwappablePlugboard(chars={"${char1}": "${char2}"})`, 0];
 });
 
-registerPy('plugboard_swap', function(block, generator) {
+registerPy('plugboard_swap', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const pb = gen ? (gen.valueToCode(block, 'PLUGBOARD', order) || 'None') : 'None';
@@ -432,7 +432,7 @@ registerPy('plugboard_swap', function(block, generator) {
   return `${pb}.swap("${char1}", "${char2}")\n`;
 });
 
-registerPy('enigma_m3_rotor1', function(block) {
+registerPy('enigma_m3_rotor1', function (block) {
   const gen = Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_rotor1'] = 'from enigmapython.EnigmaM3RotorI import EnigmaM3RotorI';
@@ -442,7 +442,7 @@ registerPy('enigma_m3_rotor1', function(block) {
   return [`EnigmaM3RotorI(${pos}, ${ring})`, 0];
 });
 
-registerPy('enigma_m3_rotor2', function(block) {
+registerPy('enigma_m3_rotor2', function (block) {
   const gen = Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_rotor2'] = 'from enigmapython.EnigmaM3RotorII import EnigmaM3RotorII';
@@ -452,7 +452,7 @@ registerPy('enigma_m3_rotor2', function(block) {
   return [`EnigmaM3RotorII(${pos}, ${ring})`, 0];
 });
 
-registerPy('enigma_m3_rotor3', function(block) {
+registerPy('enigma_m3_rotor3', function (block) {
   const gen = Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_rotor3'] = 'from enigmapython.EnigmaM3RotorIII import EnigmaM3RotorIII';
@@ -462,7 +462,7 @@ registerPy('enigma_m3_rotor3', function(block) {
   return [`EnigmaM3RotorIII(${pos}, ${ring})`, 0];
 });
 
-registerPy('reflector_ukwb', function(block) {
+registerPy('reflector_ukwb', function (block) {
   const gen = Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_reflector'] = 'from enigmapython.ReflectorUKWB import ReflectorUKWB';
@@ -470,7 +470,7 @@ registerPy('reflector_ukwb', function(block) {
   return ['ReflectorUKWB()', 0];
 });
 
-registerPy('etw_passthrough', function(block) {
+registerPy('etw_passthrough', function (block) {
   const gen = Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_etw'] = 'from enigmapython.EtwPassthrough import EtwPassthrough';
@@ -478,7 +478,7 @@ registerPy('etw_passthrough', function(block) {
   return ['EtwPassthrough()', 0];
 });
 
-registerPy('enigma_m3', function(block, generator) {
+registerPy('enigma_m3', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   if (gen) {
     gen.definitions_['import_enigmam3'] = 'from enigmapython.EnigmaM3 import EnigmaM3';
@@ -494,7 +494,7 @@ registerPy('enigma_m3', function(block, generator) {
   return [`EnigmaM3(${pb}, ${r3}, ${r2}, ${r1}, ${ref}, ${etw}, ${auto})`, 0];
 });
 
-registerPy('enigma_input_string', function(block, generator) {
+registerPy('enigma_input_string', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const enigma = gen ? (gen.valueToCode(block, 'ENIGMA', order) || 'None') : 'None';
@@ -502,7 +502,7 @@ registerPy('enigma_input_string', function(block, generator) {
   return [`${enigma}.input_string("${text}")`, 0];
 });
 
-registerPy('hero_unlock_gate', function(block, generator) {
+registerPy('hero_unlock_gate', function (block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const code = gen ? (gen.valueToCode(block, 'CODE', order) || '""') : '""';

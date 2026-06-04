@@ -97,6 +97,25 @@ async function compileActionQueuePyodide(pyCode) {
   if (!pyodide) {
     throw new Error(currentLanguage === 'it' ? "Impossibile caricare il motore Python." : "Unable to load Python engine.");
   }
+
+  // Load enigmapython library for Enigma challenge room
+  if (level.id === "objects/room1") {
+    try {
+      pyodide.runPython("import enigmapython");
+    } catch (e) {
+      appendConsoleLine(currentLanguage === 'it' ? "Installazione della libreria enigmapython..." : "Installing enigmapython library...", 'system');
+      try {
+        await pyodide.loadPackage("micropip");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install("enigmapython");
+        pyodide.runPython("import importlib; importlib.invalidate_caches()");
+        appendConsoleLine(currentLanguage === 'it' ? "Libreria enigmapython pronta." : "enigmapython library ready.", 'system');
+      } catch (err) {
+        console.error("Failed to install enigmapython:", err);
+        throw new Error(currentLanguage === 'it' ? "Impossibile caricare la libreria enigmapython. Verifica la connessione internet." : "Unable to load enigmapython library. Please check your internet connection.");
+      }
+    }
+  }
   
   // Define hero JS callbacks exposed to Pyodide
   const heroJS = {
