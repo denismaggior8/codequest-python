@@ -41,6 +41,9 @@ const TRANSLATIONS = {
     // Tooltips & Default texts
     dragSpells: "# Trascina i blocchi per generare codice Python!",
     spellTipHeader: "SUGGERIMENTO SPELL",
+    consoleAudioEnabled: "🔊 Sistema Audio: Inizializzato (Attivo).",
+    consoleAudioDisabled: "🔇 Sistema Audio: Disattivato (Muto). Clicca sull'altoparlante in alto per attivarlo!",
+    consoleAudioError: "⚠️ Sistema Audio: Errore o non supportato in questo browser.",
     
     // Modals - Success
     modalCleared: "DUNGEON COMPLETATO!",
@@ -129,6 +132,9 @@ const TRANSLATIONS = {
     // Tooltips & Default texts
     dragSpells: "# Drag blocks to write spells and generate Python code!",
     spellTipHeader: "PYTHON SCROLL WISDOM",
+    consoleAudioEnabled: "🔊 Audio System: Initialized (Active).",
+    consoleAudioDisabled: "🔇 Audio System: Disabled (Muted). Click the speaker icon at the top to enable!",
+    consoleAudioError: "⚠️ Audio System: Error or not supported in this browser.",
     
     // Modals - Success
     modalCleared: "DUNGEON CLEARED!",
@@ -211,6 +217,10 @@ function applyTranslations(lang) {
     ? "The Legend of Python - Impara a programmare in un dungeon 2D a 8 bit"
     : "The Legend of Python - Learn programming in a 2D 8-bit dungeon";
 
+  // Update Sound button label based on active language
+  if (typeof updateSoundButtonText === 'function') {
+    updateSoundButtonText();
+  }
   // Update CRT button label based on active language
   if (typeof updateCrtButtonText === 'function') {
     updateCrtButtonText();

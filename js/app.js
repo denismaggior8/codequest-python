@@ -42,21 +42,81 @@ function loadBlocklyLocale(lang, callback) {
 
 // Setup UI Interactivity
 function setupUIEventListeners() {
-  // One-time interaction to unlock/resume Web Audio API in modern browsers
+  // Setup audio unlocking via normal bubbling clicks on specific interactive UI elements
+  // (Safari/Firefox compatibility workaround since they can block capturing-phase window gestures).
+  const forceAudioUnlock = () => {
+    synth.init();
+    if (synth.ctx && synth.ctx.state === 'suspended' && typeof synth.ctx.resume === 'function') {
+      synth.ctx.resume().then(() => {
+        console.log("🔊 AudioContext resumed successfully via button/page bubbling gesture.");
+      }).catch(e => console.warn("Failed to resume AudioContext:", e));
+    }
+  };
+
+  const triggerElements = [
+    document.getElementById('run-btn'),
+    document.getElementById('step-btn'),
+    document.getElementById('stop-btn'),
+    document.getElementById('sound-btn'),
+    document.getElementById('crt-btn'),
+    document.getElementById('expert-btn'),
+    document.getElementById('help-btn'),
+    document.getElementById('export-save-btn'),
+    document.getElementById('import-save-btn'),
+    document.getElementById('reset-progress-btn'),
+    document.getElementById('level-select'),
+    document.getElementById('prev-level-btn'),
+    document.getElementById('next-level-btn'),
+    document.getElementById('modal-next-btn'),
+    document.getElementById('modal-retry-btn'),
+    document.getElementById('close-help-btn')
+  ];
+
+  triggerElements.forEach(el => {
+    if (el) {
+      el.addEventListener('click', forceAudioUnlock, false);
+      el.addEventListener('touchstart', forceAudioUnlock, false);
+    }
+  });
+
+  document.body.addEventListener('click', forceAudioUnlock, false);
+  document.body.addEventListener('keydown', forceAudioUnlock, false);
+  document.body.addEventListener('touchstart', forceAudioUnlock, false);
+
+  // One-time interaction to unlock/resume Web Audio API in modern browsers (capturing phase fallback)
   const unlockAudio = () => {
     synth.init();
-    if (synth.ctx && synth.ctx.state === 'suspended') {
-      synth.ctx.resume().then(() => {
-        console.log("🔊 AudioContext resumed successfully via user interaction.");
-      }).catch(err => {
-        console.warn("⚠️ Failed to resume AudioContext:", err);
-      });
+    if (synth.ctx) {
+      // Play a tiny silent tone to satisfy browser user gesture requirements
+      try {
+        const osc = synth.ctx.createOscillator();
+        const gain = synth.ctx.createGain();
+        gain.gain.setValueAtTime(0.0001, synth.ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(synth.ctx.destination);
+        osc.start(0);
+        osc.stop(0.01);
+      } catch (e) {
+        console.warn("Failed to play silent unlock note:", e);
+      }
+      
+      console.log("🔒 unlockAudio interaction. AudioContext state before resume:", synth.ctx.state);
+      if (synth.ctx.state === 'suspended' && typeof synth.ctx.resume === 'function') {
+        synth.ctx.resume().then(() => {
+          console.log("🔊 AudioContext resumed successfully via window capture interaction. State:", synth.ctx.state);
+          appendConsoleLine(t('consoleAudioEnabled'), 'system');
+        }).catch(err => {
+          console.warn("⚠️ Failed to resume AudioContext:", err);
+        });
+      }
     }
-    document.removeEventListener('click', unlockAudio);
-    document.removeEventListener('keydown', unlockAudio);
+    window.removeEventListener('click', unlockAudio, true);
+    window.removeEventListener('keydown', unlockAudio, true);
+    window.removeEventListener('touchstart', unlockAudio, true);
   };
-  document.addEventListener('click', unlockAudio);
-  document.addEventListener('keydown', unlockAudio);
+  window.addEventListener('click', unlockAudio, true);
+  window.addEventListener('keydown', unlockAudio, true);
+  window.addEventListener('touchstart', unlockAudio, true);
 
   // Playback control button listeners
   const runBtn = document.getElementById('run-btn');
@@ -100,11 +160,57 @@ function setupUIEventListeners() {
   // Sound Synth toggle button listener
   const soundBtn = document.getElementById('sound-btn');
   if (soundBtn) {
+    const updateSoundButtonText = () => {
+      const active = synth.enabled;
+      soundBtn.textContent = active ? '🔊' : '🔇';
+      soundBtn.title = t('titleSound') + (active ? ' (ON)' : ' (OFF)');
+      soundBtn.style.opacity = active ? '1' : '0.6';
+    };
+    window.updateSoundButtonText = updateSoundButtonText;
+    updateSoundButtonText();
+
     soundBtn.addEventListener('click', () => {
       const enabled = synth.toggle();
-      soundBtn.textContent = enabled ? '🔊' : '🔇';
-      soundBtn.style.opacity = enabled ? '1' : '0.6';
+      localStorage.setItem('codequest_sound', String(enabled));
+      updateSoundButtonText();
+      if (enabled) {
+        synth.init();
+        if (synth.ctx) {
+          console.log("🔊 Sound toggled ON. AudioContext state:", synth.ctx.state);
+          if (synth.ctx.state === 'suspended') {
+            synth.ctx.resume().then(() => {
+              console.log("🔊 AudioContext resumed successfully on button click. State:", synth.ctx.state);
+              appendConsoleLine(t('consoleAudioEnabled'), 'system');
+              synth.play('click');
+            }).catch(err => {
+              console.warn("⚠️ Failed to resume AudioContext on button click:", err);
+              appendConsoleLine(t('consoleAudioError') + ": " + err.message, 'error');
+            });
+          } else {
+            console.log("🔊 AudioContext is already running. Playing test chime...");
+            appendConsoleLine(t('consoleAudioEnabled'), 'system');
+            synth.play('click');
+          }
+        } else {
+          console.warn("⚠️ AudioContext not created.");
+          appendConsoleLine(t('consoleAudioError'), 'error');
+        }
+      } else {
+        console.log("🔇 Sound toggled OFF.");
+        appendConsoleLine(t('consoleAudioDisabled'), 'error');
+      }
     });
+
+    // Log initial audio system status
+    setTimeout(() => {
+      if (!window.AudioContext && !window.webkitAudioContext) {
+        appendConsoleLine(t('consoleAudioError'), 'error');
+      } else if (!synth.enabled) {
+        appendConsoleLine(t('consoleAudioDisabled'), 'error');
+      } else {
+        appendConsoleLine(t('consoleAudioEnabled'), 'system');
+      }
+    }, 200);
   }
   
   // CRT visual effects toggler
