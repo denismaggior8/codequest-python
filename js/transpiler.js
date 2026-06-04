@@ -100,7 +100,7 @@ async function compileActionQueuePyodide(pyCode) {
   
   // Define hero JS callbacks exposed to Pyodide
   const heroJS = {
-    move_forward: () => {
+    move_forward: (blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
       let nextX = shadowRobot.x;
       let nextY = shadowRobot.y;
@@ -118,27 +118,27 @@ async function compileActionQueuePyodide(pyCode) {
         shadowRobot.x = nextX;
         shadowRobot.y = nextY;
       }
-      actionQueue.push({ type: 'MOVE_FORWARD' });
+      actionQueue.push({ type: 'MOVE_FORWARD', blockId: blockId, lineNumber: lineNumber });
     },
-    turn_left: () => {
+    turn_left: (blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
       shadowRobot.dir = (shadowRobot.dir + 3) % 4;
-      actionQueue.push({ type: 'TURN_LEFT' });
+      actionQueue.push({ type: 'TURN_LEFT', blockId: blockId, lineNumber: lineNumber });
     },
-    turn_right: () => {
+    turn_right: (blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
       shadowRobot.dir = (shadowRobot.dir + 1) % 4;
-      actionQueue.push({ type: 'TURN_RIGHT' });
+      actionQueue.push({ type: 'TURN_RIGHT', blockId: blockId, lineNumber: lineNumber });
     },
-    collect_rupee: () => {
+    collect_rupee: (blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
       const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
       if (rupee) {
         rupee.collected = true;
       }
-      actionQueue.push({ type: 'COLLECT' });
+      actionQueue.push({ type: 'COLLECT', blockId: blockId, lineNumber: lineNumber });
     },
-    scan_ahead: () => {
+    scan_ahead: (blockId, lineNumber) => {
       if (shadowRobot.crashed) return 'obstacle';
       let nextX = shadowRobot.x;
       let nextY = shadowRobot.y;
@@ -158,17 +158,17 @@ async function compileActionQueuePyodide(pyCode) {
       if (rupee) return "crystal";
       return "empty";
     },
-    unlock_gate: (code) => {
+    unlock_gate: (code, blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
-      actionQueue.push({ type: 'UNLOCK_GATE', code: String(code) });
+      actionQueue.push({ type: 'UNLOCK_GATE', code: String(code), blockId: blockId, lineNumber: lineNumber });
       if (code && String(code).toLowerCase().trim() === "triforza") {
         const gateX = level.gateX !== undefined ? level.gateX : 2;
         const gateY = level.gateY !== undefined ? level.gateY : 1;
         shadowRobot.grid[gateY][gateX] = 0;
       }
     },
-    print_queue: (msg) => {
-      actionQueue.push({ type: 'PRINT', message: String(msg) });
+    print_queue: (msg, blockId, lineNumber) => {
+      actionQueue.push({ type: 'PRINT', message: String(msg), blockId: blockId, lineNumber: lineNumber });
     }
   };
   
@@ -177,30 +177,51 @@ async function compileActionQueuePyodide(pyCode) {
   try {
     const setupPyCode = `
 import sys
+import inspect
 from js import hero_js
 
 class HeroWrapper:
-    def move_forward(self):
-        hero_js.move_forward()
-    def turn_left(self):
-        hero_js.turn_left()
-    def turn_right(self):
-        hero_js.turn_right()
-    def collect_rupee(self):
-        hero_js.collect_rupee()
-    def scan_ahead(self):
-        return hero_js.scan_ahead()
-    def unlock_gate(self, code):
-        hero_js.unlock_gate(code)
+    def move_forward(self, block_id=None):
+        frame = inspect.currentframe().f_back
+        line_no = frame.f_lineno if frame else None
+        hero_js.move_forward(block_id, line_no)
+    def turn_left(self, block_id=None):
+        frame = inspect.currentframe().f_back
+        line_no = frame.f_lineno if frame else None
+        hero_js.turn_left(block_id, line_no)
+    def turn_right(self, block_id=None):
+        frame = inspect.currentframe().f_back
+        line_no = frame.f_lineno if frame else None
+        hero_js.turn_right(block_id, line_no)
+    def collect_rupee(self, block_id=None):
+        frame = inspect.currentframe().f_back
+        line_no = frame.f_lineno if frame else None
+        hero_js.collect_rupee(block_id, line_no)
+    def scan_ahead(self, block_id=None):
+        frame = inspect.currentframe().f_back
+        line_no = frame.f_lineno if frame else None
+        return hero_js.scan_ahead(block_id, line_no)
+    def unlock_gate(self, code, block_id=None):
+        frame = inspect.currentframe().f_back
+        line_no = frame.f_lineno if frame else None
+        hero_js.unlock_gate(code, block_id, line_no)
 
 hero = HeroWrapper()
+
+# Custom print override
+def print(*args, **kwargs):
+    block_id = kwargs.pop('block_id', None)
+    frame = inspect.currentframe().f_back
+    line_no = frame.f_lineno if frame else None
+    text = kwargs.get('sep', ' ').join(map(str, args))
+    hero_js.print_queue(text, block_id, line_no)
 
 class QueueWriter:
     def write(self, text):
         if text and text != '\\n':
             for line in text.split('\\n'):
                 if line:
-                    hero_js.print_queue(line)
+                    hero_js.print_queue(line, None, None)
     def flush(self):
         pass
 
@@ -237,7 +258,7 @@ function compileActionQueue(jsCode) {
     crashed: false
   };
   
-  globalThis.moveForward = () => {
+  globalThis.moveForward = (blockId, lineNumber) => {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     
@@ -258,34 +279,34 @@ function compileActionQueue(jsCode) {
       shadowRobot.x = nextX;
       shadowRobot.y = nextY;
     }
-    actionQueue.push({ type: 'MOVE_FORWARD' });
+    actionQueue.push({ type: 'MOVE_FORWARD', blockId: blockId, lineNumber: lineNumber });
   };
   
-  globalThis.turnLeft = () => {
+  globalThis.turnLeft = (blockId, lineNumber) => {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     shadowRobot.dir = (shadowRobot.dir + 3) % 4;
-    actionQueue.push({ type: 'TURN_LEFT' });
+    actionQueue.push({ type: 'TURN_LEFT', blockId: blockId, lineNumber: lineNumber });
   };
   
-  globalThis.turnRight = () => {
+  globalThis.turnRight = (blockId, lineNumber) => {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     shadowRobot.dir = (shadowRobot.dir + 1) % 4;
-    actionQueue.push({ type: 'TURN_RIGHT' });
+    actionQueue.push({ type: 'TURN_RIGHT', blockId: blockId, lineNumber: lineNumber });
   };
   
-  globalThis.collectRupee = () => {
+  globalThis.collectRupee = (blockId, lineNumber) => {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
     if (rupee) {
       rupee.collected = true;
     }
-    actionQueue.push({ type: 'COLLECT' });
+    actionQueue.push({ type: 'COLLECT', blockId: blockId, lineNumber: lineNumber });
   };
   
-  globalThis.scanAhead = () => {
+  globalThis.scanAhead = (blockId, lineNumber) => {
     if (!isExecutingStart) return "obstacle";
     if (shadowRobot.crashed) return 'obstacle';
     
@@ -312,15 +333,15 @@ function compileActionQueue(jsCode) {
     return "empty";
   };
   
-  globalThis.printConsole = (msg) => {
+  globalThis.printConsole = (msg, blockId, lineNumber) => {
     if (!isExecutingStart) return;
-    actionQueue.push({ type: 'PRINT', message: String(msg) });
+    actionQueue.push({ type: 'PRINT', message: String(msg), blockId: blockId, lineNumber: lineNumber });
   };
   
-  globalThis.unlockGate = (code) => {
+  globalThis.unlockGate = (code, blockId, lineNumber) => {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
-    actionQueue.push({ type: 'UNLOCK_GATE', code: String(code) });
+    actionQueue.push({ type: 'UNLOCK_GATE', code: String(code), blockId: blockId, lineNumber: lineNumber });
     if (code && String(code).toLowerCase().trim() === "triforza") {
       const gateX = level.gateX !== undefined ? level.gateX : 2;
       const gateY = level.gateY !== undefined ? level.gateY : 1;
@@ -329,12 +350,12 @@ function compileActionQueue(jsCode) {
   };
   
   globalThis.hero = {
-    move_forward: () => globalThis.moveForward(),
-    collect_rupee: () => globalThis.collectRupee(),
-    turn_left: () => globalThis.turnLeft(),
-    turn_right: () => globalThis.turnRight(),
-    scan_ahead: () => globalThis.scanAhead(),
-    unlock_gate: (code) => globalThis.unlockGate(code)
+    move_forward: (blockId, lineNumber) => globalThis.moveForward(blockId, lineNumber),
+    collect_rupee: (blockId, lineNumber) => globalThis.collectRupee(blockId, lineNumber),
+    turn_left: (blockId, lineNumber) => globalThis.turnLeft(blockId, lineNumber),
+    turn_right: (blockId, lineNumber) => globalThis.turnRight(blockId, lineNumber),
+    scan_ahead: (blockId, lineNumber) => globalThis.scanAhead(blockId, lineNumber),
+    unlock_gate: (code, blockId, lineNumber) => globalThis.unlockGate(code, blockId, lineNumber)
   };
   
   globalThis.SwappablePlugboard = class SwappablePlugboard {
@@ -613,15 +634,16 @@ function transpilePythonToJS(pyCode) {
                      .replace(/\bpass\b/g, '');
     
     // Translate custom commands
-    content = content.replace(/hero\.move_forward\(\)/g, 'moveForward()');
-    content = content.replace(/hero\.collect_rupee\(\)/g, 'collectRupee()');
-    content = content.replace(/hero\.turn_left\(\)/g, 'turnLeft()');
-    content = content.replace(/hero\.turn_right\(\)/g, 'turnRight()');
-    content = content.replace(/hero\.scan_ahead\(\)/g, 'scanAhead()');
-    content = content.replace(/hero\.unlock_gate\(\s*([^)]+)\s*\)/g, 'unlockGate($1)');
+    const lineNum = i + 1;
+    content = content.replace(/hero\.move_forward\(\)/g, `moveForward(undefined, ${lineNum})`);
+    content = content.replace(/hero\.collect_rupee\(\)/g, `collectRupee(undefined, ${lineNum})`);
+    content = content.replace(/hero\.turn_left\(\)/g, `turnLeft(undefined, ${lineNum})`);
+    content = content.replace(/hero\.turn_right\(\)/g, `turnRight(undefined, ${lineNum})`);
+    content = content.replace(/hero\.scan_ahead\(\)/g, `scanAhead(undefined, ${lineNum})`);
+    content = content.replace(/hero\.unlock_gate\(\s*([^)]+)\s*\)/g, `unlockGate($1, undefined, ${lineNum})`);
     
     // Translate print() to printConsole()
-    content = content.replace(/print\s*\((.*)\)/g, 'printConsole($1)');
+    content = content.replace(/print\s*\((.*)\)/g, `printConsole($1, undefined, ${lineNum})`);
     
     // Translate isinstance(var, type) to typeof or Array checks
     content = content.replace(/isinstance\s*\(\s*([^,]+)\s*,\s*(\w+)\s*\)/g, (match, varName, typeName) => {

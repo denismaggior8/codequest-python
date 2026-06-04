@@ -2,7 +2,7 @@
 
 let room1, room2, room3, room4, room5, room6, room_objects1, room7;
 
-if (typeof require !== 'undefined') {
+if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment (e.g. testing)
   room1 = require('./rooms/sequences/room1.js');
   room2 = require('./rooms/variables/room1.js');

@@ -193,14 +193,14 @@ if (startIdx !== -1) {
       const py = 'def on_start():\n    hero.move_forward()\n    hero.collect_rupee()';
       const js = transpilePythonToJS(py);
       assert(js.includes('function on_start() {'), 'Should translate def to function');
-      assert(js.includes('moveForward();'), 'Should translate hero.move_forward()');
-      assert(js.includes('collectRupee();'), 'Should translate hero.collect_rupee()');
+      assert(js.includes('moveForward(undefined, 2);'), 'Should translate hero.move_forward()');
+      assert(js.includes('collectRupee(undefined, 3);'), 'Should translate hero.collect_rupee()');
     });
 
     runTest('Transpiler - unlock_gate command', () => {
       const py = 'def on_start():\n    hero.unlock_gate("secret")';
       const js = transpilePythonToJS(py);
-      assert(js.includes('unlockGate("secret");'), 'Should translate hero.unlock_gate("secret")');
+      assert(js.includes('unlockGate("secret", undefined, 2);'), 'Should translate hero.unlock_gate("secret")');
     });
 
     runTest('Transpiler - Global variable declarations', () => {
@@ -226,7 +226,7 @@ if (startIdx !== -1) {
       const py = '# Whole line comment\nhero.move_forward() # End-of-line comment';
       const js = transpilePythonToJS(py);
       assert(js.includes('// Whole line comment'), 'Should convert whole line comment');
-      assert(js.includes('moveForward(); // End-of-line comment'), 'Should convert end-of-line comment');
+      assert(js.includes('moveForward(undefined, 2); // End-of-line comment'), 'Should convert end-of-line comment');
     });
 
     runTest('Transpiler - Booleans, None, and logical operators', () => {
@@ -240,7 +240,7 @@ if (startIdx !== -1) {
     runTest('Transpiler - Protecting string literals from translation', () => {
       const py = 'print("do not touch True or False or None or global inside strings")';
       const js = transpilePythonToJS(py);
-      assert(js.includes('printConsole("do not touch True or False or None or global inside strings");'), 'Keywords inside strings should be protected');
+      assert(js.includes('printConsole("do not touch True or False or None or global inside strings", undefined, 1);'), 'Keywords inside strings should be protected');
     });
 
     runTest('Transpiler - Imports and from-imports', () => {

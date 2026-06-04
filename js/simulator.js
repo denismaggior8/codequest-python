@@ -210,6 +210,7 @@ class GameSimulator {
     this.ctx = this.canvas.getContext('2d');
     this.onStatus = onStatusMessage;
     this.onSound = onSoundTrigger;
+    this.onActionStart = null;
     
     this.level = null;
     this.grid = [];
@@ -403,6 +404,10 @@ class GameSimulator {
     
     const action = this.actionQueue[this.currentActionIndex];
     this.currentActionIndex++;
+    
+    if (this.onActionStart) {
+      this.onActionStart(action);
+    }
     
     switch (action.type) {
       case 'MOVE_FORWARD':

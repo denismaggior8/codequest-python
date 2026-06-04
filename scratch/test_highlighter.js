@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Read highlightPython from js/app.js
-const appJsPath = path.join(__dirname, '../js/app.js');
+const appJsPath = path.join(__dirname, '../js/highlighter.js');
 const appJsContent = fs.readFileSync(appJsPath, 'utf8');
 
 // Extract highlightPython function

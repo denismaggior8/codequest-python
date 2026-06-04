@@ -74,10 +74,15 @@ function migrateOldSaveData() {
 }
 
 function loadProgress() {
-  const progressStr = localStorage.getItem('codequest_completed');
+  let progressStr = null;
+  try {
+    progressStr = localStorage.getItem('codequest_completed');
+  } catch (e) {
+    console.error("Failed to read codequest_completed from localStorage:", e);
+  }
   if (progressStr) {
     try {
-      completedLevels = JSON.parse(progressStr);
+      completedLevels = JSON.parse(progressStr) || {};
       console.log("📂 loadProgress parsed completedLevels:", completedLevels);
     } catch (e) {
       console.error("Failed to parse codequest_completed JSON:", e);
@@ -87,10 +92,15 @@ function loadProgress() {
     completedLevels = {};
   }
   
-  const savedCodeStr = localStorage.getItem('codequest_levels_code');
+  let savedCodeStr = null;
+  try {
+    savedCodeStr = localStorage.getItem('codequest_levels_code');
+  } catch (e) {
+    console.error("Failed to read codequest_levels_code from localStorage:", e);
+  }
   if (savedCodeStr) {
     try {
-      levelsCodeCache = JSON.parse(savedCodeStr);
+      levelsCodeCache = JSON.parse(savedCodeStr) || {};
     } catch (e) {
       console.error("Failed to parse codequest_levels_code JSON:", e);
       levelsCodeCache = {};
@@ -99,7 +109,12 @@ function loadProgress() {
     levelsCodeCache = {};
   }
   
-  const savedLvlIdx = localStorage.getItem('codequest_current_level_idx');
+  let savedLvlIdx = null;
+  try {
+    savedLvlIdx = localStorage.getItem('codequest_current_level_idx');
+  } catch (e) {
+    console.error("Failed to read codequest_current_level_idx from localStorage:", e);
+  }
   if (savedLvlIdx !== null) {
     currentLevelIndex = parseInt(savedLvlIdx, 10);
     // Boundary check
@@ -122,6 +137,10 @@ function refreshLevelSelector() {
   // Group levels by difficulty
   const groups = {};
   LEVELS.forEach((lvl, index) => {
+    if (!lvl) {
+      console.warn(`Level at index ${index} is undefined or failed to load.`);
+      return;
+    }
     let diff = lvl.difficulty || 'base';
     // Normalize difficulty names to handle cached files robustly
     if (diff === 'Easy' || diff === 'base') {

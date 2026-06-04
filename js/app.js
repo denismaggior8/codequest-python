@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTranslations(currentLanguage);
     setupUIEventListeners();
     initSimulator();
+    refreshLevelSelector();
     loadLevel(currentLevelIndex);
   });
 });
@@ -267,6 +268,7 @@ function setupUIEventListeners() {
       if (LEVELS[currentLevelIndex].pythonOnly) return;
       
       synth.play('click');
+      clearHighlights();
       currentMode = 'blocks';
       tabBlocks.classList.add('active');
       tabPython.classList.remove('active');
@@ -290,6 +292,7 @@ function setupUIEventListeners() {
 
     tabPython.addEventListener('click', () => {
       synth.play('click');
+      clearHighlights();
       currentMode = 'python';
       tabPython.classList.add('active');
       tabBlocks.classList.remove('active');
@@ -382,6 +385,10 @@ function initSimulator() {
   // We feed translated logging hooks to the simulator
   simulator = new GameSimulator('simulator-canvas', appendConsoleLine, playSynthSound);
   
+  simulator.onActionStart = (action) => {
+    highlightActiveElement(action.blockId, action.lineNumber);
+  };
+
   simulator.onFinishedCallback = (success, reason) => {
     document.getElementById('run-btn').disabled = false;
     document.getElementById('step-btn').disabled = false;
@@ -391,6 +398,8 @@ function initSimulator() {
       simulator.actionQueue = [];
       simulator.currentActionIndex = 0;
     }
+    
+    clearHighlights();
     
     if (success) {
       markLevelCompleted(LEVELS[currentLevelIndex].id);
@@ -495,6 +504,7 @@ function loadLevel(index) {
   
   simulator.initLevel(level);
   updateHeartsDisplay();
+  clearHighlights();
   
   document.getElementById('run-btn').disabled = false;
   document.getElementById('step-btn').disabled = false;
@@ -852,15 +862,42 @@ function showSuccessModal() {
 }
 
 // Text Editor line numbering helper
-function updateLineNumbers() {
+function updateLineNumbers(highlightLine = null) {
   const textarea = document.getElementById('python-textarea');
   const lineNumbers = document.getElementById('editor-line-numbers');
   if (!textarea || !lineNumbers) return;
   
   const linesCount = textarea.value.split('\n').length;
-  let numStr = '';
+  lineNumbers.innerHTML = '';
   for (let i = 1; i <= linesCount; i++) {
-    numStr += i + '\n';
+    const lineEl = document.createElement('div');
+    lineEl.className = 'line-num-item';
+    if (i === highlightLine) {
+      lineEl.classList.add('highlighted-line');
+    }
+    lineEl.textContent = i;
+    lineNumbers.appendChild(lineEl);
   }
-  lineNumbers.textContent = numStr;
+}
+
+function highlightActiveElement(blockId, lineNumber) {
+  console.log("🔦 highlightActiveElement. Mode:", currentMode, "blockId:", blockId, "lineNumber:", lineNumber);
+  if (currentMode === 'blocks') {
+    if (workspace && blockId) {
+      console.log("   highlighting block:", blockId);
+      workspace.highlightBlock(blockId);
+    }
+  } else {
+    // Python mode
+    updateLineNumbers(lineNumber);
+    updateCodeOutput(lineNumber);
+  }
+}
+
+function clearHighlights() {
+  if (workspace) {
+    workspace.highlightBlock(null);
+  }
+  updateLineNumbers(null);
+  updateCodeOutput(null);
 }

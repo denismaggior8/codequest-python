@@ -840,3 +840,31 @@ header .logo .logo-main {
   }
 }
 
+/* Gutter and Python Scroll line highlight styling */
+.line-num-item {
+  line-height: 1.35;
+  box-sizing: border-box;
+}
+
+.line-num-item.highlighted-line {
+  color: #f1c40f !important;
+  background-color: rgba(241, 196, 15, 0.25);
+  text-shadow: 0 0 6px #f1c40f;
+}
+
+.highlighted-code-line {
+  background-color: rgba(241, 196, 15, 0.22) !important;
+  display: inline-block;
+  width: 100%;
+  border-left: 4px solid #f1c40f;
+  padding-left: 2px;
+  box-sizing: border-box;
+}
+
+/* Blockly Block Highlighting Style */
+.blocklyHighlighted > .blocklyPath {
+  stroke: #f1c40f !important;
+  stroke-width: 4px !important;
+  filter: drop-shadow(0 0 8px #f1c40f) !important;
+}
+

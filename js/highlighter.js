@@ -1,7 +1,7 @@
 // The Legend of Python - Code Syntax Highlighter
 
 // Code Highlighter
-function updateCodeOutput() {
+function updateCodeOutput(highlightLine = null) {
   const outputEl = document.getElementById('python-output');
   if (!outputEl) return;
   
@@ -11,19 +11,35 @@ function updateCodeOutput() {
       outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
       return;
     }
-    outputEl.innerHTML = highlightPython(pyCode);
+    let html = highlightPython(pyCode);
+    if (highlightLine !== null) {
+      const lines = html.split('\n');
+      if (highlightLine - 1 >= 0 && highlightLine - 1 < lines.length) {
+        lines[highlightLine - 1] = `<span class="highlighted-code-line">${lines[highlightLine - 1]}</span>`;
+      }
+      html = lines.join('\n');
+    }
+    outputEl.innerHTML = html;
     return;
   }
   
   const pyGen = Blockly.Python || (window.python && window.python.pythonGenerator);
-  const code = pyGen ? pyGen.workspaceToCode(workspace) : '';
+  const code = (pyGen && workspace) ? pyGen.workspaceToCode(workspace) : '';
   
   if (code.trim() === "") {
     outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
     return;
   }
   
-  outputEl.innerHTML = highlightPython(code);
+  let html = highlightPython(code);
+  if (highlightLine !== null) {
+    const lines = html.split('\n');
+    if (highlightLine - 1 >= 0 && highlightLine - 1 < lines.length) {
+      lines[highlightLine - 1] = `<span class="highlighted-code-line">${lines[highlightLine - 1]}</span>`;
+    }
+    html = lines.join('\n');
+  }
+  outputEl.innerHTML = html;
 }
 
 function highlightPython(code) {

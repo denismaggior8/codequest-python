@@ -145,55 +145,55 @@ function registerPy(blockType, func) {
 
 // 3. Register Generators
 registerJS('move_forward', function(block) {
-  return 'moveForward();\n';
+  return `moveForward("${block.id}");\n`;
 });
 registerPy('move_forward', function(block) {
-  return 'hero.move_forward()\n';
+  return `hero.move_forward(block_id="${block.id}")\n`;
 });
 
 registerJS('collect_rupee', function(block) {
-  return 'collectRupee();\n';
+  return `collectRupee("${block.id}");\n`;
 });
 registerPy('collect_rupee', function(block) {
-  return 'hero.collect_rupee()\n';
+  return `hero.collect_rupee(block_id="${block.id}")\n`;
 });
 
 registerJS('turn_left', function(block) {
-  return 'turnLeft();\n';
+  return `turnLeft("${block.id}");\n`;
 });
 registerPy('turn_left', function(block) {
-  return 'hero.turn_left()\n';
+  return `hero.turn_left(block_id="${block.id}")\n`;
 });
 
 registerJS('turn_right', function(block) {
-  return 'turnRight();\n';
+  return `turnRight("${block.id}");\n`;
 });
 registerPy('turn_right', function(block) {
-  return 'hero.turn_right()\n';
+  return `hero.turn_right(block_id="${block.id}")\n`;
 });
 
 registerJS('scan_ahead', function(block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_FUNCTION_CALL || 0) : 0;
-  return ['scanAhead()', order];
+  return [`scanAhead("${block.id}")`, order];
 });
 registerPy('scan_ahead', function(block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_FUNCTION_CALL || 0) : 0;
-  return ['hero.scan_ahead()', order];
+  return [`hero.scan_ahead(block_id="${block.id}")`, order];
 });
 
 registerJS('text_print', function(block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const msg = gen ? (gen.valueToCode(block, 'TEXT', order) || "''") : "''";
-  return 'printConsole(' + msg + ');\n';
+  return 'printConsole(' + msg + ', "' + block.id + '");\n';
 });
 registerPy('text_print', function(block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const msg = gen ? (gen.valueToCode(block, 'TEXT', order) || "''") : "''";
-  return 'print(' + msg + ')\n';
+  return 'print(' + msg + ', block_id="' + block.id + '")\n';
 });
 
 registerJS('on_start', function(block, generator) {
@@ -409,7 +409,7 @@ registerJS('hero_unlock_gate', function(block, generator) {
   const gen = generator || Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const code = gen ? (gen.valueToCode(block, 'CODE', order) || '""') : '""';
-  return `unlockGate(${code});\n`;
+  return `unlockGate(${code}, "${block.id}");\n`;
 });
 
 // Python Generators for Enigma Blocks
@@ -506,5 +506,5 @@ registerPy('hero_unlock_gate', function(block, generator) {
   const gen = generator || Blockly.Python || (window.python && window.python.pythonGenerator);
   const order = gen ? (gen.ORDER_NONE || 0) : 0;
   const code = gen ? (gen.valueToCode(block, 'CODE', order) || '""') : '""';
-  return `hero.unlock_gate(${code})\n`;
+  return `hero.unlock_gate(${code}, block_id="${block.id}")\n`;
 });
