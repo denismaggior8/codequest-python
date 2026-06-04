@@ -1,8 +1,8 @@
 const ROOM_VARIABLES_1 = {
   id: "variables/room1",
   name: {
-    it: "Stanza 2: La Grotta delle Rupie",
-    en: "Room 2: The Rupee Caves"
+    it: "Variabili stanza 1: La Grotta delle Rupie",
+    en: "Variables room 1: The Rupee Caves"
   },
   badge: "VARIABLES",
   difficulty: "base",

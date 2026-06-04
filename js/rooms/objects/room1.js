@@ -1,8 +1,8 @@
 const ROOM_OBJECTS_1 = {
   id: "objects/room1",
   name: {
-    it: "Stanza 7: Enigma ed Oggetti",
-    en: "Room 7: Enigma and Objects"
+    it: "Oggetti stanza 1: Enigma ed Oggetti",
+    en: "Objects room 1: Enigma and Objects"
   },
   badge: "OBJECTS",
   difficulty: "intermediate",

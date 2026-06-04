@@ -1,8 +1,8 @@
 const ROOM_RECURSION_1 = {
   id: "recursion/room1",
   name: {
-    it: "Stanza 7: Il Labirinto Ricorsivo",
-    en: "Room 7: Recursive Maze"
+    it: "Ricorsione stanza 1: Il Labirinto Ricorsivo",
+    en: "Recursion room 1: Recursive Maze"
   },
   badge: "RECURSION",
   difficulty: "advanced",

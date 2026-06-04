@@ -1,8 +1,8 @@
 const ROOM_SEQUENCES_1 = {
   id: "sequences/room1",
   name: {
-    it: "Stanza 1: Il Risveglio dell'Eroe",
-    en: "Room 1: The Hero's Awakening"
+    it: "Sequenze stanza 1: Il Risveglio dell'Eroe",
+    en: "Sequences room 1: The Hero's Awakening"
   },
   badge: "SEQUENCES",
   difficulty: "base",

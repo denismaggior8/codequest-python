@@ -1,8 +1,8 @@
 const ROOM_LISTS_1 = {
   id: "lists/room1",
   name: {
-    it: "Stanza 6: La Via dei Cristalli",
-    en: "Room 6: Path of Crystals"
+    it: "Liste stanza 1: La Via dei Cristalli",
+    en: "Lists room 1: Path of Crystals"
   },
   badge: "LISTS",
   difficulty: "intermediate",

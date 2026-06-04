@@ -1,8 +1,8 @@
 const ROOM_CONDITIONALS_1 = {
   id: "conditionals/room1",
   name: {
-    it: "Stanza 3: La Lente della Verità",
-    en: "Room 3: Eye of Truth"
+    it: "I condizionali stanza 1: La Lente della Verità",
+    en: "Conditionals room 1: Eye of Truth"
   },
   badge: "CONDITIONALS",
   difficulty: "base",

@@ -1,8 +1,8 @@
 const ROOM_LOOPS_1 = {
   id: "loops/room1",
   name: {
-    it: "Stanza 4: La Caverna delle Rupie",
-    en: "Room 4: The Rupee Vault"
+    it: "Cicli stanza 1: La Caverna delle Rupie",
+    en: "Loops room 1: The Rupee Vault"
   },
   badge: "LOOPS",
   difficulty: "base",

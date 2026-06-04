@@ -1,8 +1,8 @@
 const ROOM_FUNCTIONS_1 = {
   id: "functions/room1",
   name: {
-    it: "Stanza 5: Il Santuario della Triforza",
-    en: "Room 5: The Triforce Chamber"
+    it: "Funzioni stanza 1: Il Santuario della Triforza",
+    en: "Functions room 1: The Triforce Chamber"
   },
   badge: "FUNCTIONS",
   difficulty: "base",
