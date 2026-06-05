@@ -34,6 +34,7 @@ class RetroSynth {
     this.ctx = null;
     this.enabled = safeLocalStorage.getItem('codequest_sound') !== 'false';
     this.silentNode = null;
+    this.buffers = {};
   }
   
   init() {
@@ -58,7 +59,85 @@ class RetroSynth {
           console.log(`🎵 AudioContext state changed to: ${this.ctx ? this.ctx.state : 'null'}`);
         };
         this.startSilentNode();
+        this.preloadBlocklySounds();
       }
+    }
+  }
+
+  async preloadBuffer(name, url) {
+    if (this.buffers[name] || !this.ctx) return;
+    
+    // Skip network fetching in JSDOM test environment
+    const isTest = typeof window !== 'undefined' && 
+                  window.navigator && 
+                  window.navigator.userAgent && 
+                  window.navigator.userAgent.toLowerCase().includes('jsdom');
+    if (isTest) return;
+
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      this.ctx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+        this.buffers[name] = decodedBuffer;
+        console.log(`🎵 Audio buffer preloaded: ${name}`);
+      }, (err) => {
+        console.warn(`Failed to decode audio data for ${name}:`, err);
+      });
+    } catch (e) {
+      console.warn(`Failed to preload audio buffer for ${name}:`, e);
+    }
+  }
+
+  preloadBlocklySounds() {
+    this.init();
+    if (!this.ctx) return;
+    const mediaBase = 'https://unpkg.com/blockly/media/';
+    this.preloadBuffer('click', `${mediaBase}click.mp3`);
+    this.preloadBuffer('delete', `${mediaBase}delete.mp3`);
+    this.preloadBuffer('disconnect', `${mediaBase}disconnect.mp3`);
+  }
+
+  playBuffer(name) {
+    if (!this.enabled || !this.ctx) return;
+    const buffer = this.buffers[name];
+    if (!buffer) {
+      // Fallback to synthesized sound if not loaded yet
+      if (name === 'delete') {
+        this.play('error');
+      } else {
+        this.play('click');
+      }
+      return;
+    }
+
+    const doPlay = () => {
+      try {
+        const source = this.ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.ctx.destination);
+        const start = this.ctx.currentTime + 0.005;
+        source.start(start);
+      } catch (e) {
+        console.warn(`Failed to play buffer ${name}:`, e);
+      }
+    };
+
+    try {
+      if ((this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && typeof this.ctx.resume === 'function') {
+        this.ctx.resume().then(() => {
+          this.startSilentNode();
+          doPlay();
+        }).catch(e => {
+          console.warn("Failed to resume AudioContext inside playBuffer():", e);
+          doPlay();
+        });
+      } else {
+        this.startSilentNode();
+        doPlay();
+      }
+    } catch (e) {
+      console.warn("Error checking AudioContext state:", e);
+      doPlay();
     }
   }
 
@@ -78,6 +157,7 @@ class RetroSynth {
     if (this.ctx && typeof this.ctx.resume === 'function') {
       return this.ctx.resume().then(() => {
         this.startSilentNode();
+        this.preloadBlocklySounds();
       }).catch(e => {
         console.warn("Failed to resume recreated context:", e);
       });
@@ -96,6 +176,7 @@ class RetroSynth {
     
     return this.ctx.resume().then(() => {
       this.startSilentNode();
+      this.preloadBlocklySounds();
     }).catch(e => {
       console.warn("Failed to resume AudioContext:", e);
       if (isUserGesture) {

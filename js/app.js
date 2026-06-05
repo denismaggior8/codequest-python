@@ -8,11 +8,7 @@ if (typeof Blockly !== 'undefined' && Blockly.WorkspaceAudio) {
   Blockly.WorkspaceAudio.prototype.load = function() {};
   Blockly.WorkspaceAudio.prototype.play = function(name, volume) {
     if (typeof synth !== 'undefined' && synth.enabled) {
-      if (name === 'delete') {
-        synth.play('error');
-      } else {
-        synth.play('click');
-      }
+      synth.playBuffer(name);
     }
   };
 }
