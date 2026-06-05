@@ -133,7 +133,8 @@ function getActivePresetIndices() {
     return LEVELS.map((_, idx) => idx);
   }
   
-  const presetRoomIds = PRESETS[activePreset] || [];
+  const presetsObj = (typeof LEVELS !== 'undefined' && LEVELS.PRESETS) || (typeof window !== 'undefined' && window.PRESETS) || (typeof PRESETS !== 'undefined' ? PRESETS : {});
+  const presetRoomIds = presetsObj[activePreset] || [];
   const indices = [];
   LEVELS.forEach((lvl, index) => {
     if (lvl && presetRoomIds.includes(lvl.id)) {
@@ -210,16 +211,22 @@ function refreshLevelSelector() {
     currentLevelIndex = firstLvlIndex;
     levelSelect.value = firstLvlIndex;
   }
+  
+  updateHeartsDisplay();
 }
 
 function updateHeartsDisplay() {
   const display = document.getElementById('hearts-display');
   if (!display) return;
   
-  // Group levels by topic (badge) in order of appearance
+  // Get active preset levels
+  const activePresetIndices = getActivePresetIndices();
+  const activeLevels = activePresetIndices.map(idx => LEVELS[idx]);
+  
+  // Group active levels by topic (badge) in order of appearance
   const topics = [];
-  LEVELS.forEach(lvl => {
-    if (!topics.includes(lvl.badge)) {
+  activeLevels.forEach(lvl => {
+    if (lvl && !topics.includes(lvl.badge)) {
       topics.push(lvl.badge);
     }
   });
@@ -228,7 +235,7 @@ function updateHeartsDisplay() {
   let heartsStr = "";
   
   topics.forEach(topic => {
-    const topicLevels = LEVELS.filter(lvl => lvl.badge === topic);
+    const topicLevels = activeLevels.filter(lvl => lvl.badge === topic);
     const allCompleted = topicLevels.every(lvl => {
       return completedLevels[lvl.id] || completedLevels[String(lvl.id)];
     });

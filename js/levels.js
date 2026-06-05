@@ -53,8 +53,9 @@ const LEVELS = [
   room7
 ];
 
+LEVELS.PRESETS = PRESETS;
+
 if (typeof module !== 'undefined' && module.exports) {
-  LEVELS.PRESETS = PRESETS;
   module.exports = LEVELS;
 } else {
   window.PRESETS = PRESETS;
