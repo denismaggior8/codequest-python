@@ -577,6 +577,9 @@ function setupUIEventListeners() {
   document.addEventListener('pointerdown', handleTrashInteraction, true);
   document.addEventListener('mousedown', handleTrashInteraction, true);
   document.addEventListener('touchstart', handleTrashInteraction, true);
+
+  // Initialize layout column resizers
+  initColumnResizers();
 }
 
 function initSimulator() {
@@ -1145,4 +1148,142 @@ function clearHighlights() {
   }
   updateLineNumbers(null);
   updateCodeOutput(null);
+}
+
+function initColumnResizers() {
+  const leftResizer = document.getElementById('resizer-left');
+  const rightResizer = document.getElementById('resizer-right');
+  const leftPanel = document.querySelector('.left-panel');
+  const centerPanel = document.querySelector('.center-panel');
+  const rightPanel = document.querySelector('.right-panel');
+  const dashboard = document.querySelector('.dashboard');
+
+  if (!leftResizer || !rightResizer || !leftPanel || !centerPanel || !rightPanel || !dashboard) return;
+
+  let activeResizer = null;
+  let startX = 0;
+  let startLeftWidth = 0;
+  let startCenterWidth = 0;
+  let startRightWidth = 0;
+
+  const onMouseDown = (e, resizer) => {
+    activeResizer = resizer;
+    startX = e.clientX;
+    startLeftWidth = leftPanel.getBoundingClientRect().width;
+    startCenterWidth = centerPanel.getBoundingClientRect().width;
+    startRightWidth = rightPanel.getBoundingClientRect().width;
+
+    resizer.classList.add('resizing');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd);
+  };
+
+  leftResizer.addEventListener('mousedown', (e) => onMouseDown(e, leftResizer));
+  rightResizer.addEventListener('mousedown', (e) => onMouseDown(e, rightResizer));
+  
+  leftResizer.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+      onMouseDown(e.touches[0], leftResizer);
+    }
+  });
+  rightResizer.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+      onMouseDown(e.touches[0], rightResizer);
+    }
+  });
+
+  const onMouseMove = (e) => {
+    if (!activeResizer) return;
+
+    const dx = e.clientX - startX;
+    const dashboardWidth = dashboard.getBoundingClientRect().width;
+
+    const minLeft = 300;
+    const minCenter = 350;
+    const minRight = 240;
+
+    if (activeResizer === leftResizer) {
+      let newLeftWidth = startLeftWidth + dx;
+      let newCenterWidth = startCenterWidth - dx;
+
+      if (newLeftWidth >= minLeft && newCenterWidth >= minCenter) {
+        const leftPercent = (newLeftWidth / dashboardWidth) * 100;
+        const centerPercent = (newCenterWidth / dashboardWidth) * 100;
+        
+        leftPanel.style.width = `${leftPercent}%`;
+        centerPanel.style.width = `${centerPercent}%`;
+      }
+    } else if (activeResizer === rightResizer) {
+      let newCenterWidth = startCenterWidth + dx;
+      let newRightWidth = startRightWidth - dx;
+
+      if (newCenterWidth >= minCenter && newRightWidth >= minRight) {
+        const centerPercent = (newCenterWidth / dashboardWidth) * 100;
+        const rightPercent = (newRightWidth / dashboardWidth) * 100;
+
+        centerPanel.style.width = `${centerPercent}%`;
+        rightPanel.style.width = `${rightPercent}%`;
+      }
+    }
+
+    if (typeof Blockly !== 'undefined' && workspace) {
+      Blockly.svgResize(workspace);
+    }
+  };
+
+  const onTouchMove = (e) => {
+    if (e.touches.length > 0) {
+      e.preventDefault();
+      onMouseMove(e.touches[0]);
+    }
+  };
+
+  const onMouseUp = () => {
+    if (activeResizer) {
+      activeResizer.classList.remove('resizing');
+    }
+    activeResizer = null;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+    window.removeEventListener('touchmove', onTouchMove);
+    window.removeEventListener('touchend', onTouchEnd);
+
+    try {
+      storage.setItem('codequest_layout_left', leftPanel.style.width);
+      storage.setItem('codequest_layout_center', centerPanel.style.width);
+      storage.setItem('codequest_layout_right', rightPanel.style.width);
+    } catch (e) {
+      console.warn("Failed to persist layout widths:", e);
+    }
+  };
+
+  const onTouchEnd = () => {
+    onMouseUp();
+  };
+
+  try {
+    const savedLeft = storage.getItem('codequest_layout_left');
+    const savedCenter = storage.getItem('codequest_layout_center');
+    const savedRight = storage.getItem('codequest_layout_right');
+
+    if (savedLeft) leftPanel.style.width = savedLeft;
+    if (savedCenter) centerPanel.style.width = savedCenter;
+    if (savedRight) rightPanel.style.width = savedRight;
+    
+    setTimeout(() => {
+      if (typeof Blockly !== 'undefined' && workspace) {
+        Blockly.svgResize(workspace);
+      }
+    }, 100);
+  } catch (e) {
+    console.warn("Failed to load persisted layout widths:", e);
+  }
 }

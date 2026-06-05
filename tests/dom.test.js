@@ -468,6 +468,32 @@ runTest('Game Ends and Success Modal Updates when Preset is Fully Completed', ()
   assert.strictEqual(modalNextBtn.style.display, 'none', 'Next button should be hidden when preset is completed');
 });
 
+// 10. Layout Resizers and Persistence
+runTest('Layout Resizers exist and restore saved styles', () => {
+  const { document, window } = createTestEnvironment();
+
+  // Save custom layout widths in the environment's mock storage
+  window.localStorage.setItem('codequest_layout_left', '35%');
+  window.localStorage.setItem('codequest_layout_center', '40%');
+  window.localStorage.setItem('codequest_layout_right', '25%');
+
+  // Re-run initialization to apply the settings
+  window.eval('initColumnResizers()');
+
+  const leftResizer = document.getElementById('resizer-left');
+  const rightResizer = document.getElementById('resizer-right');
+  assert(leftResizer, 'Left resizer should exist in DOM');
+  assert(rightResizer, 'Right resizer should exist in DOM');
+
+  const leftPanel = document.querySelector('.left-panel');
+  const centerPanel = document.querySelector('.center-panel');
+  const rightPanel = document.querySelector('.right-panel');
+
+  assert.strictEqual(leftPanel.style.width, '35%', 'Left panel width should be restored');
+  assert.strictEqual(centerPanel.style.width, '40%', 'Center panel width should be restored');
+  assert.strictEqual(rightPanel.style.width, '25%', 'Right panel width should be restored');
+});
+
 console.log('\n--- DOM Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);

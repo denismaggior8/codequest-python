@@ -338,10 +338,9 @@ header .logo .logo-main {
   letter-spacing: 2px;
 }
 
-/* Dashboard Grid Layout */
 .dashboard {
   display: flex;
-  gap: 10px;
+  gap: 0;
   margin: 0 10px 10px 10px;
   flex-grow: 1;
   height: calc(100vh - 105px);
@@ -354,17 +353,37 @@ header .logo .logo-main {
 
 .left-panel {
   width: 32%;
-  min-width: 340px;
+  min-width: 300px;
 }
 
 .center-panel {
   width: 43%;
-  flex-grow: 1;
+  min-width: 350px;
 }
 
 .right-panel {
   width: 25%;
-  min-width: 260px;
+  min-width: 240px;
+}
+
+/* Resizer Handle Styling */
+.resizer {
+  width: 6px;
+  background-color: #1a1a1a;
+  border-left: 2px solid #333;
+  border-right: 2px solid #000;
+  cursor: col-resize;
+  flex-shrink: 0;
+  user-select: none;
+  transition: background-color 0.2s, border-color 0.2s;
+  z-index: 10;
+}
+
+.resizer:hover,
+.resizer.resizing {
+  background-color: var(--pixel-text-yellow, #ffd700);
+  border-left-color: #ffe680;
+  border-right-color: #b39600;
 }
 
 .panel-header {
