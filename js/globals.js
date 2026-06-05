@@ -33,24 +33,49 @@ class RetroSynth {
   constructor() {
     this.ctx = null;
     this.enabled = safeLocalStorage.getItem('codequest_sound') !== 'false';
+    this.silentNode = null;
   }
   
   init() {
     if (this.ctx && this.ctx.state === 'closed') {
       this.ctx = null;
+      this.silentNode = null;
     }
     if (!this.ctx) {
       try {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (this.ctx) {
-          this.ctx.onstatechange = () => {
-            console.log(`🎵 AudioContext state changed to: ${this.ctx ? this.ctx.state : 'null'}`);
-          };
-        }
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx({ latencyHint: 'interactive' });
       } catch (e) {
-        console.warn("Web Audio API is not supported or blocked in this browser:", e);
-        this.ctx = null;
+        try {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (err) {
+          console.warn("Web Audio API is not supported or blocked in this browser:", err);
+          this.ctx = null;
+        }
       }
+      if (this.ctx) {
+        this.ctx.onstatechange = () => {
+          console.log(`🎵 AudioContext state changed to: ${this.ctx ? this.ctx.state : 'null'}`);
+        };
+        this.startSilentNode();
+      }
+    }
+  }
+
+  startSilentNode() {
+    if (this.silentNode || !this.ctx) return;
+    try {
+      // In Safari, keeping an active oscillator with 0 gain prevents auto-suspension.
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0, this.ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      this.silentNode = osc;
+      console.log("🔊 Started persistent silent node to prevent Safari auto-suspension.");
+    } catch (e) {
+      console.warn("Failed to start silent node:", e);
     }
   }
   
@@ -65,9 +90,9 @@ class RetroSynth {
     if (!this.ctx) return;
     
     const doPlay = () => {
-      // Schedule all sounds slightly in the future (20ms buffer) to prevent browser glitches
+      // Schedule all sounds slightly in the future (5ms buffer) to prevent browser glitches
       // or silence due to scheduling in the past or exactly on the boundary.
-      const start = this.ctx.currentTime + 0.02;
+      const start = this.ctx.currentTime + 0.005;
       
       switch (type) {
         case 'click': {
@@ -170,12 +195,14 @@ class RetroSynth {
     try {
       if ((this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && typeof this.ctx.resume === 'function') {
         this.ctx.resume().then(() => {
+          this.startSilentNode();
           doPlay();
         }).catch(e => {
           console.warn("Failed to resume AudioContext inside play():", e);
           doPlay();
         });
       } else {
+        this.startSilentNode();
         doPlay();
       }
     } catch (e) {
@@ -188,7 +215,7 @@ class RetroSynth {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = type;
-    const start = Math.max(startTime, this.ctx.currentTime + 0.02);
+    const start = Math.max(startTime, this.ctx.currentTime + 0.005);
     osc.frequency.setValueAtTime(freq, start);
     gain.gain.setValueAtTime(volume, start);
     gain.gain.linearRampToValueAtTime(0.001, start + duration);

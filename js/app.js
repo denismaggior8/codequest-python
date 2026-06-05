@@ -51,6 +51,7 @@ function setupUIEventListeners() {
     if (synth.ctx && (synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && typeof synth.ctx.resume === 'function') {
       synth.ctx.resume().then(() => {
         console.log("🔊 AudioContext resumed successfully via window capture gesture.");
+        synth.startSilentNode();
       }).catch(e => console.warn("Failed to resume AudioContext:", e));
     }
   };
@@ -67,6 +68,7 @@ function setupUIEventListeners() {
       if (synth.ctx && (synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && synth.enabled) {
         synth.ctx.resume().then(() => {
           console.log("🔊 AudioContext resumed successfully on visibilitychange visible.");
+          synth.startSilentNode();
         }).catch(e => console.warn("Failed to resume AudioContext on visibilitychange:", e));
       }
     }
@@ -93,6 +95,7 @@ function setupUIEventListeners() {
       if ((synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && typeof synth.ctx.resume === 'function') {
         synth.ctx.resume().then(() => {
           console.log("🔊 AudioContext resumed successfully via window capture interaction. State:", synth.ctx.state);
+          synth.startSilentNode();
           appendConsoleLine(t('consoleAudioEnabled'), 'system');
         }).catch(err => {
           console.warn("⚠️ Failed to resume AudioContext:", err);
