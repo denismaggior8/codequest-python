@@ -2,6 +2,21 @@
 
 var storage = window.safeLocalStorage;
 
+// Override Blockly audio playback to use our retro RetroSynth engine
+if (typeof Blockly !== 'undefined' && Blockly.WorkspaceAudio) {
+  Blockly.WorkspaceAudio.prototype.preload = function() {};
+  Blockly.WorkspaceAudio.prototype.load = function() {};
+  Blockly.WorkspaceAudio.prototype.play = function(name, volume) {
+    if (typeof synth !== 'undefined' && synth.enabled) {
+      if (name === 'delete') {
+        synth.play('error');
+      } else {
+        synth.play('click');
+      }
+    }
+  };
+}
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
   loadProgress();
