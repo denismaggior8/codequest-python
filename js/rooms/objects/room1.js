@@ -30,6 +30,8 @@ const ROOM_OBJECTS_1 = {
       { code: "plugboard = SwappablePlugboard()", desc: "Istanzia una plugboard configurabile." },
       { code: "plugboard.swap('a', 'z')", desc: "Scambia due lettere nella plugboard." },
       { code: "rotor1 = EnigmaM3RotorI(pos, ring)", desc: "Istanzia un Rotore I con posizione iniziale (1-26) e ring setting (1-26)." },
+      { code: "rotor2 = EnigmaM3RotorII(pos, ring)", desc: "Istanzia un Rotore II con posizione iniziale (1-26) e ring setting (1-26)." },
+      { code: "rotor3 = EnigmaM3RotorIII(pos, ring)", desc: "Istanzia un Rotore III con posizione iniziale (1-26) e ring setting (1-26)." },
       { code: "enigma = EnigmaM3(plugboard, rotor3, rotor2, rotor1, reflector, etw, True)", desc: "Istanzia una macchina Enigma M3 (plugboard, rotor L, rotor M, rotor R, reflector, etw, auto_increment)." },
       { code: "decrypted = enigma.input_string('codjzbcl')", desc: "Cifra o decifra una stringa usando la macchina Enigma." },
       { code: "hero.unlock_gate(decrypted)", desc: "Invia il codice decifrato alla porta per aprirla." }
@@ -45,6 +47,8 @@ const ROOM_OBJECTS_1 = {
       { code: "plugboard = SwappablePlugboard()", desc: "Instantiates a swappable plugboard." },
       { code: "plugboard.swap('a', 'z')", desc: "Swaps two letters in the plugboard." },
       { code: "rotor1 = EnigmaM3RotorI(pos, ring)", desc: "Instantiates Rotor I with initial position (1-26) and ring setting (1-26)." },
+      { code: "rotor2 = EnigmaM3RotorII(pos, ring)", desc: "Instantiates Rotor II with initial position (1-26) and ring setting (1-26)." },
+      { code: "rotor3 = EnigmaM3RotorIII(pos, ring)", desc: "Instantiates Rotor III with initial position (1-26) and ring setting (1-26)." },
       { code: "enigma = EnigmaM3(plugboard, rotor3, rotor2, rotor1, reflector, etw, True)", desc: "Instantiates an Enigma M3 machine (plugboard, rotor L, rotor M, rotor R, reflector, etw, auto_increment)." },
       { code: "decrypted = enigma.input_string('codjzbcl')", desc: "Encrypt or decrypt a string using the Enigma machine." },
       { code: "hero.unlock_gate(decrypted)", desc: "Unlock the gate using the decrypted code." }
