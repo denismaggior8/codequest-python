@@ -127,6 +127,29 @@ function loadProgress() {
   console.log("📂 loadProgress complete. completedLevels:", completedLevels, "currentLevelIndex:", currentLevelIndex);
 }
 
+function getActivePresetIndices() {
+  const activePreset = typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_preset') || 'all' : 'all';
+  if (activePreset === 'all') {
+    return LEVELS.map((_, idx) => idx);
+  }
+  
+  const indices = [];
+  LEVELS.forEach((lvl, index) => {
+    if (!lvl) return;
+    let diff = lvl.difficulty || 'base';
+    if (diff === 'Easy' || diff === 'base') diff = 'base';
+    else if (diff === 'Medium' || diff === 'intermediate') diff = 'intermediate';
+    else if (diff === 'Hard' || diff === 'advanced') diff = 'advanced';
+    else diff = 'base';
+    
+    if (diff === activePreset) {
+      indices.push(index);
+    }
+  });
+  return indices;
+}
+window.getActivePresetIndices = getActivePresetIndices;
+
 // Refresh checkmarks
 function refreshLevelSelector() {
   const levelSelect = document.getElementById('level-select');
@@ -160,7 +183,8 @@ function refreshLevelSelector() {
   });
   
   // The order of difficulties we want to display
-  const diffOrder = ['base', 'intermediate', 'advanced'];
+  const activePreset = typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_preset') || 'all' : 'all';
+  const diffOrder = activePreset === 'all' ? ['base', 'intermediate', 'advanced'] : [activePreset];
   
   diffOrder.forEach(diffKey => {
     const items = groups[diffKey];
@@ -182,7 +206,15 @@ function refreshLevelSelector() {
   });
   
   // Set back to current index
-  levelSelect.value = currentLevelIndex;
+  const hasCurrentOption = Array.from(levelSelect.options).some(opt => parseInt(opt.value, 10) === currentLevelIndex);
+  if (hasCurrentOption) {
+    levelSelect.value = currentLevelIndex;
+  } else if (levelSelect.options.length > 0) {
+    // Current level is not in the preset, switch to the first level in this preset
+    const firstLvlIndex = parseInt(levelSelect.options[0].value, 10);
+    currentLevelIndex = firstLvlIndex;
+    levelSelect.value = firstLvlIndex;
+  }
 }
 
 function updateHeartsDisplay() {

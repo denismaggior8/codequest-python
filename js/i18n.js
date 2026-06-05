@@ -90,7 +90,11 @@ const TRANSLATIONS = {
     objectiveLabel: "🎯 OBIETTIVO:",
     difficulty_base: "Livello Base",
     difficulty_intermediate: "Livello Intermedio",
-    difficulty_advanced: "Livello Avanzato"
+    difficulty_advanced: "Livello Avanzato",
+    presetAll: "Tutti i Livelli",
+    presetBase: "Livello Base",
+    presetIntermediate: "Livello Intermedio",
+    presetAdvanced: "Livello Avanzato"
   },
   en: {
     // Header
@@ -181,7 +185,11 @@ const TRANSLATIONS = {
     objectiveLabel: "🎯 MISSION:",
     difficulty_base: "Basic Level",
     difficulty_intermediate: "Intermediate Level",
-    difficulty_advanced: "Advanced Level"
+    difficulty_advanced: "Advanced Level",
+    presetAll: "All Levels",
+    presetBase: "Basic Level",
+    presetIntermediate: "Intermediate Level",
+    presetAdvanced: "Advanced Level"
   }
 };
 

@@ -65,6 +65,7 @@ function setupUIEventListeners() {
     document.getElementById('import-save-btn'),
     document.getElementById('reset-progress-btn'),
     document.getElementById('level-select'),
+    document.getElementById('preset-select'),
     document.getElementById('prev-level-btn'),
     document.getElementById('next-level-btn'),
     document.getElementById('modal-next-btn'),
@@ -282,6 +283,21 @@ function setupUIEventListeners() {
     });
   }
 
+  // Preset selector list listener
+  const presetSelect = document.getElementById('preset-select');
+  if (presetSelect) {
+    presetSelect.value = localStorage.getItem('codequest_preset') || 'all';
+    presetSelect.addEventListener('change', (e) => {
+      localStorage.setItem('codequest_preset', e.target.value);
+      const oldIndex = currentLevelIndex;
+      refreshLevelSelector();
+      if (currentLevelIndex !== oldIndex) {
+        loadLevel(currentLevelIndex);
+      }
+      synth.play('click');
+    });
+  }
+
   // Level selector list listener
   const levelSelect = document.getElementById('level-select');
   if (levelSelect) {
@@ -295,9 +311,11 @@ function setupUIEventListeners() {
   const prevBtn = document.getElementById('prev-level-btn');
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
-      if (currentLevelIndex > 0) {
+      const indices = getActivePresetIndices();
+      const currIdx = indices.indexOf(currentLevelIndex);
+      if (currIdx > 0) {
         synth.play('click');
-        loadLevel(currentLevelIndex - 1);
+        loadLevel(indices[currIdx - 1]);
       } else {
         synth.play('error');
       }
@@ -307,9 +325,11 @@ function setupUIEventListeners() {
   const nextBtn = document.getElementById('next-level-btn');
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
-      if (currentLevelIndex < LEVELS.length - 1) {
+      const indices = getActivePresetIndices();
+      const currIdx = indices.indexOf(currentLevelIndex);
+      if (currIdx !== -1 && currIdx < indices.length - 1) {
         synth.play('click');
-        loadLevel(currentLevelIndex + 1);
+        loadLevel(indices[currIdx + 1]);
       } else {
         synth.play('error');
       }
@@ -321,9 +341,11 @@ function setupUIEventListeners() {
   if (modalNextBtn) {
     modalNextBtn.addEventListener('click', () => {
       document.getElementById('success-modal').classList.add('hidden');
-      if (currentLevelIndex < LEVELS.length - 1) {
+      const indices = getActivePresetIndices();
+      const currIdx = indices.indexOf(currentLevelIndex);
+      if (currIdx !== -1 && currIdx < indices.length - 1) {
         synth.play('click');
-        loadLevel(currentLevelIndex + 1);
+        loadLevel(indices[currIdx + 1]);
       } else {
         synth.play('win');
       }
