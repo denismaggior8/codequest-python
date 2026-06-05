@@ -441,6 +441,33 @@ runTest('GameState Import/Export Preserves Active Preset', () => {
   document.createElement = originalCreate;
 });
 
+// 9. Preset Complete Quest Victory Modal
+runTest('Game Ends and Success Modal Updates when Preset is Fully Completed', () => {
+  const { document, window } = createTestEnvironment();
+
+  const presetSelect = document.getElementById('preset-select');
+  const modalNextBtn = document.getElementById('modal-next-btn');
+  const headerEl = document.querySelector('[data-i18n="modalCleared"]');
+  const badgeEl = document.querySelector('[data-i18n="modalBadge"]');
+  const successMsg = document.getElementById('success-message');
+
+  // Switch to advanced preset (contains index 7)
+  presetSelect.value = 'advanced';
+  presetSelect.dispatchEvent(new window.Event('change'));
+
+  // Mark all rooms in advanced preset completed (recursion/room1)
+  window.markLevelCompleted('recursion/room1');
+
+  // Trigger success modal show
+  window.eval('showSuccessModal()');
+
+  // Assertions
+  assert.strictEqual(headerEl.textContent, 'QUEST COMPLETATA!', 'Header should say Quest Completata');
+  assert.strictEqual(badgeEl.textContent, '🏆 PRESET COMPLETATO!', 'Badge should say Preset Completato');
+  assert(successMsg.textContent.includes('congratulazioni') || successMsg.textContent.includes('Congratulazioni'), 'Message should show congratulations text');
+  assert.strictEqual(modalNextBtn.style.display, 'none', 'Next button should be hidden when preset is completed');
+});
+
 console.log('\n--- DOM Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);

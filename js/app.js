@@ -1095,7 +1095,31 @@ function showSuccessModal() {
     ? `Link ha sbloccato con successo la Stanza ${level.id} e ha ottenuto il frammento della Triforza!`
     : `Link successfully unlocked Room ${level.id} and secured the Triforce piece!`;
   
-  document.getElementById('success-message').textContent = successText;
+  // Check if all levels in the active preset are completed
+  const activePresetIndices = getActivePresetIndices();
+  const activeLevels = activePresetIndices.map(idx => LEVELS[idx]);
+  const allPresetLevelsCompleted = activeLevels.length > 0 && activeLevels.every(lvl => {
+    return completedLevels[lvl.id] || completedLevels[String(lvl.id)];
+  });
+
+  const headerEl = document.querySelector('[data-i18n="modalCleared"]');
+  const badgeEl = document.querySelector('[data-i18n="modalBadge"]');
+  const nextBtn = document.getElementById('modal-next-btn');
+
+  if (allPresetLevelsCompleted) {
+    if (headerEl) headerEl.textContent = currentLanguage === 'it' ? "QUEST COMPLETATA!" : "QUEST COMPLETED!";
+    if (badgeEl) badgeEl.textContent = currentLanguage === 'it' ? "🏆 PRESET COMPLETATO!" : "🏆 PRESET COMPLETED!";
+    document.getElementById('success-message').textContent = currentLanguage === 'it'
+      ? "Congratulazioni! Hai sbloccato tutti i frammenti della Triforza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python."
+      : "Congratulations! You have unlocked all Triforce pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.";
+    if (nextBtn) nextBtn.style.display = 'none';
+  } else {
+    if (headerEl) headerEl.textContent = t('modalCleared');
+    if (badgeEl) badgeEl.textContent = t('modalBadge');
+    document.getElementById('success-message').textContent = successText;
+    if (nextBtn) nextBtn.style.display = 'inline-block';
+  }
+
   document.getElementById('success-code-text').textContent = pyCode || 'No spells cast.';
   document.getElementById('success-modal').classList.remove('hidden');
 }
