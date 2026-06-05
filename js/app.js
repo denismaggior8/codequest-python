@@ -46,43 +46,29 @@ function setupUIEventListeners() {
   // (Safari/Firefox compatibility workaround since they can block capturing-phase window gestures).
   const forceAudioUnlock = () => {
     synth.init();
-    if (synth.ctx && synth.ctx.state === 'suspended' && typeof synth.ctx.resume === 'function') {
+    if (synth.ctx && (synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && typeof synth.ctx.resume === 'function') {
       synth.ctx.resume().then(() => {
-        console.log("🔊 AudioContext resumed successfully via button/page bubbling gesture.");
+        console.log("🔊 AudioContext resumed successfully via window capture gesture.");
       }).catch(e => console.warn("Failed to resume AudioContext:", e));
     }
   };
 
-  const triggerElements = [
-    document.getElementById('run-btn'),
-    document.getElementById('step-btn'),
-    document.getElementById('stop-btn'),
-    document.getElementById('sound-btn'),
-    document.getElementById('crt-btn'),
-    document.getElementById('expert-btn'),
-    document.getElementById('help-btn'),
-    document.getElementById('export-save-btn'),
-    document.getElementById('import-save-btn'),
-    document.getElementById('reset-progress-btn'),
-    document.getElementById('level-select'),
-    document.getElementById('preset-select'),
-    document.getElementById('prev-level-btn'),
-    document.getElementById('next-level-btn'),
-    document.getElementById('modal-next-btn'),
-    document.getElementById('modal-retry-btn'),
-    document.getElementById('close-help-btn')
-  ];
+  // Register persistent capturing phase listeners on window to handle events that stop propagation (e.g. inside Blockly)
+  window.addEventListener('click', forceAudioUnlock, true);
+  window.addEventListener('keydown', forceAudioUnlock, true);
+  window.addEventListener('touchstart', forceAudioUnlock, true);
 
-  triggerElements.forEach(el => {
-    if (el) {
-      el.addEventListener('click', forceAudioUnlock, false);
-      el.addEventListener('touchstart', forceAudioUnlock, false);
+  // Handle visibility change to suspend/resume AudioContext on tab switch (Safari fix)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      synth.init();
+      if (synth.ctx && (synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && synth.enabled) {
+        synth.ctx.resume().then(() => {
+          console.log("🔊 AudioContext resumed successfully on visibilitychange visible.");
+        }).catch(e => console.warn("Failed to resume AudioContext on visibilitychange:", e));
+      }
     }
   });
-
-  document.body.addEventListener('click', forceAudioUnlock, false);
-  document.body.addEventListener('keydown', forceAudioUnlock, false);
-  document.body.addEventListener('touchstart', forceAudioUnlock, false);
 
   // One-time interaction to unlock/resume Web Audio API in modern browsers (capturing phase fallback)
   const unlockAudio = () => {
@@ -102,7 +88,7 @@ function setupUIEventListeners() {
       }
       
       console.log("🔒 unlockAudio interaction. AudioContext state before resume:", synth.ctx.state);
-      if (synth.ctx.state === 'suspended' && typeof synth.ctx.resume === 'function') {
+      if ((synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && typeof synth.ctx.resume === 'function') {
         synth.ctx.resume().then(() => {
           console.log("🔊 AudioContext resumed successfully via window capture interaction. State:", synth.ctx.state);
           appendConsoleLine(t('consoleAudioEnabled'), 'system');
@@ -130,7 +116,7 @@ function setupUIEventListeners() {
     stopBtn.addEventListener('click', () => {
       synth.play('click');
       simulator.stop();
-      appendConsoleLine("⏹️ " + (currentLanguage === 'it' ? "Simulazione interrotta." : "Simulation stopped."), "system");
+      appendConsoleLine("⏹️ " + t('consoleSimStopped'), "system");
     });
   }
   
@@ -402,9 +388,7 @@ function setupUIEventListeners() {
   const resetBtn = document.getElementById('reset-progress-btn');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      const confirmMsg = currentLanguage === 'it'
-        ? "Sei sicuro di voler cancellare TUTTI i tuoi progressi nel gioco? Questa azione non può essere annullata."
-        : "Are you sure you want to reset ALL your achievements and code cache? This action cannot be undone.";
+      const confirmMsg = t('confirmResetProgress');
       
       if (confirm(confirmMsg)) {
         synth.play('error');
@@ -420,7 +404,7 @@ function setupUIEventListeners() {
         updateHeartsDisplay();
         loadLevel(currentLevelIndex);
         
-        appendConsoleLine("⚠️ " + (currentLanguage === 'it' ? "Progressi resettati!" : "Achievements reset!"), "error");
+        appendConsoleLine("⚠️ " + t('consoleResetSuccess'), "error");
       }
     });
   }
@@ -1091,9 +1075,7 @@ function showSuccessModal() {
     pyCode = document.getElementById('python-textarea').value;
   }
   
-  const successText = currentLanguage === 'it'
-    ? `Link ha sbloccato con successo la Stanza ${level.id} e ha ottenuto il frammento della Triforza!`
-    : `Link successfully unlocked Room ${level.id} and secured the Triforce piece!`;
+  const successText = t('successUnlockedRoom', { id: level.id });
   
   // Check if all levels in the active preset are completed
   const activePresetIndices = getActivePresetIndices();
@@ -1107,11 +1089,9 @@ function showSuccessModal() {
   const nextBtn = document.getElementById('modal-next-btn');
 
   if (allPresetLevelsCompleted) {
-    if (headerEl) headerEl.textContent = currentLanguage === 'it' ? "QUEST COMPLETATA!" : "QUEST COMPLETED!";
-    if (badgeEl) badgeEl.textContent = currentLanguage === 'it' ? "🏆 PRESET COMPLETATO!" : "🏆 PRESET COMPLETED!";
-    document.getElementById('success-message').textContent = currentLanguage === 'it'
-      ? "Congratulazioni! Hai sbloccato tutti i frammenti della Triforza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python."
-      : "Congratulations! You have unlocked all Triforce pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.";
+    if (headerEl) headerEl.textContent = t('presetCompletedHeader');
+    if (badgeEl) badgeEl.textContent = t('presetCompletedBadge');
+    document.getElementById('success-message').textContent = t('presetCompletedMessage');
     if (nextBtn) nextBtn.style.display = 'none';
   } else {
     if (headerEl) headerEl.textContent = t('modalCleared');
@@ -1120,7 +1100,7 @@ function showSuccessModal() {
     if (nextBtn) nextBtn.style.display = 'inline-block';
   }
 
-  document.getElementById('success-code-text').textContent = pyCode || 'No spells cast.';
+  document.getElementById('success-code-text').textContent = pyCode || t('noSpellsCast');
   document.getElementById('success-modal').classList.remove('hidden');
 }
 

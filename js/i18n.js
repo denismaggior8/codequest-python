@@ -94,7 +94,15 @@ const TRANSLATIONS = {
     presetAll: "Tutti i Livelli",
     presetBase: "Livello Base",
     presetIntermediate: "Livello Intermedio",
-    presetAdvanced: "Livello Avanzato"
+    presetAdvanced: "Livello Avanzato",
+    consoleSimStopped: "Simulazione interrotta.",
+    confirmResetProgress: "Sei sicuro di voler cancellare TUTTI i tuoi progressi nel gioco? Questa azione non può essere annullata.",
+    consoleResetSuccess: "Progressi resettati!",
+    successUnlockedRoom: "Link ha sbloccato con successo la Stanza {id} e ha ottenuto il frammento della Triforza!",
+    presetCompletedHeader: "QUEST COMPLETATA!",
+    presetCompletedBadge: "🏆 PRESET COMPLETATO!",
+    presetCompletedMessage: "Congratulazioni! Hai sbloccato tutti i frammenti della Triforza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python.",
+    noSpellsCast: "Nessun incantesimo lanciato."
   },
   en: {
     // Header
@@ -189,7 +197,15 @@ const TRANSLATIONS = {
     presetAll: "All Levels",
     presetBase: "Basic Level",
     presetIntermediate: "Intermediate Level",
-    presetAdvanced: "Advanced Level"
+    presetAdvanced: "Advanced Level",
+    consoleSimStopped: "Simulation stopped.",
+    confirmResetProgress: "Are you sure you want to reset ALL your achievements and code cache? This action cannot be undone.",
+    consoleResetSuccess: "Achievements reset!",
+    successUnlockedRoom: "Link successfully unlocked Room {id} and secured the Triforce piece!",
+    presetCompletedHeader: "QUEST COMPLETED!",
+    presetCompletedBadge: "🏆 PRESET COMPLETED!",
+    presetCompletedMessage: "Congratulations! You have unlocked all Triforce pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.",
+    noSpellsCast: "No spells cast."
   }
 };
 

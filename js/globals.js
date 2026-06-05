@@ -8,9 +8,17 @@ class RetroSynth {
   }
   
   init() {
+    if (this.ctx && this.ctx.state === 'closed') {
+      this.ctx = null;
+    }
     if (!this.ctx) {
       try {
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx) {
+          this.ctx.onstatechange = () => {
+            console.log(`🎵 AudioContext state changed to: ${this.ctx ? this.ctx.state : 'null'}`);
+          };
+        }
       } catch (e) {
         console.warn("Web Audio API is not supported or blocked in this browser:", e);
         this.ctx = null;
@@ -132,7 +140,7 @@ class RetroSynth {
     };
 
     try {
-      if (this.ctx.state === 'suspended' && typeof this.ctx.resume === 'function') {
+      if ((this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && typeof this.ctx.resume === 'function') {
         this.ctx.resume().then(() => {
           doPlay();
         }).catch(e => {
