@@ -58,6 +58,12 @@ Built using the browser's Web Audio API, a custom synthesizer generates authenti
 ### 9. i18n Translation Engine
 The interface includes full localization support for English (**EN**) and Italian (**IT**). Story dialogs, objectives, command documentation, help menus, console logs, and Blockly block labels translate dynamically.
 
+### 10. Room Presets & Dropdown Selection Filter
+A dedicated preset selector dropdown next to the room select dropdown allows filtering visible rooms by curated groups:
+- **Presets**: Curated categories like *All Levels* (special wildcard), *Basic Level*, *Intermediate Level*, and *Advanced Level* mapped to explicit lists of room IDs inside `js/levels.js`.
+- **Auto-Correction**: Switching presets immediately corrects the selected level to the first room of the newly chosen preset if the currently active level is not included in it.
+- **Navigation Traversal Limits**: Cycles strictly within the active preset's rooms when clicking prev/next arrows or using success modal links.
+
 ---
 
 ## 🗂️ Curriculum & Room Progression
@@ -82,7 +88,7 @@ Levels are organized in the selection dropdown under difficulty groupings:
 
 ## 💖 Topic-Based Hearts Progress & Save System
 
-- **Hearts Display**: The HUD displays a list of hearts representing the educational topics (concepts). A heart turns red (`❤️`) only when **all rooms** under that specific concept are cleared, promoting complete topic mastery.
+- **Hearts Display**: The HUD displays a list of hearts representing the educational topics (concepts) present in the **currently selected preset**. The hearts bar dynamically sizes to match the number of sections included in the active preset. A heart turns red (`❤️`) only when all rooms under that specific concept *within the preset* are cleared, promoting complete topic mastery.
 - **Auto-Save**: Progress and custom workspace layouts auto-save to browser `localStorage` on level load and win.
 - **JSON Save Import/Export**: Players can download their game states (`.json` files) and load them on other machines.
 - **Backward-Compatible Migration**: The system features an automatic migration helper (`migrateOldSaveData`). If it detects a legacy save utilizing old numeric IDs (`1` to `7`), it silently maps them to the new folder-based namespaces (e.g. `conditionals/room1`), ensuring players keep their progress across updates.
@@ -117,7 +123,8 @@ The codebase is organized modularly to ease maintainability and scaling:
 │       └── recursion/
 │           └── room1.js
 └── tests/
-    └── rooms.test.js   # Automated unit test suite
+    ├── rooms.test.js   # Automated room schema and pathfinding test suite
+    └── dom.test.js     # DOM user standpoint and interactive UI test suite
 ```
 
 ---
@@ -131,13 +138,20 @@ python3 -m http.server 8000
 ```
 Open your browser and navigate to `http://localhost:8000`.
 
-### 2. Run Room Unit Tests
-We provide a comprehensive, dependency-free Node.js unit test suite. Run:
+### 2. Run Automated Test Suites
+We provide a comprehensive Node.js unit and integration test suite. Run:
 ```bash
 npm test
 ```
-The test suite validates:
+The tests are split into two sequential suites:
+
+#### A. Room Schema & Pathfinding (`tests/rooms.test.js`)
 - **Schema Conformity**: Checks types and translation coverage for all levels.
 - **Bounds Checking**: Assures start coordinates, sizes, and tiles are valid.
 - **BFS Pathfinding Solvability**: Runs a Breadth-First Search to programmatically prove a path exists from the hero's start to the Triforce portal without crossing walls.
 - **Crystals/Rupee Reachability**: Confirms all crystals placed on the map are fully reachable from the starting point and match the configured target crystals.
+
+#### B. User Standpoint DOM Interactions (`tests/dom.test.js`)
+- **Headless Browser Simulation**: Uses `jsdom` to spin up the HTML document and load local scripts in a simulated DOM context.
+- **Component Mocking**: Implements mock overrides for Blockly, Web Audio, Canvas API, and animation frames (`requestAnimationFrame`).
+- **Interactive Workflows**: Verifies selector dropdown filtering, out-of-bound level auto-corrections, language translation updates, sound toggler storage persistence, preset boundaries traversal navigation, and completion state HUD updates.
