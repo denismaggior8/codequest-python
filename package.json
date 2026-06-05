@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "CodeQuest Python - Educational Game",
   "scripts": {
-    "test": "node tests/rooms.test.js"
+    "test": "node tests/rooms.test.js && node tests/dom.test.js"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
 }
