@@ -24,6 +24,24 @@ if (typeof module !== 'undefined' && module.exports) {
   room7 = ROOM_RECURSION_1;
 }
 
+const PRESETS = {
+  all: null,
+  base: [
+    "sequences/room1",
+    "variables/room1",
+    "conditionals/room1",
+    "loops/room1",
+    "functions/room1"
+  ],
+  intermediate: [
+    "lists/room1",
+    "objects/room1"
+  ],
+  advanced: [
+    "recursion/room1"
+  ]
+};
+
 const LEVELS = [
   room1,
   room2,
@@ -36,5 +54,8 @@ const LEVELS = [
 ];
 
 if (typeof module !== 'undefined' && module.exports) {
+  LEVELS.PRESETS = PRESETS;
   module.exports = LEVELS;
+} else {
+  window.PRESETS = PRESETS;
 }

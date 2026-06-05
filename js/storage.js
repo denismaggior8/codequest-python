@@ -133,16 +133,10 @@ function getActivePresetIndices() {
     return LEVELS.map((_, idx) => idx);
   }
   
+  const presetRoomIds = PRESETS[activePreset] || [];
   const indices = [];
   LEVELS.forEach((lvl, index) => {
-    if (!lvl) return;
-    let diff = lvl.difficulty || 'base';
-    if (diff === 'Easy' || diff === 'base') diff = 'base';
-    else if (diff === 'Medium' || diff === 'intermediate') diff = 'intermediate';
-    else if (diff === 'Hard' || diff === 'advanced') diff = 'advanced';
-    else diff = 'base';
-    
-    if (diff === activePreset) {
+    if (lvl && presetRoomIds.includes(lvl.id)) {
       indices.push(index);
     }
   });
@@ -157,13 +151,15 @@ function refreshLevelSelector() {
   
   levelSelect.innerHTML = '';
   
-  // Group levels by difficulty
+  // Get indices of levels in the active preset
+  const activePresetIndices = getActivePresetIndices();
+  
+  // Group levels in the active preset by difficulty
   const groups = {};
-  LEVELS.forEach((lvl, index) => {
-    if (!lvl) {
-      console.warn(`Level at index ${index} is undefined or failed to load.`);
-      return;
-    }
+  activePresetIndices.forEach((index) => {
+    const lvl = LEVELS[index];
+    if (!lvl) return;
+    
     let diff = lvl.difficulty || 'base';
     // Normalize difficulty names to handle cached files robustly
     if (diff === 'Easy' || diff === 'base') {
@@ -183,8 +179,7 @@ function refreshLevelSelector() {
   });
   
   // The order of difficulties we want to display
-  const activePreset = typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_preset') || 'all' : 'all';
-  const diffOrder = activePreset === 'all' ? ['base', 'intermediate', 'advanced'] : [activePreset];
+  const diffOrder = ['base', 'intermediate', 'advanced'];
   
   diffOrder.forEach(diffKey => {
     const items = groups[diffKey];
