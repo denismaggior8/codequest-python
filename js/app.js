@@ -47,12 +47,8 @@ function setupUIEventListeners() {
   // Setup audio unlocking via normal bubbling clicks on specific interactive UI elements
   // (Safari/Firefox compatibility workaround since they can block capturing-phase window gestures).
   const forceAudioUnlock = () => {
-    synth.init();
-    if (synth.ctx && (synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && typeof synth.ctx.resume === 'function') {
-      synth.ctx.resume().then(() => {
-        console.log("🔊 AudioContext resumed successfully via window capture gesture.");
-        synth.startSilentNode();
-      }).catch(e => console.warn("Failed to resume AudioContext:", e));
+    if (synth.enabled) {
+      synth.resume(true);
     }
   };
 
@@ -63,44 +59,33 @@ function setupUIEventListeners() {
 
   // Handle visibility change to suspend/resume AudioContext on tab switch (Safari fix)
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      synth.init();
-      if (synth.ctx && (synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && synth.enabled) {
-        synth.ctx.resume().then(() => {
-          console.log("🔊 AudioContext resumed successfully on visibilitychange visible.");
-          synth.startSilentNode();
-        }).catch(e => console.warn("Failed to resume AudioContext on visibilitychange:", e));
-      }
+    if (document.visibilityState === 'visible' && synth.enabled) {
+      console.log("🔊 Page visible again. Resuming AudioContext.");
+      synth.resume(false);
     }
   });
 
   // One-time interaction to unlock/resume Web Audio API in modern browsers (capturing phase fallback)
   const unlockAudio = () => {
-    synth.init();
-    if (synth.ctx) {
-      // Play a tiny silent tone to satisfy browser user gesture requirements
-      try {
-        const osc = synth.ctx.createOscillator();
-        const gain = synth.ctx.createGain();
-        gain.gain.setValueAtTime(0.0001, synth.ctx.currentTime);
-        osc.connect(gain);
-        gain.connect(synth.ctx.destination);
-        osc.start();
-        osc.stop(synth.ctx.currentTime + 0.05);
-      } catch (e) {
-        console.warn("Failed to play silent unlock note:", e);
+    if (synth.enabled) {
+      synth.init();
+      if (synth.ctx) {
+        // Play a tiny silent tone to satisfy browser user gesture requirements
+        try {
+          const osc = synth.ctx.createOscillator();
+          const gain = synth.ctx.createGain();
+          gain.gain.setValueAtTime(0.0001, synth.ctx.currentTime);
+          osc.connect(gain);
+          gain.connect(synth.ctx.destination);
+          osc.start();
+          osc.stop(synth.ctx.currentTime + 0.05);
+        } catch (e) {
+          console.warn("Failed to play silent unlock note:", e);
+        }
       }
-      
-      console.log("🔒 unlockAudio interaction. AudioContext state before resume:", synth.ctx.state);
-      if ((synth.ctx.state === 'suspended' || synth.ctx.state === 'interrupted') && typeof synth.ctx.resume === 'function') {
-        synth.ctx.resume().then(() => {
-          console.log("🔊 AudioContext resumed successfully via window capture interaction. State:", synth.ctx.state);
-          synth.startSilentNode();
-          appendConsoleLine(t('consoleAudioEnabled'), 'system');
-        }).catch(err => {
-          console.warn("⚠️ Failed to resume AudioContext:", err);
-        });
-      }
+      synth.resume(true).then(() => {
+        appendConsoleLine(t('consoleAudioEnabled'), 'system');
+      });
     }
     window.removeEventListener('click', unlockAudio, true);
     window.removeEventListener('keydown', unlockAudio, true);
@@ -158,27 +143,13 @@ function setupUIEventListeners() {
       storage.setItem('codequest_sound', String(enabled));
       updateSoundButtonText();
       if (enabled) {
-        synth.init();
-        if (synth.ctx) {
-          console.log("🔊 Sound toggled ON. AudioContext state:", synth.ctx.state);
-          if (synth.ctx.state === 'suspended') {
-            synth.ctx.resume().then(() => {
-              console.log("🔊 AudioContext resumed successfully on button click. State:", synth.ctx.state);
-              appendConsoleLine(t('consoleAudioEnabled'), 'system');
-              synth.play('click');
-            }).catch(err => {
-              console.warn("⚠️ Failed to resume AudioContext on button click:", err);
-              appendConsoleLine(t('consoleAudioError') + ": " + err.message, 'error');
-            });
-          } else {
-            console.log("🔊 AudioContext is already running. Playing test chime...");
-            appendConsoleLine(t('consoleAudioEnabled'), 'system');
-            synth.play('click');
-          }
-        } else {
-          console.warn("⚠️ AudioContext not created.");
-          appendConsoleLine(t('consoleAudioError'), 'error');
-        }
+        synth.resume(true).then(() => {
+          appendConsoleLine(t('consoleAudioEnabled'), 'system');
+          synth.play('click');
+        }).catch(err => {
+          console.warn("⚠️ Failed to resume AudioContext on button click:", err);
+          appendConsoleLine(t('consoleAudioError') + (err ? ": " + err.message : ""), 'error');
+        });
       } else {
         console.log("🔇 Sound toggled OFF.");
         appendConsoleLine(t('consoleAudioDisabled'), 'error');

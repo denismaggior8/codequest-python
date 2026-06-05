@@ -62,6 +62,49 @@ class RetroSynth {
     }
   }
 
+  recreateContext() {
+    if (this.ctx) {
+      try {
+        if (typeof this.ctx.close === 'function') {
+          this.ctx.close();
+        }
+      } catch (e) {
+        console.warn("Error closing old AudioContext:", e);
+      }
+      this.ctx = null;
+      this.silentNode = null;
+    }
+    this.init();
+    if (this.ctx && typeof this.ctx.resume === 'function') {
+      return this.ctx.resume().then(() => {
+        this.startSilentNode();
+      }).catch(e => {
+        console.warn("Failed to resume recreated context:", e);
+      });
+    }
+    return Promise.resolve();
+  }
+
+  resume(isUserGesture = false) {
+    this.init();
+    if (!this.ctx) return Promise.resolve();
+    
+    if (isUserGesture && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+      console.log(`⚠️ AudioContext is ${this.ctx.state}. Recreating context inside user gesture to ensure Safari sound.`);
+      return this.recreateContext();
+    }
+    
+    return this.ctx.resume().then(() => {
+      this.startSilentNode();
+    }).catch(e => {
+      console.warn("Failed to resume AudioContext:", e);
+      if (isUserGesture) {
+        return this.recreateContext();
+      }
+      return Promise.reject(e);
+    });
+  }
+
   startSilentNode() {
     if (this.silentNode || !this.ctx) return;
     try {
