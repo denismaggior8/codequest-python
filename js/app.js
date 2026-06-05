@@ -135,16 +135,8 @@ function setupUIEventListeners() {
   if (speedSlider) {
     speedSlider.addEventListener('input', (e) => {
       const val = parseInt(e.target.value, 10);
-      let stepDelay = 400;
-      switch (val) {
-        case 1: stepDelay = 800; break;
-        case 2: stepDelay = 600; break;
-        case 3: stepDelay = 400; break;
-        case 4: stepDelay = 200; break;
-        case 5: stepDelay = 80; break;
-      }
       if (simulator) {
-        simulator.stepDelay = stepDelay;
+        simulator.setSpeed(val);
       }
     });
   }
@@ -644,6 +636,12 @@ function initSimulator() {
       appendConsoleLine(msg, type);
     }
   };
+
+  // Set default speed from speed-slider
+  const speedSlider = document.getElementById('speed-slider');
+  if (speedSlider) {
+    simulator.setSpeed(parseInt(speedSlider.value, 10));
+  }
 }
 
 function playSynthSound(type) {
