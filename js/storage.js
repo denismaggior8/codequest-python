@@ -1,21 +1,23 @@
 // The Legend of Python - Save Management and Persistence
 
+var storage = window.safeLocalStorage;
+
 // Save achievements & progress helper
 function saveProgress() {
   try {
-    localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
+    storage.setItem('codequest_completed', JSON.stringify(completedLevels));
   } catch (e) {
     console.error("Failed to save codequest_completed:", e);
   }
   
   try {
-    localStorage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
+    storage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
   } catch (e) {
     console.error("Failed to save codequest_levels_code:", e);
   }
   
   try {
-    localStorage.setItem('codequest_current_level_idx', currentLevelIndex);
+    storage.setItem('codequest_current_level_idx', currentLevelIndex);
   } catch (e) {
     console.error("Failed to save codequest_current_level_idx:", e);
   }
@@ -65,8 +67,8 @@ function migrateOldSaveData() {
   if (migratedCompleted || migratedCode) {
     console.log("🔄 Migrated old numeric save data keys to new string path namespaces.");
     try {
-      localStorage.setItem('codequest_completed', JSON.stringify(completedLevels));
-      localStorage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
+      storage.setItem('codequest_completed', JSON.stringify(completedLevels));
+      storage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));
     } catch (e) {
       console.warn("Failed to write migrated data: ", e);
     }
@@ -76,9 +78,9 @@ function migrateOldSaveData() {
 function loadProgress() {
   let progressStr = null;
   try {
-    progressStr = localStorage.getItem('codequest_completed');
+    progressStr = storage.getItem('codequest_completed');
   } catch (e) {
-    console.error("Failed to read codequest_completed from localStorage:", e);
+    console.error("Failed to read codequest_completed from storage:", e);
   }
   if (progressStr) {
     try {
@@ -94,9 +96,9 @@ function loadProgress() {
   
   let savedCodeStr = null;
   try {
-    savedCodeStr = localStorage.getItem('codequest_levels_code');
+    savedCodeStr = storage.getItem('codequest_levels_code');
   } catch (e) {
-    console.error("Failed to read codequest_levels_code from localStorage:", e);
+    console.error("Failed to read codequest_levels_code from storage:", e);
   }
   if (savedCodeStr) {
     try {
@@ -111,9 +113,9 @@ function loadProgress() {
   
   let savedLvlIdx = null;
   try {
-    savedLvlIdx = localStorage.getItem('codequest_current_level_idx');
+    savedLvlIdx = storage.getItem('codequest_current_level_idx');
   } catch (e) {
-    console.error("Failed to read codequest_current_level_idx from localStorage:", e);
+    console.error("Failed to read codequest_current_level_idx from storage:", e);
   }
   if (savedLvlIdx !== null) {
     currentLevelIndex = parseInt(savedLvlIdx, 10);
@@ -128,7 +130,7 @@ function loadProgress() {
 }
 
 function getActivePresetIndices() {
-  const activePreset = typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_preset') || 'all' : 'all';
+  const activePreset = storage.getItem('codequest_preset') || 'all';
   if (activePreset === 'all') {
     return LEVELS.map((_, idx) => idx);
   }
@@ -294,7 +296,7 @@ function exportGameState() {
     settings: {
       language: currentLanguage,
       currentLevelIndex: currentLevelIndex,
-      preset: typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_preset') || 'all' : 'all'
+      preset: storage.getItem('codequest_preset') || 'all'
     }
   };
 
@@ -353,9 +355,7 @@ function importGameState(file) {
         }
         if (data.settings.preset) {
           const importedPreset = data.settings.preset;
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem('codequest_preset', importedPreset);
-          }
+          storage.setItem('codequest_preset', importedPreset);
           const presetSelect = document.getElementById('preset-select');
           if (presetSelect) {
             presetSelect.value = importedPreset;
@@ -365,7 +365,7 @@ function importGameState(file) {
       
       // Persist to local storage
       saveProgress();
-      localStorage.setItem('codequest_lang', currentLanguage);
+      storage.setItem('codequest_lang', currentLanguage);
       
       // Play sound
       synth.play('win');

@@ -1,11 +1,13 @@
 // The Legend of Python - Main App Controller and UI Bindings
 
+var storage = window.safeLocalStorage;
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
   loadProgress();
   
   // Load saved language or default to IT
-  const savedLang = localStorage.getItem('codequest_lang') || 'it';
+  const savedLang = storage.getItem('codequest_lang') || 'it';
   currentLanguage = savedLang;
   document.getElementById('lang-select').value = currentLanguage;
   
@@ -81,8 +83,8 @@ function setupUIEventListeners() {
         gain.gain.setValueAtTime(0.0001, synth.ctx.currentTime);
         osc.connect(gain);
         gain.connect(synth.ctx.destination);
-        osc.start(0);
-        osc.stop(0.01);
+        osc.start();
+        osc.stop(synth.ctx.currentTime + 0.05);
       } catch (e) {
         console.warn("Failed to play silent unlock note:", e);
       }
@@ -158,7 +160,7 @@ function setupUIEventListeners() {
 
     soundBtn.addEventListener('click', () => {
       const enabled = synth.toggle();
-      localStorage.setItem('codequest_sound', String(enabled));
+      storage.setItem('codequest_sound', String(enabled));
       updateSoundButtonText();
       if (enabled) {
         synth.init();
@@ -204,7 +206,7 @@ function setupUIEventListeners() {
   const crtBtn = document.getElementById('crt-btn');
   if (crtBtn) {
     // Apply initial state from persistence (default ON)
-    const isCrtOn = localStorage.getItem('codequest_crt') !== 'false';
+    const isCrtOn = storage.getItem('codequest_crt') !== 'false';
     if (isCrtOn) {
       document.body.classList.remove('crt-off');
     } else {
@@ -223,7 +225,7 @@ function setupUIEventListeners() {
       synth.play('click');
       document.body.classList.toggle('crt-off');
       const active = !document.body.classList.contains('crt-off');
-      localStorage.setItem('codequest_crt', String(active));
+      storage.setItem('codequest_crt', String(active));
       updateCrtButtonText();
     });
   }
@@ -232,7 +234,7 @@ function setupUIEventListeners() {
   const expertBtn = document.getElementById('expert-btn');
   if (expertBtn) {
     // Apply initial state from persistence (default OFF)
-    isExpertMode = localStorage.getItem('codequest_expert') === 'true';
+    isExpertMode = storage.getItem('codequest_expert') === 'true';
     
     const updateExpertButtonText = () => {
       expertBtn.title = t('titleExpert') + (isExpertMode ? ' (ON)' : ' (OFF)');
@@ -244,7 +246,7 @@ function setupUIEventListeners() {
     expertBtn.addEventListener('click', () => {
       synth.play('click');
       isExpertMode = !isExpertMode;
-      localStorage.setItem('codequest_expert', String(isExpertMode));
+      storage.setItem('codequest_expert', String(isExpertMode));
       updateExpertButtonText();
       
       // Update tab layout and active mode
@@ -272,9 +274,9 @@ function setupUIEventListeners() {
   // Preset selector list listener
   const presetSelect = document.getElementById('preset-select');
   if (presetSelect) {
-    presetSelect.value = localStorage.getItem('codequest_preset') || 'all';
+    presetSelect.value = storage.getItem('codequest_preset') || 'all';
     presetSelect.addEventListener('change', (e) => {
-      localStorage.setItem('codequest_preset', e.target.value);
+      storage.setItem('codequest_preset', e.target.value);
       const oldIndex = currentLevelIndex;
       refreshLevelSelector();
       if (currentLevelIndex !== oldIndex) {
@@ -392,9 +394,9 @@ function setupUIEventListeners() {
       
       if (confirm(confirmMsg)) {
         synth.play('error');
-        localStorage.removeItem('codequest_completed');
-        localStorage.removeItem('codequest_levels_code');
-        localStorage.removeItem('codequest_current_level_idx');
+        storage.removeItem('codequest_completed');
+        storage.removeItem('codequest_levels_code');
+        storage.removeItem('codequest_current_level_idx');
         completedLevels = {};
         levelsCodeCache = {};
         currentLevelIndex = 0;
@@ -485,7 +487,7 @@ function setupUIEventListeners() {
     langSelect.addEventListener('change', (e) => {
       synth.play('click');
       const newLang = e.target.value;
-      localStorage.setItem('codequest_lang', newLang);
+      storage.setItem('codequest_lang', newLang);
       
       loadBlocklyLocale(newLang, () => {
         applyTranslations(newLang);

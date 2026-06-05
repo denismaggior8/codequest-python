@@ -1,10 +1,38 @@
-// The Legend of Python - Global State and Audio Synthesizer
+// Safe localStorage wrapper to prevent SecurityError exceptions in sandboxes/iframes
+const safeLocalStorage = {
+  getItem(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn("localStorage.getItem blocked:", e);
+      return this._mem[key] || null;
+    }
+  },
+  setItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn("localStorage.setItem blocked:", e);
+      this._mem[key] = String(value);
+    }
+  },
+  removeItem(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn("localStorage.removeItem blocked:", e);
+      delete this._mem[key];
+    }
+  },
+  _mem: {}
+};
+window.safeLocalStorage = safeLocalStorage;
 
 // Synthesizer Engine for retro Zelda sound effects
 class RetroSynth {
   constructor() {
     this.ctx = null;
-    this.enabled = typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_sound') !== 'false' : true;
+    this.enabled = safeLocalStorage.getItem('codequest_sound') !== 'false';
   }
   
   init() {
