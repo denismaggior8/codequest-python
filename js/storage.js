@@ -293,7 +293,8 @@ function exportGameState() {
     levelsCode: levelsCodeCache,
     settings: {
       language: currentLanguage,
-      currentLevelIndex: currentLevelIndex
+      currentLevelIndex: currentLevelIndex,
+      preset: typeof localStorage !== 'undefined' ? localStorage.getItem('codequest_preset') || 'all' : 'all'
     }
   };
 
@@ -349,6 +350,16 @@ function importGameState(file) {
         }
         if (data.settings.currentLevelIndex !== undefined) {
           currentLevelIndex = data.settings.currentLevelIndex;
+        }
+        if (data.settings.preset) {
+          const importedPreset = data.settings.preset;
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('codequest_preset', importedPreset);
+          }
+          const presetSelect = document.getElementById('preset-select');
+          if (presetSelect) {
+            presetSelect.value = importedPreset;
+          }
         }
       }
       

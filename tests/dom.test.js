@@ -363,6 +363,84 @@ runTest('Sound Button Toggles Sound Mode and Persists to LocalStorage', () => {
   assert.strictEqual(window.localStorage.getItem('codequest_sound'), 'true', 'LocalStorage state should be "true"');
 });
 
+// 8. Game state import/export containing preset
+runTest('GameState Import/Export Preserves Active Preset', () => {
+  const { document, window } = createTestEnvironment();
+
+  // Mock document.createElement / appendChild for file downloads
+  let clickTriggered = false;
+  let downloadedBlobContent = null;
+  const originalCreate = document.createElement.bind(document);
+  document.createElement = (tag) => {
+    const el = originalCreate(tag);
+    if (tag === 'a') {
+      el.click = () => { clickTriggered = true; };
+    }
+    return el;
+  };
+  const originalCreateBlob = window.Blob;
+  window.Blob = class {
+    constructor(content, options) {
+      downloadedBlobContent = content[0];
+      this.content = content;
+      this.options = options;
+    }
+  };
+  const originalRevoke = window.URL.revokeObjectURL;
+  const originalCreateURL = window.URL.createObjectURL;
+  window.URL.createObjectURL = () => 'blob:mock';
+  window.URL.revokeObjectURL = () => {};
+
+  // Set preset to "intermediate"
+  const presetSelect = document.getElementById('preset-select');
+  presetSelect.value = 'intermediate';
+  presetSelect.dispatchEvent(new window.Event('change'));
+  
+  // Trigger export
+  window.eval('exportGameState()');
+  
+  assert(clickTriggered, 'Export should trigger download click event');
+  assert(downloadedBlobContent, 'Blob content should be captured');
+  
+  const parsedSave = JSON.parse(downloadedBlobContent);
+  assert.strictEqual(parsedSave.settings.preset, 'intermediate', 'Save payload should store intermediate preset');
+
+  // Clear environment for import test
+  presetSelect.value = 'all';
+  presetSelect.dispatchEvent(new window.Event('change'));
+  assert.strictEqual(presetSelect.value, 'all', 'Preset reset to all');
+
+  // Trigger import
+  const mockFile = { name: 'save.json' };
+  const mockReaderInstance = {
+    readAsText: function() {
+      // Simulate file reading completion
+      if (typeof this.onload === 'function') {
+        this.onload({
+          target: {
+            result: JSON.stringify(parsedSave)
+          }
+        });
+      }
+    }
+  };
+  window.FileReader = function() {
+    return mockReaderInstance;
+  };
+
+  window.eval('importGameState(true)'); // passes truthy file to trigger load
+
+  // Wait for translations/locale callbacks to resolve
+  assert.strictEqual(presetSelect.value, 'intermediate', 'Import should restore intermediate preset on selector dropdown');
+  assert.strictEqual(window.localStorage.getItem('codequest_preset'), 'intermediate', 'Import should save intermediate preset in localStorage');
+
+  // Restore global constructors
+  window.Blob = originalCreateBlob;
+  window.URL.createObjectURL = originalCreateURL;
+  window.URL.revokeObjectURL = originalRevoke;
+  document.createElement = originalCreate;
+});
+
 console.log('\n--- DOM Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);
