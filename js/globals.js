@@ -57,6 +57,9 @@ class RetroSynth {
       if (this.ctx) {
         this.ctx.onstatechange = () => {
           console.log(`🎵 AudioContext state changed to: ${this.ctx ? this.ctx.state : 'null'}`);
+          if (this.ctx && this.ctx.state === 'running') {
+            this.preloadBlocklySounds();
+          }
         };
         this.startSilentNode();
         this.preloadBlocklySounds();
@@ -74,8 +77,13 @@ class RetroSynth {
                   window.navigator.userAgent.toLowerCase().includes('jsdom');
     if (isTest) return;
 
+    if (this.ctx.state !== 'running') {
+      console.log(`🎵 Delaying preload for ${name} because AudioContext is suspended/interrupted`);
+      return;
+    }
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { mode: 'cors' });
       const arrayBuffer = await response.arrayBuffer();
       this.ctx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
         this.buffers[name] = decodedBuffer;
@@ -90,7 +98,7 @@ class RetroSynth {
 
   preloadBlocklySounds() {
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || this.ctx.state !== 'running') return;
     const mediaBase = 'https://unpkg.com/blockly/media/';
     this.preloadBuffer('click', `${mediaBase}click.mp3`);
     this.preloadBuffer('delete', `${mediaBase}delete.mp3`);
@@ -115,8 +123,7 @@ class RetroSynth {
         const source = this.ctx.createBufferSource();
         source.buffer = buffer;
         source.connect(this.ctx.destination);
-        const start = this.ctx.currentTime + 0.005;
-        source.start(start);
+        source.start(0);
       } catch (e) {
         console.warn(`Failed to play buffer ${name}:`, e);
       }
@@ -144,6 +151,11 @@ class RetroSynth {
   recreateContext() {
     if (this.ctx) {
       try {
+        if (this.silentNode) {
+          this.silentNode.stop();
+        }
+      } catch (e) {}
+      try {
         if (typeof this.ctx.close === 'function') {
           this.ctx.close();
         }
@@ -169,8 +181,8 @@ class RetroSynth {
     this.init();
     if (!this.ctx) return Promise.resolve();
     
-    if (isUserGesture && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
-      console.log(`⚠️ AudioContext is ${this.ctx.state}. Recreating context inside user gesture to ensure Safari sound.`);
+    if (isUserGesture && this.ctx.state === 'interrupted') {
+      console.log(`⚠️ AudioContext is interrupted. Recreating context inside user gesture to ensure Safari sound.`);
       return this.recreateContext();
     }
     
@@ -180,6 +192,7 @@ class RetroSynth {
     }).catch(e => {
       console.warn("Failed to resume AudioContext:", e);
       if (isUserGesture) {
+        console.log("⚠️ resume() failed. Attempting context recreation as fallback.");
         return this.recreateContext();
       }
       return Promise.reject(e);
