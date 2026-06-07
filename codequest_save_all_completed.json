@@ -2,15 +2,15 @@
   "app": "codequest-python",
   "version": 1,
   "timestamp": 1772618400000,
-  "completedLevels": [
-    "sequences/room1",
-    "variables/room1",
-    "conditionals/room1",
-    "loops/room1",
-    "functions/room1",
-    "lists/room1",
-    "objects/room1"
-  ],
+  "completedLevels": {
+    "sequences/room1": true,
+    "variables/room1": true,
+    "conditionals/room1": true,
+    "loops/room1": true,
+    "functions/room1": true,
+    "lists/room1": true,
+    "objects/room1": true
+  },
   "levelsCode": {
     "sequences/room1": {
       "mode": "blocks",
@@ -62,7 +62,9 @@
                     "type": "variables_set",
                     "id": "vset1",
                     "fields": {
-                      "VAR": "rubies"
+                      "VAR": {
+                        "id": "rubies"
+                      }
                     },
                     "inputs": {
                       "VALUE": {
@@ -88,7 +90,9 @@
                                 "type": "variables_set",
                                 "id": "vset2",
                                 "fields": {
-                                  "VAR": "rubies"
+                                  "VAR": {
+                                    "id": "rubies"
+                                  }
                                 },
                                 "inputs": {
                                   "VALUE": {
@@ -104,7 +108,9 @@
                                             "type": "variables_get",
                                             "id": "vget1",
                                             "fields": {
-                                              "VAR": "rubies"
+                                              "VAR": {
+                                                "id": "rubies"
+                                              }
                                             }
                                           }
                                         },
@@ -134,7 +140,9 @@
                                             "type": "variables_set",
                                             "id": "vset3",
                                             "fields": {
-                                              "VAR": "rubies"
+                                              "VAR": {
+                                                "id": "rubies"
+                                              }
                                             },
                                             "inputs": {
                                               "VALUE": {
@@ -150,7 +158,9 @@
                                                         "type": "variables_get",
                                                         "id": "vget2",
                                                         "fields": {
-                                                          "VAR": "rubies"
+                                                          "VAR": {
+                                                            "id": "rubies"
+                                                          }
                                                         }
                                                       }
                                                     },
@@ -177,7 +187,9 @@
                                                       "type": "variables_get",
                                                       "id": "vget3",
                                                       "fields": {
-                                                        "VAR": "rubies"
+                                                        "VAR": {
+                                                          "id": "rubies"
+                                                        }
                                                       }
                                                     }
                                                   }

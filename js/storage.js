@@ -100,7 +100,8 @@ function migrateOldSaveData() {
           .replace(/\btriforce\b/g, 'force')
           .replace(/\bTriforza\b/g, 'Forza')
           .replace(/\btriforza\b/g, 'forza')
-          .replace(/codjzbcl/g, 'zlfmo');
+          .replace(/codjzbcl/g, 'zlfmo')
+          .replace(/"VAR":\s*"([a-zA-Z0-9_-]+)"/g, '"VAR": {"id": "$1"}');
         if (updated !== orig) {
           item.blocksState = updated;
           migratedNames = true;
@@ -115,7 +116,8 @@ function migrateOldSaveData() {
           .replace(/\btriforce\b/g, 'force')
           .replace(/\bTriforza\b/g, 'Forza')
           .replace(/\btriforza\b/g, 'forza')
-          .replace(/codjzbcl/g, 'zlfmo');
+          .replace(/codjzbcl/g, 'zlfmo')
+          .replace(/"VAR":\s*"([a-zA-Z0-9_-]+)"/g, '"VAR": {"id": "$1"}');
         if (updatedStr !== origStr) {
           try {
             item.blocksState = JSON.parse(updatedStr);
@@ -148,7 +150,17 @@ function loadProgress() {
   }
   if (progressStr) {
     try {
-      completedLevels = JSON.parse(progressStr) || {};
+      const parsed = JSON.parse(progressStr);
+      if (Array.isArray(parsed)) {
+        completedLevels = {};
+        parsed.forEach(id => {
+          if (id && typeof id === 'string') {
+            completedLevels[id] = true;
+          }
+        });
+      } else {
+        completedLevels = parsed || {};
+      }
       console.log("📂 loadProgress parsed completedLevels:", completedLevels);
     } catch (e) {
       console.error("Failed to parse codequest_completed JSON:", e);
@@ -408,7 +420,16 @@ function importGameState(file) {
       }
       
       // Load progress
-      completedLevels = data.completedLevels;
+      if (Array.isArray(data.completedLevels)) {
+        completedLevels = {};
+        data.completedLevels.forEach(id => {
+          if (id && typeof id === 'string') {
+            completedLevels[id] = true;
+          }
+        });
+      } else {
+        completedLevels = data.completedLevels;
+      }
       levelsCodeCache = data.levelsCode;
       
       migrateOldSaveData();
