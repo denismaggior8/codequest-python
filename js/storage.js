@@ -298,7 +298,7 @@ function updateHeartsDisplay() {
   });
   
   let completedTopicsCount = 0;
-  let heartsStr = "";
+  let html = "";
   
   topics.forEach(topic => {
     const topicLevels = activeLevels.filter(lvl => lvl.badge === topic);
@@ -307,15 +307,19 @@ function updateHeartsDisplay() {
     });
     
     if (allCompleted) {
-      heartsStr += "❤️";
+      html += '<span class="heart-icon heart-red">❤️</span>';
       completedTopicsCount++;
     } else {
-      heartsStr += "🖤";
+      html += '<span class="heart-icon heart-black">🖤</span>';
     }
   });
   
-  console.log("❤️ updateHeartsDisplay. completedLevels:", completedLevels, "heartsStr:", heartsStr, "completedTopicsCount:", completedTopicsCount);
-  display.textContent = heartsStr;
+  // Dynamically calculate grid columns to ensure it splits nicely into two rows
+  const cols = Math.ceil(topics.length / 2);
+  display.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+  display.innerHTML = html;
+  
+  console.log("❤️ updateHeartsDisplay. completedLevels:", completedLevels, "completedTopicsCount:", completedTopicsCount);
   
   // Tooltip dinamico e localizzato per argomenti completati
   const tooltipText = currentLanguage === 'it'
