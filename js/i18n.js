@@ -47,7 +47,7 @@ const TRANSLATIONS = {
 
     // Modals - Success
     modalCleared: "DUNGEON COMPLETATO!",
-    modalBadge: "💚 FRAMMENTO DI TRIFORZA OTTENUTO",
+    modalBadge: "💚 FRAMMENTO DI FORZA OTTENUTO",
     modalCodeHeader: "HAI LANCIATO QUESTO INCANTESIMO PYTHON:",
     modalReplay: "RIGIOCA",
     modalNext: "PROSSIMA STANZA >",
@@ -70,7 +70,7 @@ const TRANSLATIONS = {
     consoleTurn: "⚔️ hero.turn_{dir}() -> Orientato a {name}",
     consoleRupeeAcquired: "💎 Rubino ottenuto! Rubini totali: {count}",
     consoleRupeeWarn: "⚠️ hero.collect_ruby() -> Attenzione: Nessun rubino su questa casella.",
-    consoleWin: "🗝️ LA TRIFORZA RISPLENDE! Stanza del dungeon completata.",
+    consoleWin: "🗝️ LA FORZA RISPLENDE! Stanza del dungeon completata.",
     consoleRupeeSeal: "⚠️ Il portale della Forza è sigillato. Raccogli tutti i rubini! ({count}/{target})",
     consolePrintSeal: "⚠️ Quasi fatta, ma non hai eseguito il print() del conteggio dei rubini!",
     consoleFinishIncomplete: "🧭 Knil ha finito i movimenti ma non ha raggiunto il portale della Forza.",
@@ -150,7 +150,7 @@ const TRANSLATIONS = {
 
     // Modals - Success
     modalCleared: "DUNGEON CLEARED!",
-    modalBadge: "💚 TRIFORCE PIECE SECURED",
+    modalBadge: "💚 FORCE PIECE SECURED",
     modalCodeHeader: "YOU CAST THIS PYTHON SPELL:",
     modalReplay: "REPLAY",
     modalNext: "NEXT ROOM >",
@@ -173,7 +173,7 @@ const TRANSLATIONS = {
     consoleTurn: "⚔️ hero.turn_{dir}() -> Facing {name}",
     consoleRupeeAcquired: "💎 Ruby acquired! Total rubies: {count}",
     consoleRupeeWarn: "⚠️ hero.collect_ruby() -> Warning: No rubies found on this tile.",
-    consoleWin: "🗝️ THE TRIFORCE SHINES! Dungeon room solved.",
+    consoleWin: "🗝️ THE FORCE SHINES! Dungeon room solved.",
     consoleRupeeSeal: "⚠️ The Force gate is sealed. Collect all rubies! ({count}/{target})",
     consolePrintSeal: "⚠️ Almost cleared, but you did not print() the ruby count!",
     consoleFinishIncomplete: "🧭 Knil finished movements but did not reach the Force Gate.",

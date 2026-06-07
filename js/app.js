@@ -598,7 +598,7 @@ function initSimulator() {
       appendConsoleLine(t('consoleRupeeAcquired', { count: simulator.collectedCount }), 'output');
     } else if (msg.startsWith("⚠️ hero.collect_ruby()")) {
       appendConsoleLine(t('consoleRupeeWarn'), 'error');
-    } else if (msg.startsWith("🗝️ THE TRIFORCE SHINES!")) {
+    } else if (msg.startsWith("🗝️ THE FORCE SHINES!")) {
       appendConsoleLine(t('consoleWin'), 'system');
     } else if (msg.startsWith("⚠️ The Force gate is sealed")) {
       appendConsoleLine(t('consoleRupeeSeal', { count: simulator.collectedCount, target: simulator.level.targetCrystals }), 'error');

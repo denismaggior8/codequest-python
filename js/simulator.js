@@ -526,7 +526,7 @@ class GameSimulator {
     }
     
     if (isOnPortal && hasAllCrystals && printSuccess) {
-      this.onStatus("🗝️ THE TRIFORCE SHINES! Dungeon room solved.", "system");
+      this.onStatus("🗝️ THE FORCE SHINES! Dungeon room solved.", "system");
       this.onSound('win');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(true, "success");
