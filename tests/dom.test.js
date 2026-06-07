@@ -164,10 +164,19 @@ function createTestEnvironment() {
   // Append exports to window so they are globally testable
   concatenatedCode += `
     window.synth = synth;
-    window.completedLevels = completedLevels;
-    window.levelsCodeCache = levelsCodeCache;
     window.loadLevel = loadLevel;
     window.markLevelCompleted = markLevelCompleted;
+
+    Object.defineProperty(window, 'completedLevels', {
+      get: () => completedLevels,
+      set: (val) => { completedLevels = val; },
+      configurable: true
+    });
+    Object.defineProperty(window, 'levelsCodeCache', {
+      get: () => levelsCodeCache,
+      set: (val) => { levelsCodeCache = val; },
+      configurable: true
+    });
 
     Object.defineProperty(window, 'currentLevelIndex', {
       get: () => currentLevelIndex,
