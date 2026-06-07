@@ -21,7 +21,7 @@ etw = Etw(alphabet, alphabet)
 # Assemble with auto_increment_rotors=True
 enigma = Enigma(plugboard, [rotor1, rotor2, rotor3], reflector, etw, auto_increment_rotors=True, alphabet=alphabet)
 
-plain_text = "triforza"
+plain_text = "forza"
 cipher_text = enigma.input_string(plain_text)
 print(f"Plaintext: {plain_text} -> Ciphertext: {cipher_text}")
 
