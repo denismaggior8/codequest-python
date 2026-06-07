@@ -175,10 +175,12 @@ header .logo {
   flex-direction: column;
   line-height: 1.1;
   flex-shrink: 0;
+  align-items: center;
+  text-align: center;
 }
 
 header .logo .logo-top {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--retro-red);
   letter-spacing: 0.5px;
   text-shadow: 1px 1px 0px #000;
@@ -189,6 +191,7 @@ header .logo .logo-main {
   color: var(--retro-yellow);
   letter-spacing: 1px;
   text-shadow: 2px 2px 0px #000, 3px 3px 0px var(--retro-yellow-dark);
+  margin-bottom: 4px;
 }
 
 /* Level Nav Controls */
