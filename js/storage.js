@@ -64,8 +64,69 @@ function migrateOldSaveData() {
     }
   }
 
-  if (migratedCompleted || migratedCode) {
-    console.log("🔄 Migrated old numeric save data keys to new string path namespaces.");
+  let migratedNames = false;
+  for (const lvlId in levelsCodeCache) {
+    const item = levelsCodeCache[lvlId];
+    if (!item) continue;
+
+    // Migrate Python code references
+    if (typeof item.pythonCode === 'string') {
+      const orig = item.pythonCode;
+      let updated = item.pythonCode
+        .replace(/hero\.collect_rupee/g, 'hero.collect_ruby')
+        .replace(/collect_rupee\(/g, 'collect_ruby(')
+        .replace(/\brupees\b/g, 'rubies')
+        .replace(/\brupee\b/g, 'ruby')
+        .replace(/\bTriforce\b/g, 'Force')
+        .replace(/\btriforce\b/g, 'force')
+        .replace(/\bTriforza\b/g, 'Forza')
+        .replace(/\btriforza\b/g, 'forza');
+      if (updated !== orig) {
+        item.pythonCode = updated;
+        migratedNames = true;
+      }
+    }
+
+    // Migrate Blockly state (handles XML and JSON objects)
+    if (item.blocksState) {
+      if (typeof item.blocksState === 'string') {
+        const orig = item.blocksState;
+        let updated = item.blocksState
+          .replace(/collect_rupee/g, 'collect_ruby')
+          .replace(/\brupees\b/g, 'rubies')
+          .replace(/\brupee\b/g, 'ruby')
+          .replace(/\bTriforce\b/g, 'Force')
+          .replace(/\btriforce\b/g, 'force')
+          .replace(/\bTriforza\b/g, 'Forza')
+          .replace(/\btriforza\b/g, 'forza');
+        if (updated !== orig) {
+          item.blocksState = updated;
+          migratedNames = true;
+        }
+      } else if (typeof item.blocksState === 'object') {
+        const origStr = JSON.stringify(item.blocksState);
+        let updatedStr = origStr
+          .replace(/collect_rupee/g, 'collect_ruby')
+          .replace(/\brupees\b/g, 'rubies')
+          .replace(/\brupee\b/g, 'ruby')
+          .replace(/\bTriforce\b/g, 'Force')
+          .replace(/\btriforce\b/g, 'force')
+          .replace(/\bTriforza\b/g, 'Forza')
+          .replace(/\btriforza\b/g, 'forza');
+        if (updatedStr !== origStr) {
+          try {
+            item.blocksState = JSON.parse(updatedStr);
+            migratedNames = true;
+          } catch (e) {
+            console.warn("Failed to parse migrated blocksState JSON:", e);
+          }
+        }
+      }
+    }
+  }
+
+  if (migratedCompleted || migratedCode || migratedNames) {
+    console.log("🔄 Migrated old numeric save data keys and aligned legacy terminology in levels code cache.");
     try {
       storage.setItem('codequest_completed', JSON.stringify(completedLevels));
       storage.setItem('codequest_levels_code', JSON.stringify(levelsCodeCache));

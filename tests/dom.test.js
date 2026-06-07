@@ -494,6 +494,84 @@ runTest('Layout Resizers exist and restore saved styles', () => {
   assert.strictEqual(rightPanel.style.width, '25%', 'Right panel width should be restored');
 });
 
+// 11. Legacy save data migration aligns naming schemes
+runTest('Importing legacy save file migrates rupee and triforce/triforza terms', () => {
+  const { document, window } = createTestEnvironment();
+
+  // Create an old save with legacy name references
+  const legacySave = {
+    app: "codequest-python",
+    version: 1,
+    timestamp: Date.now(),
+    completedLevels: {
+      "1": true,
+      "variables/room1": true
+    },
+    levelsCode: {
+      "variables/room1": {
+        mode: "blocks",
+        pythonCode: "def on_start():\n  rupees = 0\n  hero.collect_rupee()\n  rupees = rupees + 1\n  print('triforza')\n",
+        blocksState: {
+          blocks: {
+            languageVersion: 0,
+            blocks: [
+              {
+                type: "collect_rupee",
+                id: "cr1"
+              }
+            ]
+          }
+        }
+      }
+    },
+    settings: {
+      language: "en",
+      currentLevelIndex: 1,
+      preset: "all"
+    }
+  };
+
+  // Mock FileReader to return legacySave
+  const mockReaderInstance = {
+    readAsText: function() {
+      if (typeof this.onload === 'function') {
+        this.onload({
+          target: {
+            result: JSON.stringify(legacySave)
+          }
+        });
+      }
+    }
+  };
+  window.FileReader = function() {
+    return mockReaderInstance;
+  };
+
+  // Trigger import
+  window.eval('importGameState(true)');
+
+  // Verify that the level variables/room1 has been updated
+  const migratedItem = window.levelsCodeCache['variables/room1'];
+  assert(migratedItem, 'Level item should exist after import');
+  
+  // Python Code migration check
+  assert.strictEqual(
+    migratedItem.pythonCode,
+    "def on_start():\n  rubies = 0\n  hero.collect_ruby()\n  rubies = rubies + 1\n  print('forza')\n",
+    'Should migrate python code references from rupee/triforza to ruby/forza'
+  );
+
+  // Blockly state JSON object migration check
+  assert.strictEqual(
+    migratedItem.blocksState.blocks.blocks[0].type,
+    "collect_ruby",
+    'Blockly state blocks should be migrated to collect_ruby'
+  );
+
+  // Check numeric level ID migration was also called
+  assert.strictEqual(window.completedLevels['sequences/room1'], true, 'Old numeric level IDs should also be migrated');
+});
+
 console.log('\n--- DOM Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);
