@@ -3,12 +3,12 @@
 const TRANSLATIONS = {
   it: {
     // Header
-    logoSub: "AN #HEROASCODE ADVENTURE",
+    logoSub: "A 2D #HeroAsCode adventure",
     heartsTitle: "Cuori Guadagnati",
     resetQuest: "RESETTA QUEST",
     exportSaveText: "SALVA PARTITA",
     importSaveText: "CARICA PARTITA",
-    
+
     // Panels
     dungeonQuest: "QUEST DEL DUNGEON",
     missionTitle: "MISSIONE:",
@@ -18,7 +18,7 @@ const TRANSLATIONS = {
     pythonScroll: "PERGAMENA PYTHON",
     pythonScrollWisdom: "SAGGEZZA DELLA PERGAMENA",
     availableCommands: "INCANTESIMI DISPONIBILI",
-    
+
     // Playback Controls
     run: "AVVIA",
     stop: "FERMA",
@@ -37,21 +37,21 @@ const TRANSLATIONS = {
     titleSave: "Salva Partita",
     titleLoad: "Carica Partita",
     titleReset: "Resetta Progressi Quest",
-    
+
     // Tooltips & Default texts
     dragSpells: "# Trascina i blocchi per generare codice Python!",
     spellTipHeader: "SUGGERIMENTO SPELL",
     consoleAudioEnabled: "🔊 Sistema Audio: Inizializzato (Attivo).",
     consoleAudioDisabled: "🔇 Sistema Audio: Disattivato (Muto). Clicca sull'altoparlante in alto per attivarlo!",
     consoleAudioError: "⚠️ Sistema Audio: Errore o non supportato in questo browser.",
-    
+
     // Modals - Success
     modalCleared: "DUNGEON COMPLETATO!",
     modalBadge: "💚 FRAMMENTO DI TRIFORZA OTTENUTO",
     modalCodeHeader: "HAI LANCIATO QUESTO INCANTESIMO PYTHON:",
     modalReplay: "RIGIOCA",
     modalNext: "PROSSIMA STANZA >",
-    
+
     // Modals - Help
     helpTitle: "COME GIOCARE",
     helpClose: "ENTRA NEL DUNGEON!",
@@ -61,7 +61,7 @@ const TRANSLATIONS = {
     helpStep3: "<strong>Avvia la Simulazione</strong>: Clicca su <strong class='pixel-text-green'>AVVIA</strong> per eseguire il codice. Knil camminerà passo dopo passo seguendo i tuoi blocchi.",
     helpStep4: "<strong>Leggi il Registro Dungeon</strong>: Se usi il blocco <code>print()</code>, i risultati appariranno nel registro in basso a sinistra.",
     helpStep5: "<strong>Completa la Missione</strong>: Raggiungi l'obiettivo della stanza (raccogliere rubini, evitare ostacoli) per sbloccare la Triforza d'oro e avanzare!",
-    
+
     // Console status lines
     consoleInit: "Caricamento quest Triforza...",
     consoleCompass: "La bussola punta a Nord.",
@@ -84,7 +84,7 @@ const TRANSLATIONS = {
     consoleSystemStart: "Sistema inizializzato in {name}...",
     consoleGateUnlocked: "🗝️ PORTALE SBLOCCATO! La porta di ferro si apre.",
     consoleGateLocked: "⚠️ Codice non corretto! La porta rimane sigillata.",
-    
+
     // Levels/Blocks UI labels
     roomBadge: "STANZA {id}: {badge}",
     objectiveLabel: "🎯 OBIETTIVO:",
@@ -106,12 +106,12 @@ const TRANSLATIONS = {
   },
   en: {
     // Header
-    logoSub: "AN #HEROASCODE ADVENTURE",
+    logoSub: "A 2D #HeroAsCode adventure",
     heartsTitle: "Hearts Earned",
     resetQuest: "RESET QUEST",
     exportSaveText: "SAVE GAME",
     importSaveText: "LOAD GAME",
-    
+
     // Panels
     dungeonQuest: "DUNGEON QUEST",
     missionTitle: "MISSION:",
@@ -121,7 +121,7 @@ const TRANSLATIONS = {
     pythonScroll: "PYTHON SCROLL",
     pythonScrollWisdom: "PYTHON SCROLL WISDOM",
     availableCommands: "AVAILABLE SPELLS",
-    
+
     // Playback Controls
     run: "RUN",
     stop: "STOP",
@@ -140,21 +140,21 @@ const TRANSLATIONS = {
     titleSave: "Save Game",
     titleLoad: "Load Game",
     titleReset: "Reset Quest Progress",
-    
+
     // Tooltips & Default texts
     dragSpells: "# Drag blocks to write spells and generate Python code!",
     spellTipHeader: "PYTHON SCROLL WISDOM",
     consoleAudioEnabled: "🔊 Audio System: Initialized (Active).",
     consoleAudioDisabled: "🔇 Audio System: Disabled (Muted). Click the speaker icon at the top to enable!",
     consoleAudioError: "⚠️ Audio System: Error or not supported in this browser.",
-    
+
     // Modals - Success
     modalCleared: "DUNGEON CLEARED!",
     modalBadge: "💚 TRIFORCE PIECE SECURED",
     modalCodeHeader: "YOU CAST THIS PYTHON SPELL:",
     modalReplay: "REPLAY",
     modalNext: "NEXT ROOM >",
-    
+
     // Modals - Help
     helpTitle: "HOW TO PLAY",
     helpClose: "ENTER DUNGEON!",
@@ -164,7 +164,7 @@ const TRANSLATIONS = {
     helpStep3: "<strong>Run the Simulation</strong>: Click <strong class='pixel-text-green'>RUN</strong> to execute your code. Knil will walk step-by-step according to your blocks.",
     helpStep4: "<strong>Read Dungeon Logs</strong>: If you use the <code>print()</code> block, the output will appear in the <em>Dungeon Log</em>.",
     helpStep5: "<strong>Solve the Goal</strong>: Complete the objective listed in the <em>Dungeon Quest</em> (collecting rubies, dodging spike traps) to unlock the gold Triforce warp portal!",
-    
+
     // Console status lines
     consoleInit: "Triforce Quest loaded...",
     consoleCompass: "Compass is pointing North.",
@@ -187,7 +187,7 @@ const TRANSLATIONS = {
     consoleSystemStart: "System initialized in {name}...",
     consoleGateUnlocked: "🗝️ GATE UNLOCKED! The iron gate opens.",
     consoleGateLocked: "⚠️ Code is incorrect! The gate remains sealed.",
-    
+
     // Levels/Blocks UI labels
     roomBadge: "ROOM {id}: {badge}",
     objectiveLabel: "🎯 MISSION:",
@@ -214,7 +214,7 @@ let currentLanguage = 'it'; // Default language
 function applyTranslations(lang) {
   currentLanguage = lang || 'it';
   const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['it'];
-  
+
   // Find all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -235,9 +235,9 @@ function applyTranslations(lang) {
       el.setAttribute('title', dict[key]);
     }
   });
-  
+
   // Apply document title
-  document.title = currentLanguage === 'it' 
+  document.title = currentLanguage === 'it'
     ? "Code quest, an #HeroAsCode adventure"
     : "Code quest, an #HeroAsCode adventure";
 
