@@ -442,7 +442,7 @@ class GameSimulator {
   }
 
   unlockGate(code) {
-    if (code && (code.toLowerCase().trim() === "forza" || code.toLowerCase().trim() === "forza")) {
+    if (code && (code.toLowerCase().trim() === "forza" || code.toLowerCase().trim() === "triforza")) {
       const gateX = this.level.gateX !== undefined ? this.level.gateX : 2;
       const gateY = this.level.gateY !== undefined ? this.level.gateY : 1;
       if (this.grid[gateY][gateX] === 1) {
