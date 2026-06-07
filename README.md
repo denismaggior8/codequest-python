@@ -1,17 +1,17 @@
-# The Legend of Python
+# Code quest, an #HeroAsCode adventure
 
-![The Legend of Python Gameplay](img/gameplay.png)
+![Code quest Gameplay](img/gameplay.png)
 
-**The Legend of Python** is an educational, browser-based retro programming game designed to teach Python and programming logic using a visual, gamified environment inspired by retro Zelda classics. 
+**Code quest** is an educational, browser-based retro programming game designed to teach Python and programming logic using a visual, gamified environment inspired by retro retro classics. 
 
-Players guide the hero, **Link**, through grid-based stone dungeons to reach the gold **Triforce Warp Gate**, using either visual **Blockly** blocks or writing raw **Python** code.
+Players guide the hero, **Knil**, through grid-based stone dungeons to reach the gold **Triforce Warp Gate**, using either visual **Blockly** blocks or writing raw **Python** code.
 
 ---
 
 ## 🎮 Game Interface & Layout
 
 The application features a dark, 8-bit retro theme with harmonic HSL colors and includes:
-- **Interactive Simulator**: A real-time canvas where Link performs movements, collects rupees, detects obstacles, or crashes into walls.
+- **Interactive Simulator**: A real-time canvas where Knil performs movements, collects rubies, detects obstacles, or crashes into walls.
 - **Dungeon Console Registry**: A terminal logging actions, game statuses, console prints, and warnings or compilation errors.
 - **Spell Book & Code Editor**:
   - **Blocks Mode**: A Blockly workspace containing category drawers (Commands, Variables, Loops, Logic, Functions) to build visual code structures.
@@ -39,7 +39,7 @@ To prevent players from bypassing the learning objectives (e.g. writing repeatin
 - *Note:* In Python mode, comments are automatically stripped during validation to prevent cheating (e.g., `# using a for loop` will not bypass the check).
 
 ### 4. Interactive Step-by-Step Debugger & Active Highlighting
-In addition to the **Run (AVVIA)** button, players can use the **Step (PASSO)** debugger to execute commands one-by-one. The simulator advances Link step-by-step and inspects console outputs without resetting his position between steps.
+In addition to the **Run (AVVIA)** button, players can use the **Step (PASSO)** debugger to execute commands one-by-one. The simulator advances Knil step-by-step and inspects console outputs without resetting his position between steps.
 During execution, the active Blockly block glows with a golden outline on the canvas, or the active statement line is highlighted with a gold retro bar in the Python code editor gutter and Python Scroll pane.
 
 ### 5. WebAssembly Python Sandbox (Pyodide) & Dynamic Modules
@@ -53,7 +53,7 @@ Players can toggle "Expert Mode" (via the 🧠 button in the header) which hides
 - **Dynamic Box Header**: The left panel header dynamically loads the current level's title (e.g., `"LA LENTE DELLA VERITÀ"`) from `room.js` with full translation support, replacing generic labels.
 
 ### 8. Retro Sound Synthesizer (`RetroSynth`)
-Built using the browser's Web Audio API, a custom synthesizer generates authentic 8-bit sound effects (chimes, clicks, rupee collections, step movements, victory fanfares, and error blips) without loading external audio assets. An interaction unlock listener automatically initializes the AudioContext on the first user click/keypress to comply with browser autoplay restrictions.
+Built using the browser's Web Audio API, a custom synthesizer generates authentic 8-bit sound effects (chimes, clicks, ruby collections, step movements, victory fanfares, and error blips) without loading external audio assets. An interaction unlock listener automatically initializes the AudioContext on the first user click/keypress to comply with browser autoplay restrictions.
 
 ### 9. i18n Translation Engine
 The interface includes full localization support for English (**EN**) and Italian (**IT**). Story dialogs, objectives, command documentation, help menus, console logs, and Blockly block labels translate dynamically.
@@ -72,9 +72,9 @@ Levels are organized in the selection dropdown under difficulty groupings:
 
 ### 🟢 Basic Level (Livello Base)
 - **Sequences room 1: The Hero's Awakening** (`sequences/room1`) - Linear instructions (`hero.move_forward()`).
-- **Variables room 1: The Rupee Caves** (`variables/room1`) - Declaring, incrementing variables (`rupees = rupees + 1`), and outputting results (`print(rupees)`).
+- **Variables room 1: The Ruby Caves** (`variables/room1`) - Declaring, incrementing variables (`rubies = rubies + 1`), and outputting results (`print(rubies)`).
 - **Conditionals room 1: Eye of Truth** (`conditionals/room1`) - Checking environment tiles using sensors (`if hero.scan_ahead() == "obstacle":`).
-- **Loops room 1: The Rupee Vault** (`loops/room1`) - Repeating routines cleanly (`for i in range(4):`).
+- **Loops room 1: The Ruby Vault** (`loops/room1`) - Repeating routines cleanly (`for i in range(4):`).
 - **Functions room 1: The Triforce Chamber** (`functions/room1`) - Defining custom macros (`def step_and_collect():`) to navigate mazes.
 
 ### 🟡 Intermediate Level (Livello Intermedio)
@@ -149,7 +149,7 @@ The tests are split into two sequential suites:
 - **Schema Conformity**: Checks types and translation coverage for all levels.
 - **Bounds Checking**: Assures start coordinates, sizes, and tiles are valid.
 - **BFS Pathfinding Solvability**: Runs a Breadth-First Search to programmatically prove a path exists from the hero's start to the Triforce portal without crossing walls.
-- **Crystals/Rupee Reachability**: Confirms all crystals placed on the map are fully reachable from the starting point and match the configured target crystals.
+- **Crystals/Ruby Reachability**: Confirms all crystals placed on the map are fully reachable from the starting point and match the configured target crystals.
 
 #### B. User Standpoint DOM Interactions (`tests/dom.test.js`)
 - **Headless Browser Simulation**: Uses `jsdom` to spin up the HTML document and load local scripts in a simulated DOM context.

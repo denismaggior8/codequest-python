@@ -1,37 +1,37 @@
 const ROOM_VARIABLES_1 = {
   id: "variables/room1",
   name: {
-    it: "Variabili stanza 1: La Grotta delle Rupie",
-    en: "Variables room 1: The Rupee Caves"
+    it: "Variabili stanza 1: La Grotta dei Rubini",
+    en: "Variables room 1: The Ruby Caves"
   },
   badge: "VARIABLES",
   difficulty: "base",
   story: {
-    it: "Il cancello della Triforza è sigillato! Link deve raccogliere 2 Rupie luccicanti, registrarle in una variabile chiamata 'rupees' e stampare il conteggio per aprire il passaggio.",
-    en: "The Triforce gate is sealed! Link must collect 2 shiny Rupees, record them in a variable named 'rupees', and print the count to open the path."
+    it: "Il cancello della Triforza è sigillato! Knil deve raccogliere 2 rubini luccicanti, registrarli in una variabile chiamata 'rubies' e stampare il conteggio per aprire il passaggio.",
+    en: "The Triforce gate is sealed! Knil must collect 2 shiny rubies, record them in a variable named 'rubies', and print the count to open the path."
   },
   goalText: {
-    it: "Raccogli entrambe le rupie, aumenta la variabile 'rupees' per ciascuna, stampa il valore finale con print() ed entra nel portale della Triforza.",
-    en: "Collect both rupees, increment the 'rupees' variable, print its value, and enter the Triforce gate."
+    it: "Raccogli entrambi i rubini, aumenta la variabile 'rubies' per ciascuno, stampa il valore finale con print() ed entra nel portale della Triforza.",
+    en: "Collect both rubies, increment the 'rubies' variable, print its value, and enter the Triforce gate."
   },
   tip: {
-    it: "Una variabile è come uno scrigno in cui salvare valori. In Python, 'rupees = 0' crea una variabile per tracciare il conteggio. 'print(rupees)' mostra il valore nel registro del dungeon.",
-    en: "A variable is like a chest to store values. In Python, 'rupees = 0' creates a variable to track our count. 'print(rupees)' shows its value in the dungeon log console."
+    it: "Una variabile è come uno scrigno in cui salvare valori. In Python, 'rubies = 0' crea una variabile per tracciare il conteggio. 'print(rubies)' mostra il valore nel registro del dungeon.",
+    en: "A variable is like a chest to store values. In Python, 'rubies = 0' creates a variable to track our count. 'print(rubies)' shows its value in the dungeon log console."
   },
   docs: {
     it: [
-      { code: "hero.move_forward()", desc: "Fai camminare Link in avanti." },
-      { code: "hero.collect_rupee()", desc: "Raccogli la rupia sulla casella corrente." },
-      { code: "rupees = 0", desc: "Inizializza una variabile 'rupees' col valore 0." },
-      { code: "rupees = rupees + 1", desc: "Aggiungi 1 al valore della variabile delle rupie." },
-      { code: "print(rupees)", desc: "Stampa il conteggio delle rupie a schermo." }
+      { code: "hero.move_forward()", desc: "Fai camminare Knil in avanti." },
+      { code: "hero.collect_ruby()", desc: "Raccogli il rubino sulla casella corrente." },
+      { code: "rubies = 0", desc: "Inizializza una variabile 'rubies' col valore 0." },
+      { code: "rubies = rubies + 1", desc: "Aggiungi 1 al valore della variabile dei rubini." },
+      { code: "print(rubies)", desc: "Stampa il conteggio dei rubini a schermo." }
     ],
     en: [
-      { code: "hero.move_forward()", desc: "Make Link walk forward." },
-      { code: "hero.collect_rupee()", desc: "Collect the rupee on the current tile." },
-      { code: "rupees = 0", desc: "Initialize 'rupees' variable with value 0." },
-      { code: "rupees = rupees + 1", desc: "Add 1 to the current value of the rupees variable." },
-      { code: "print(rupees)", desc: "Print the rupee count into the log console." }
+      { code: "hero.move_forward()", desc: "Make Knil walk forward." },
+      { code: "hero.collect_ruby()", desc: "Collect the ruby on the current tile." },
+      { code: "rubies = 0", desc: "Initialize 'rubies' variable with value 0." },
+      { code: "rubies = rubies + 1", desc: "Add 1 to the current value of the rubies variable." },
+      { code: "print(rubies)", desc: "Print the ruby count into the log console." }
     ]
   },
   gridSize: 6,
@@ -57,7 +57,7 @@ const ROOM_VARIABLES_1 = {
         categorystyle: "procedure_category",
         contents: [
           { kind: "block", type: "move_forward" },
-          { kind: "block", type: "collect_rupee" }
+          { kind: "block", type: "collect_ruby" }
         ]
       },
       {
@@ -72,7 +72,7 @@ const ROOM_VARIABLES_1 = {
         categorystyle: "text_category",
         contents: [
           { kind: "block", type: "text_print" },
-          { kind: "block", type: "variables_get", fields: { VAR: { id: "rupees", name: "rupees" } } }
+          { kind: "block", type: "variables_get", fields: { VAR: { id: "rubies", name: "rubies" } } }
         ]
       }
     ]

@@ -1,13 +1,13 @@
-// The Legend of Python - Custom Blockly Blocks & Generators (i18n Zelda Theme)
+// Code quest - Custom Blockly Blocks & Generators (i18n Zelda Theme)
 
 // Translations for tooltips
 const BLOCK_TOOLTIPS = {
   it: {
-    move_forward: "Fai muovere Link di una casella in avanti nella direzione in cui è rivolto.",
-    collect_rupee: "Raccoglie la rupia sulla casella corrente.",
-    turn_left: "Gira Link di 90 gradi in senso antiorario.",
-    turn_right: "Gira Link di 90 gradi in senso orario.",
-    scan_ahead: "Controlla cosa c'è nella casella davanti a Link. Restituisce 'obstacle' (ostacolo), 'crystal' (rupia), 'portal' (Triforza) o 'empty' (vuoto).",
+    move_forward: "Fai muovere Knil di una casella in avanti nella direzione in cui è rivolto.",
+    collect_ruby: "Raccoglie il rubino sulla casella corrente.",
+    turn_left: "Gira Knil di 90 gradi in senso antiorario.",
+    turn_right: "Gira Knil di 90 gradi in senso orario.",
+    scan_ahead: "Controlla cosa c'è nella casella davanti a Knil. Restituisce 'obstacle' (ostacolo), 'crystal' (rubino), 'portal' (Triforza) o 'empty' (vuoto).",
     plugboard_passthrough: "Crea una Plugboard pass-through (senza scambi).",
     enigma_m3_rotor1: "Crea un Rotore di tipo I per Enigma M3.",
     enigma_m3_rotor2: "Crea un Rotore di tipo II per Enigma M3.",
@@ -19,11 +19,11 @@ const BLOCK_TOOLTIPS = {
     hero_unlock_gate: "Usa la parola decifrata per sbloccare la porta di ferro."
   },
   en: {
-    move_forward: "Make Link move one step forward in the direction he is facing.",
-    collect_rupee: "Collects the green/blue rupee treasure on the current tile.",
-    turn_left: "Turns Link 90 degrees counter-clockwise.",
-    turn_right: "Turns Link 90 degrees clockwise.",
-    scan_ahead: "Scans the dungeon tile directly in front of Link. Returns 'obstacle', 'crystal', 'portal', or 'empty'.",
+    move_forward: "Make Knil move one step forward in the direction he is facing.",
+    collect_ruby: "Collects the red ruby treasure on the current tile.",
+    turn_left: "Turns Knil 90 degrees counter-clockwise.",
+    turn_right: "Turns Knil 90 degrees clockwise.",
+    scan_ahead: "Scans the dungeon tile directly in front of Knil. Returns 'obstacle', 'crystal', 'portal', or 'empty'.",
     plugboard_passthrough: "Creates a pass-through plugboard (no swaps).",
     enigma_m3_rotor1: "Creates a type I rotor for Enigma M3.",
     enigma_m3_rotor2: "Creates a type II rotor for Enigma M3.",
@@ -67,14 +67,14 @@ Blockly.Blocks['move_forward'] = {
   }
 };
 
-Blockly.Blocks['collect_rupee'] = {
+Blockly.Blocks['collect_ruby'] = {
   init: function () {
     this.appendDummyInput()
-      .appendField("hero.collect_rupee()");
+      .appendField("hero.collect_ruby()");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(290); // Purple
-    this.setTooltip(() => getTooltipText('collect_rupee'));
+    this.setTooltip(() => getTooltipText('collect_ruby'));
     this.setHelpUrl("");
   }
 };
@@ -151,11 +151,11 @@ registerPy('move_forward', function (block) {
   return `hero.move_forward(block_id="${block.id}")\n`;
 });
 
-registerJS('collect_rupee', function (block) {
-  return `collectRupee("${block.id}");\n`;
+registerJS('collect_ruby', function (block) {
+  return `collectRuby("${block.id}");\n`;
 });
-registerPy('collect_rupee', function (block) {
-  return `hero.collect_rupee(block_id="${block.id}")\n`;
+registerPy('collect_ruby', function (block) {
+  return `hero.collect_ruby(block_id="${block.id}")\n`;
 });
 
 registerJS('turn_left', function (block) {

@@ -1,22 +1,22 @@
-// The Legend of Python - 2D Zelda Dungeon Canvas Simulator
+// Code quest - 2D Zelda Dungeon Canvas Simulator
 
 // Sprite Color Palette (Zelda Retro Palette)
 const SPRITE_PALETTE = {
   '.': 'transparent',
   'k': '#000000', // Outline
   'w': '#ffffff', // Shininess
-  'g': '#387a22', // Link Tunic green
-  'l': '#56b833', // Link Tunic light green
-  'c': '#fcd2a3', // Link Skin peach
-  'h': '#f1c40f', // Triforce / Link hair yellow
+  'g': '#387a22', // Knil Tunic green
+  'l': '#56b833', // Knil Tunic light green
+  'c': '#fcd2a3', // Knil Skin peach
+  'h': '#f1c40f', // Triforce / Knil hair yellow
   'o': '#b89308', // Triforce shadow yellow
-  's': '#995a3d', // Link shield / strap brown
-  'q': '#5c3624', // Link hair shadow / boots brown
+  's': '#995a3d', // Knil shield / strap brown
+  'q': '#5c3624', // Knil hair shadow / boots brown
   'd': '#3a4454', // Dungeon wall slate
   'p': '#53627c', // Dungeon wall light slate
   'm': '#1b2027', // Dungeon wall shadow
-  'e': '#2ecc71', // Rupee green
-  'u': '#1abc9c', // Rupee teal highlight
+  'e': '#e74c3c', // Ruby red
+  'u': '#ff7675', // Ruby red highlight
   'r': '#e74c3c', // Hurt red / heart red
   'x': '#2d241e'  // Ground stone tile lines
 };
@@ -63,7 +63,7 @@ const SPRITES = {
     "kkkkkkkkkkkkkkkk"
   ],
 
-  // Rupee (Classic Vertical Hexagon Gem)
+  // Ruby (Classic Vertical Hexagon Gem)
   crystal: [
     "......kk......",
     "....kkeekk....",
@@ -103,7 +103,7 @@ const SPRITES = {
     "................"
   ],
 
-  // Link Sprite - Facing Right (0)
+  // Knil Sprite - Facing Right (0)
   zog_0: [
     ".....kkkkkk.....",
     "....kggggggk....",
@@ -123,7 +123,7 @@ const SPRITES = {
     "................"
   ],
 
-  // Link Sprite - Facing Down (1)
+  // Knil Sprite - Facing Down (1)
   zog_1: [
     ".....kkkkkk.....",
     "....kggggggk....",
@@ -143,7 +143,7 @@ const SPRITES = {
     "................"
   ],
 
-  // Link Sprite - Facing Left (2)
+  // Knil Sprite - Facing Left (2)
   zog_2: [
     ".....kkkkkk.....",
     "....kggggggk....",
@@ -163,7 +163,7 @@ const SPRITES = {
     "................"
   ],
 
-  // Link Sprite - Facing Up (3)
+  // Knil Sprite - Facing Up (3)
   zog_3: [
     ".....kkkkkk.....",
     "....kggggggk....",
@@ -183,7 +183,7 @@ const SPRITES = {
     "................"
   ],
 
-  // Link Sprite - Hurt state
+  // Knil Sprite - Hurt state
   zog_crashed: [
     "......kk........",
     "....kkrrkk..k...",
@@ -220,7 +220,7 @@ class GameSimulator {
     this.y = 0;
     this.dir = 0; // 0=Right, 1=Down, 2=Left, 3=Up
     this.collectedCount = 0;
-    this.crystals = []; // List of rupees
+    this.crystals = []; // List of rubies
     
     // Animation rendering interpolation
     this.rx = 0;
@@ -256,7 +256,7 @@ class GameSimulator {
     this.collectedCount = 0;
     this.crystals = [];
     
-    // Find rupees
+    // Find rubies
     for (let r = 0; r < this.gridSize; r++) {
       for (let c = 0; c < this.gridSize; c++) {
         if (this.grid[r][c] === 3) {
@@ -335,14 +335,14 @@ class GameSimulator {
       }
     }
     
-    // 2. Draw Rupees
-    this.crystals.forEach(rupee => {
-      if (!rupee.collected) {
-        this.drawSprite('crystal', rupee.x * cellSize, rupee.y * cellSize, cellSize);
+    // 2. Draw Rubies
+    this.crystals.forEach(ruby => {
+      if (!ruby.collected) {
+        this.drawSprite('crystal', ruby.x * cellSize, ruby.y * cellSize, cellSize);
       }
     });
     
-    // 3. Draw Link
+    // 3. Draw Knil
     const robotSprite = this.isCrashed ? 'zog_crashed' : `zog_${this.dir}`;
     this.drawSprite(robotSprite, this.rx * cellSize, this.ry * cellSize, cellSize);
   }
@@ -385,7 +385,7 @@ class GameSimulator {
     this.currentActionIndex = 0;
     this.isPlaying = true;
     this.lastActionTime = 0;
-    this.onStatus("⚔️ Link has entered the dungeon room...", "system");
+    this.onStatus("⚔️ Knil has entered the dungeon room...", "system");
   }
 
   stopSimulation() {
@@ -420,7 +420,7 @@ class GameSimulator {
         this.turnHeroRight();
         break;
       case 'COLLECT':
-        this.collectRupeeAtCurrent();
+        this.collectRubyAtCurrent();
         break;
       case 'UNLOCK_GATE':
         this.unlockGate(action.code);
@@ -433,7 +433,7 @@ class GameSimulator {
     
     if (this.isCrashed) {
       this.isPlaying = false;
-      this.onStatus("💥 OOF! Link collided with a stone wall boundary. Sector locked.", "error");
+      this.onStatus("💥 OOF! Knil collided with a stone wall boundary. Sector locked.", "error");
       this.onSound('crash');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "crashed");
@@ -499,15 +499,15 @@ class GameSimulator {
     this.onSound('turn');
   }
 
-  collectRupeeAtCurrent() {
-    const rupee = this.crystals.find(c => c.x === this.x && c.y === this.y && !c.collected);
-    if (rupee) {
-      rupee.collected = true;
+  collectRubyAtCurrent() {
+    const ruby = this.crystals.find(c => c.x === this.x && c.y === this.y && !c.collected);
+    if (ruby) {
+      ruby.collected = true;
       this.collectedCount++;
-      this.onStatus(`💎 Rupee acquired! Total rupees: ${this.collectedCount}`, "output");
+      this.onStatus(`💎 Ruby acquired! Total rubies: ${this.collectedCount}`, "output");
       this.onSound('collect');
     } else {
-      this.onStatus("⚠️ hero.collect_rupee() -> Warning: No rupees found on this tile.", "error");
+      this.onStatus("⚠️ hero.collect_ruby() -> Warning: No rubies found on this tile.", "error");
       this.onSound('error');
     }
   }
@@ -532,19 +532,19 @@ class GameSimulator {
         this.onFinishedCallback(true, "success");
       }
     } else if (isOnPortal && !hasAllCrystals) {
-      this.onStatus(`⚠️ The Triforce gate is sealed. Collect all rupees! (${this.collectedCount}/${this.level.targetCrystals})`, "error");
+      this.onStatus(`⚠️ The Triforce gate is sealed. Collect all rubies! (${this.collectedCount}/${this.level.targetCrystals})`, "error");
       this.onSound('error');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "missing_crystals");
       }
     } else if (isOnPortal && !printSuccess) {
-      this.onStatus(`⚠️ Almost cleared, but you did not print() the rupee count!`, "error");
+      this.onStatus(`⚠️ Almost cleared, but you did not print() the ruby count!`, "error");
       this.onSound('error');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "missing_print");
       }
     } else {
-      this.onStatus("🧭 Link finished movements but did not reach the Triforce Gate.", "error");
+      this.onStatus("🧭 Knil finished movements but did not reach the Triforce Gate.", "error");
       this.onSound('error');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "incomplete");
@@ -577,8 +577,8 @@ class GameSimulator {
     if (tile === 1) return "obstacle";
     if (tile === 2) return "portal";
     
-    const rupee = this.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
-    if (rupee) return "crystal";
+    const ruby = this.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
+    if (ruby) return "crystal";
     
     return "empty";
   }

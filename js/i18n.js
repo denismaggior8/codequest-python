@@ -1,9 +1,9 @@
-// The Legend of Python - i18n Translation Dictionary (IT/EN)
+// Code quest - i18n Translation Dictionary (IT/EN)
 
 const TRANSLATIONS = {
   it: {
     // Header
-    logoSub: "EDIZIONE ZELDA",
+    logoSub: "AN #HEROASCODE ADVENTURE",
     heartsTitle: "Cuori Guadagnati",
     resetQuest: "RESETTA QUEST",
     exportSaveText: "SALVA PARTITA",
@@ -55,32 +55,32 @@ const TRANSLATIONS = {
     // Modals - Help
     helpTitle: "COME GIOCARE",
     helpClose: "ENTRA NEL DUNGEON!",
-    helpParagraph1: "Benvenuto su <strong>The Legend of Python</strong>! La tua missione è guidare <strong>Link</strong> attraverso dungeon di pietra usando blocchi di codice visuale.",
+    helpParagraph1: "Benvenuto su <strong>Code quest</strong>! La tua missione è guidare <strong>Knil</strong> attraverso dungeon di pietra usando blocchi di codice visuale.",
     helpStep1: "<strong>Trascina e Rilascia Incantesimi</strong>: Sposta i blocchi di codice dal toolbox nel <em>Libro Incantesimi</em> al tuo spazio di lavoro.",
     helpStep2: "<strong>Guarda la Pergamena Python</strong>: Osserva la colonna a destra. Genera codice Python reale basato sui tuoi blocchi.",
-    helpStep3: "<strong>Avvia la Simulazione</strong>: Clicca su <strong class='pixel-text-green'>AVVIA</strong> per eseguire il codice. Link camminerà passo dopo passo seguendo i tuoi blocchi.",
+    helpStep3: "<strong>Avvia la Simulazione</strong>: Clicca su <strong class='pixel-text-green'>AVVIA</strong> per eseguire il codice. Knil camminerà passo dopo passo seguendo i tuoi blocchi.",
     helpStep4: "<strong>Leggi il Registro Dungeon</strong>: Se usi il blocco <code>print()</code>, i risultati appariranno nel registro in basso a sinistra.",
-    helpStep5: "<strong>Completa la Missione</strong>: Raggiungi l'obiettivo della stanza (raccogliere rupie, evitare ostacoli) per sbloccare la Triforza d'oro e avanzare!",
+    helpStep5: "<strong>Completa la Missione</strong>: Raggiungi l'obiettivo della stanza (raccogliere rubini, evitare ostacoli) per sbloccare la Triforza d'oro e avanzare!",
     
     // Console status lines
     consoleInit: "Caricamento quest Triforza...",
     consoleCompass: "La bussola punta a Nord.",
-    consoleEnter: "Link è entrato nella stanza del dungeon...",
+    consoleEnter: "Knil è entrato nella stanza del dungeon...",
     consoleMove: "⚔️ hero.move_forward() -> Coordinate Dungeon ({x}, {y})",
     consoleTurn: "⚔️ hero.turn_{dir}() -> Orientato a {name}",
-    consoleRupeeAcquired: "💎 Rupia ottenuta! Rupie totali: {count}",
-    consoleRupeeWarn: "⚠️ hero.collect_rupee() -> Attenzione: Nessuna rupia su questa casella.",
+    consoleRupeeAcquired: "💎 Rubino ottenuto! Rubini totali: {count}",
+    consoleRupeeWarn: "⚠️ hero.collect_ruby() -> Attenzione: Nessun rubino su questa casella.",
     consoleWin: "🗝️ LA TRIFORZA RISPLENDE! Stanza del dungeon completata.",
-    consoleRupeeSeal: "⚠️ Il portale della Triforza è sigillato. Raccogli tutte le rupie! ({count}/{target})",
-    consolePrintSeal: "⚠️ Quasi fatta, ma non hai eseguito il print() del conteggio delle rupie!",
-    consoleFinishIncomplete: "🧭 Link ha finito i movimenti ma non ha raggiunto il portale della Triforza.",
+    consoleRupeeSeal: "⚠️ Il portale della Triforza è sigillato. Raccogli tutti i rubini! ({count}/{target})",
+    consolePrintSeal: "⚠️ Quasi fatta, ma non hai eseguito il print() del conteggio dei rubini!",
+    consoleFinishIncomplete: "🧭 Knil ha finito i movimenti ma non ha raggiunto il portale della Triforza.",
     consoleErrorEmpty: "⚠️ Errore: Il libro degli incantesimi è vuoto!",
     consoleErrorNoStart: "⚠️ Errore: Il codice deve essere inserito dentro 'def on_start():'!",
     consoleErrorRequireConditional: "⚠️ Errore: Per risolvere questo livello, devi utilizzare un costrutto condizionale 'if'.",
     consoleErrorRequireLoop: "⚠️ Errore: Per risolvere questo livello, devi utilizzare un ciclo 'for'.",
     consoleErrorRequireFunction: "⚠️ Errore: Per risolvere questo livello, devi definire una funzione ('def').",
     consoleStepMode: "🏁 Modalità passo attivo.",
-    consoleCrash: "💥 OUCH! Link ha urtato un muro di pietra. Stanza bloccata.",
+    consoleCrash: "💥 OUCH! Knil ha urtato un muro di pietra. Stanza bloccata.",
     consoleSystemStart: "Sistema inizializzato in {name}...",
     consoleGateUnlocked: "🗝️ PORTALE SBLOCCATO! La porta di ferro si apre.",
     consoleGateLocked: "⚠️ Codice non corretto! La porta rimane sigillata.",
@@ -98,7 +98,7 @@ const TRANSLATIONS = {
     consoleSimStopped: "Simulazione interrotta.",
     confirmResetProgress: "Sei sicuro di voler cancellare TUTTI i tuoi progressi nel gioco? Questa azione non può essere annullata.",
     consoleResetSuccess: "Progressi resettati!",
-    successUnlockedRoom: "Link ha sbloccato con successo la Stanza {id} e ha ottenuto il frammento della Triforza!",
+    successUnlockedRoom: "Knil ha sbloccato con successo la Stanza {id} e ha ottenuto il frammento della Triforza!",
     presetCompletedHeader: "QUEST COMPLETATA!",
     presetCompletedBadge: "🏆 PRESET COMPLETATO!",
     presetCompletedMessage: "Congratulazioni! Hai sbloccato tutti i frammenti della Triforza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python.",
@@ -106,7 +106,7 @@ const TRANSLATIONS = {
   },
   en: {
     // Header
-    logoSub: "ZELDA EDITION",
+    logoSub: "AN #HEROASCODE ADVENTURE",
     heartsTitle: "Hearts Earned",
     resetQuest: "RESET QUEST",
     exportSaveText: "SAVE GAME",
@@ -158,32 +158,32 @@ const TRANSLATIONS = {
     // Modals - Help
     helpTitle: "HOW TO PLAY",
     helpClose: "ENTER DUNGEON!",
-    helpParagraph1: "Welcome to <strong>The Legend of Python</strong>! Your mission is to help <strong>Link</strong> navigate stone dungeons using visual code blocks.",
+    helpParagraph1: "Welcome to <strong>Code quest</strong>! Your mission is to help <strong>Knil</strong> navigate stone dungeons using visual code blocks.",
     helpStep1: "<strong>Drag & Drop Spells</strong>: Move coding blocks from the toolbox in the <em>Spell Book</em> into the workspace.",
     helpStep2: "<strong>Watch Python Generate</strong>: Observe the <em>Python Scroll</em> column. It generates real-time Python code based on your blocks.",
-    helpStep3: "<strong>Run the Simulation</strong>: Click <strong class='pixel-text-green'>RUN</strong> to execute your code. Link will walk step-by-step according to your blocks.",
+    helpStep3: "<strong>Run the Simulation</strong>: Click <strong class='pixel-text-green'>RUN</strong> to execute your code. Knil will walk step-by-step according to your blocks.",
     helpStep4: "<strong>Read Dungeon Logs</strong>: If you use the <code>print()</code> block, the output will appear in the <em>Dungeon Log</em>.",
-    helpStep5: "<strong>Solve the Goal</strong>: Complete the objective listed in the <em>Dungeon Quest</em> (collecting rupees, dodging spike traps) to unlock the gold Triforce warp portal!",
+    helpStep5: "<strong>Solve the Goal</strong>: Complete the objective listed in the <em>Dungeon Quest</em> (collecting rubies, dodging spike traps) to unlock the gold Triforce warp portal!",
     
     // Console status lines
     consoleInit: "Triforce Quest loaded...",
     consoleCompass: "Compass is pointing North.",
-    consoleEnter: "Link has entered the dungeon room...",
+    consoleEnter: "Knil has entered the dungeon room...",
     consoleMove: "⚔️ hero.move_forward() -> Dungeon Coordinates ({x}, {y})",
     consoleTurn: "⚔️ hero.turn_{dir}() -> Facing {name}",
-    consoleRupeeAcquired: "💎 Rupee acquired! Total rupees: {count}",
-    consoleRupeeWarn: "⚠️ hero.collect_rupee() -> Warning: No rupees found on this tile.",
+    consoleRupeeAcquired: "💎 Ruby acquired! Total rubies: {count}",
+    consoleRupeeWarn: "⚠️ hero.collect_ruby() -> Warning: No rubies found on this tile.",
     consoleWin: "🗝️ THE TRIFORCE SHINES! Dungeon room solved.",
-    consoleRupeeSeal: "⚠️ The Triforce gate is sealed. Collect all rupees! ({count}/{target})",
-    consolePrintSeal: "⚠️ Almost cleared, but you did not print() the rupee count!",
-    consoleFinishIncomplete: "🧭 Link finished movements but did not reach the Triforce Gate.",
+    consoleRupeeSeal: "⚠️ The Triforce gate is sealed. Collect all rubies! ({count}/{target})",
+    consolePrintSeal: "⚠️ Almost cleared, but you did not print() the ruby count!",
+    consoleFinishIncomplete: "🧭 Knil finished movements but did not reach the Triforce Gate.",
     consoleErrorEmpty: "⚠️ Error: Spell book is empty!",
     consoleErrorNoStart: "⚠️ Error: All commands must be placed inside 'def on_start():'!",
     consoleErrorRequireConditional: "⚠️ Error: To solve this level, you must use an 'if' conditional construct.",
     consoleErrorRequireLoop: "⚠️ Error: To solve this level, you must use a 'for' loop construct.",
     consoleErrorRequireFunction: "⚠️ Error: To solve this level, you must define a custom function ('def').",
     consoleStepMode: "🏁 Spell stepping mode active.",
-    consoleCrash: "💥 OOF! Link collided with a stone wall boundary. Sector locked.",
+    consoleCrash: "💥 OOF! Knil collided with a stone wall boundary. Sector locked.",
     consoleSystemStart: "System initialized in {name}...",
     consoleGateUnlocked: "🗝️ GATE UNLOCKED! The iron gate opens.",
     consoleGateLocked: "⚠️ Code is incorrect! The gate remains sealed.",
@@ -201,7 +201,7 @@ const TRANSLATIONS = {
     consoleSimStopped: "Simulation stopped.",
     confirmResetProgress: "Are you sure you want to reset ALL your achievements and code cache? This action cannot be undone.",
     consoleResetSuccess: "Achievements reset!",
-    successUnlockedRoom: "Link successfully unlocked Room {id} and secured the Triforce piece!",
+    successUnlockedRoom: "Knil successfully unlocked Room {id} and secured the Triforce piece!",
     presetCompletedHeader: "QUEST COMPLETED!",
     presetCompletedBadge: "🏆 PRESET COMPLETED!",
     presetCompletedMessage: "Congratulations! You have unlocked all Triforce pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.",
@@ -238,8 +238,8 @@ function applyTranslations(lang) {
   
   // Apply document title
   document.title = currentLanguage === 'it' 
-    ? "The Legend of Python - Impara a programmare in un dungeon 2D a 8 bit"
-    : "The Legend of Python - Learn programming in a 2D 8-bit dungeon";
+    ? "Code quest, an #HeroAsCode adventure"
+    : "Code quest, an #HeroAsCode adventure";
 
   // Update Sound button label based on active language
   if (typeof updateSoundButtonText === 'function') {

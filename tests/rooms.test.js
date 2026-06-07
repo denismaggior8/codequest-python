@@ -113,13 +113,13 @@ LEVELS.forEach((room, idx) => {
     visited.add(`${room.startX},${room.startY}`);
     
     let hasPortal = false;
-    let rupeesFound = 0;
-    let totalRupeesInGrid = 0;
+    let rubiesFound = 0;
+    let totalRubiesInGrid = 0;
     
-    // Count all rupees in grid
+    // Count all rubies in grid
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
-        if (grid[r][c] === 3) totalRupeesInGrid++;
+        if (grid[r][c] === 3) totalRubiesInGrid++;
       }
     }
     
@@ -138,7 +138,7 @@ LEVELS.forEach((room, idx) => {
         hasPortal = true;
       }
       if (currentCell === 3) {
-        rupeesFound++;
+        rubiesFound++;
       }
       
       for (const [dx, dy] of directions) {
@@ -160,12 +160,12 @@ LEVELS.forEach((room, idx) => {
     // Assert there is a path to the portal
     assert(hasPortal, 'There must be a walkable path from start coordinates to the portal (2)');
     
-    // Assert all rupees in the grid are reachable
-    assert.strictEqual(rupeesFound, totalRupeesInGrid, `Only ${rupeesFound} of ${totalRupeesInGrid} rupees are reachable from start coordinates`);
+    // Assert all rubies in the grid are reachable
+    assert.strictEqual(rubiesFound, totalRubiesInGrid, `Only ${rubiesFound} of ${totalRubiesInGrid} rubies are reachable from start coordinates`);
     
-    // Verify targetCrystals match rupees count
+    // Verify targetCrystals match rubies count
     const targetCrystals = room.targetCrystals || 0;
-    assert.strictEqual(totalRupeesInGrid, targetCrystals, `Expected ${targetCrystals} rupees, but grid has ${totalRupeesInGrid}`);
+    assert.strictEqual(totalRubiesInGrid, targetCrystals, `Expected ${targetCrystals} rubies, but grid has ${totalRubiesInGrid}`);
   });
 
   // 5. Toolbox XML/JSON Schema integrity
@@ -190,11 +190,11 @@ if (startIdx !== -1) {
     eval(fnSource); // Defines transpilePythonToJS locally in the test context
     
     runTest('Transpiler - Basic function structure and commands', () => {
-      const py = 'def on_start():\n    hero.move_forward()\n    hero.collect_rupee()';
+      const py = 'def on_start():\n    hero.move_forward()\n    hero.collect_ruby()';
       const js = transpilePythonToJS(py);
       assert(js.includes('function on_start() {'), 'Should translate def to function');
       assert(js.includes('moveForward(undefined, 2);'), 'Should translate hero.move_forward()');
-      assert(js.includes('collectRupee(undefined, 3);'), 'Should translate hero.collect_rupee()');
+      assert(js.includes('collectRuby(undefined, 3);'), 'Should translate hero.collect_ruby()');
     });
 
     runTest('Transpiler - unlock_gate command', () => {
@@ -204,16 +204,16 @@ if (startIdx !== -1) {
     });
 
     runTest('Transpiler - Global variable declarations', () => {
-      const py = 'def on_start():\n    global rupees, numbers\n    rupees = 0';
+      const py = 'def on_start():\n    global rubies, numbers\n    rubies = 0';
       const js = transpilePythonToJS(py);
-      assert(js.includes('// global rupees, numbers'), 'Should comment out global statement');
-      assert(js.includes('rupees = 0;'), 'Should preserve assignment');
+      assert(js.includes('// global rubies, numbers'), 'Should comment out global statement');
+      assert(js.includes('rubies = 0;'), 'Should preserve assignment');
     });
 
     runTest('Transpiler - Variable range loops', () => {
-      const py = 'for i in range(rupees):\n    hero.move_forward()';
+      const py = 'for i in range(rubies):\n    hero.move_forward()';
       const js = transpilePythonToJS(py);
-      assert(js.includes('for (let i = 0; i < rupees; i++) {'), 'Should support variable limit in range()');
+      assert(js.includes('for (let i = 0; i < rubies; i++) {'), 'Should support variable limit in range()');
     });
 
     runTest('Transpiler - Range loop with start and stop parameters', () => {
@@ -251,17 +251,17 @@ if (startIdx !== -1) {
     });
 
     runTest('Transpiler - isinstance checks', () => {
-      const py = 'isinstance(rupees, Number)\nisinstance(name, str)\nisinstance(items, list)';
+      const py = 'isinstance(rubies, Number)\nisinstance(name, str)\nisinstance(items, list)';
       const js = transpilePythonToJS(py);
-      assert(js.includes('(typeof rupees === \'number\')'), 'Should translate isinstance with Number to typeof === number');
+      assert(js.includes('(typeof rubies === \'number\')'), 'Should translate isinstance with Number to typeof === number');
       assert(js.includes('(typeof name === \'string\')'), 'Should translate isinstance with str to typeof === string');
       assert(js.includes('Array.isArray(items)'), 'Should translate isinstance with list to Array.isArray');
     });
 
     runTest('Transpiler - Inline ternary operators', () => {
-      const py = 'rupees = (rupees if isinstance(rupees, Number) else 0) + 1';
+      const py = 'rubies = (rubies if isinstance(rubies, Number) else 0) + 1';
       const js = transpilePythonToJS(py);
-      assert(js.includes('rupees = (((typeof rupees === \'number\') ? rupees : 0)) + 1;'), 'Should translate inline ternary operator correctly');
+      assert(js.includes('rubies = (((typeof rubies === \'number\') ? rubies : 0)) + 1;'), 'Should translate inline ternary operator correctly');
     });
   } else {
     console.error('⚠️ Could not extract transpilePythonToJS from app.js (matching brace not found)');

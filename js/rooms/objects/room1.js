@@ -7,8 +7,8 @@ const ROOM_OBJECTS_1 = {
   badge: "OBJECTS",
   difficulty: "intermediate",
   story: {
-    it: "Link si trova bloccato davanti a un'enorme porta di ferro. Al centro della stanza ci sono una macchina Enigma smontata e una pergamena che spiega come rimontarla e configurarla. Per aprire la porta d'acciaio, dovrai configurare la macchina Enigma M3, decifrare la stringa cifrata ed inserire il testo in chiaro per sbloccare la porta!",
-    en: "Link is stuck in front of a massive iron gate. In the center of the room, there is a disassembled Enigma machine and a scroll explaining how to assemble and configure it. To open the steel gate, you must configure the Enigma M3 machine, decrypt the ciphertext, and enter the plaintext to unlock the gate!"
+    it: "Knil si trova bloccato davanti a un'enorme porta di ferro. Al centro della stanza ci sono una macchina Enigma smontata e una pergamena che spiega come rimontarla e configurarla. Per aprire la porta d'acciaio, dovrai configurare la macchina Enigma M3, decifrare la stringa cifrata ed inserire il testo in chiaro per sbloccare la porta!",
+    en: "Knil is stuck in front of a massive iron gate. In the center of the room, there is a disassembled Enigma machine and a scroll explaining how to assemble and configure it. To open the steel gate, you must configure the Enigma M3 machine, decrypt the ciphertext, and enter the plaintext to unlock the gate!"
   },
   goalText: {
     it: "Configura la macchina Enigma per decifrare 'codjzbcl', sblocca la porta usando 'hero.unlock_gate(decrypted)' e raggiungi il portale della Triforza.",

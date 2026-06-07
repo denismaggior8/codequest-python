@@ -1,4 +1,4 @@
-// The Legend of Python - Python-to-JS Transpiler & Sandbox Evaluator
+// Code quest - Python-to-JS Transpiler & Sandbox Evaluator
 
 function validateLevelConstructs(level) {
   let hasIf = false;
@@ -149,11 +149,11 @@ async function compileActionQueuePyodide(pyCode) {
       shadowRobot.dir = (shadowRobot.dir + 1) % 4;
       actionQueue.push({ type: 'TURN_RIGHT', blockId: blockId, lineNumber: lineNumber });
     },
-    collect_rupee: (blockId, lineNumber) => {
+    collect_ruby: (blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
-      const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
-      if (rupee) {
-        rupee.collected = true;
+      const ruby = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
+      if (ruby) {
+        ruby.collected = true;
       }
       actionQueue.push({ type: 'COLLECT', blockId: blockId, lineNumber: lineNumber });
     },
@@ -173,8 +173,8 @@ async function compileActionQueuePyodide(pyCode) {
       const tile = shadowRobot.grid[nextY][nextX];
       if (tile === 1) return "obstacle";
       if (tile === 2) return "portal";
-      const rupee = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
-      if (rupee) return "crystal";
+      const ruby = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
+      if (ruby) return "crystal";
       return "empty";
     },
     unlock_gate: (code, blockId, lineNumber) => {
@@ -212,10 +212,10 @@ class HeroWrapper:
         frame = inspect.currentframe().f_back
         line_no = frame.f_lineno if frame else None
         hero_js.turn_right(block_id, line_no)
-    def collect_rupee(self, block_id=None):
+    def collect_ruby(self, block_id=None):
         frame = inspect.currentframe().f_back
         line_no = frame.f_lineno if frame else None
-        hero_js.collect_rupee(block_id, line_no)
+        hero_js.collect_ruby(block_id, line_no)
     def scan_ahead(self, block_id=None):
         frame = inspect.currentframe().f_back
         line_no = frame.f_lineno if frame else None
@@ -315,12 +315,12 @@ function compileActionQueue(jsCode) {
     actionQueue.push({ type: 'TURN_RIGHT', blockId: blockId, lineNumber: lineNumber });
   };
   
-  globalThis.collectRupee = (blockId, lineNumber) => {
+  globalThis.collectRuby = (blockId, lineNumber) => {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
-    const rupee = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
-    if (rupee) {
-      rupee.collected = true;
+    const ruby = shadowRobot.crystals.find(c => c.x === shadowRobot.x && c.y === shadowRobot.y && !c.collected);
+    if (ruby) {
+      ruby.collected = true;
     }
     actionQueue.push({ type: 'COLLECT', blockId: blockId, lineNumber: lineNumber });
   };
@@ -346,8 +346,8 @@ function compileActionQueue(jsCode) {
     if (tile === 1) return "obstacle";
     if (tile === 2) return "portal";
     
-    const rupee = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
-    if (rupee) return "crystal";
+    const ruby = shadowRobot.crystals.some(c => c.x === nextX && c.y === nextY && !c.collected);
+    if (ruby) return "crystal";
     
     return "empty";
   };
@@ -370,7 +370,7 @@ function compileActionQueue(jsCode) {
   
   globalThis.hero = {
     move_forward: (blockId, lineNumber) => globalThis.moveForward(blockId, lineNumber),
-    collect_rupee: (blockId, lineNumber) => globalThis.collectRupee(blockId, lineNumber),
+    collect_ruby: (blockId, lineNumber) => globalThis.collectRuby(blockId, lineNumber),
     turn_left: (blockId, lineNumber) => globalThis.turnLeft(blockId, lineNumber),
     turn_right: (blockId, lineNumber) => globalThis.turnRight(blockId, lineNumber),
     scan_ahead: (blockId, lineNumber) => globalThis.scanAhead(blockId, lineNumber),
@@ -457,7 +457,7 @@ function compileActionQueue(jsCode) {
   delete globalThis.moveForward;
   delete globalThis.turnLeft;
   delete globalThis.turnRight;
-  delete globalThis.collectRupee;
+  delete globalThis.collectRuby;
   delete globalThis.scanAhead;
   delete globalThis.printConsole;
   delete globalThis.unlockGate;
@@ -655,7 +655,7 @@ function transpilePythonToJS(pyCode) {
     // Translate custom commands
     const lineNum = i + 1;
     content = content.replace(/hero\.move_forward\(\)/g, `moveForward(undefined, ${lineNum})`);
-    content = content.replace(/hero\.collect_rupee\(\)/g, `collectRupee(undefined, ${lineNum})`);
+    content = content.replace(/hero\.collect_ruby\(\)/g, `collectRuby(undefined, ${lineNum})`);
     content = content.replace(/hero\.turn_left\(\)/g, `turnLeft(undefined, ${lineNum})`);
     content = content.replace(/hero\.turn_right\(\)/g, `turnRight(undefined, ${lineNum})`);
     content = content.replace(/hero\.scan_ahead\(\)/g, `scanAhead(undefined, ${lineNum})`);

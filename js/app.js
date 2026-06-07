@@ -1,4 +1,4 @@
-// The Legend of Python - Main App Controller and UI Bindings
+// Code quest - Main App Controller and UI Bindings
 
 var storage = window.safeLocalStorage;
 
@@ -594,9 +594,9 @@ function initSimulator() {
       appendConsoleLine(t('consoleTurn', { dir: 'left', name: simulator.getDirectionName(simulator.dir) }), 'system');
     } else if (msg.startsWith("⚔️ hero.turn_right()")) {
       appendConsoleLine(t('consoleTurn', { dir: 'right', name: simulator.getDirectionName(simulator.dir) }), 'system');
-    } else if (msg.startsWith("💎 Rupee acquired!")) {
+    } else if (msg.startsWith("💎 Ruby acquired!")) {
       appendConsoleLine(t('consoleRupeeAcquired', { count: simulator.collectedCount }), 'output');
-    } else if (msg.startsWith("⚠️ hero.collect_rupee()")) {
+    } else if (msg.startsWith("⚠️ hero.collect_ruby()")) {
       appendConsoleLine(t('consoleRupeeWarn'), 'error');
     } else if (msg.startsWith("🗝️ THE TRIFORCE SHINES!")) {
       appendConsoleLine(t('consoleWin'), 'system');
@@ -604,11 +604,11 @@ function initSimulator() {
       appendConsoleLine(t('consoleRupeeSeal', { count: simulator.collectedCount, target: simulator.level.targetCrystals }), 'error');
     } else if (msg.startsWith("⚠️ Almost cleared")) {
       appendConsoleLine(t('consolePrintSeal'), 'error');
-    } else if (msg.startsWith("🧭 Link finished movements")) {
+    } else if (msg.startsWith("🧭 Knil finished movements")) {
       appendConsoleLine(t('consoleFinishIncomplete'), 'error');
     } else if (msg.startsWith("💥 OOF!")) {
       appendConsoleLine(t('consoleCrash'), 'error');
-    } else if (msg.startsWith("⚔️ Link has entered")) {
+    } else if (msg.startsWith("⚔️ Knil has entered")) {
       appendConsoleLine(t('consoleEnter'), 'system');
     } else if (msg.startsWith("🗝️ GATE UNLOCKED!")) {
       appendConsoleLine(t('consoleGateUnlocked'), 'system');

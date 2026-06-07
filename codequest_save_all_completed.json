@@ -62,7 +62,7 @@
                     "type": "variables_set",
                     "id": "vset1",
                     "fields": {
-                      "VAR": "rupees"
+                      "VAR": "rubies"
                     },
                     "inputs": {
                       "VALUE": {
@@ -81,14 +81,14 @@
                         "id": "mf1",
                         "next": {
                           "block": {
-                            "type": "collect_rupee",
+                            "type": "collect_ruby",
                             "id": "cr1",
                             "next": {
                               "block": {
                                 "type": "variables_set",
                                 "id": "vset2",
                                 "fields": {
-                                  "VAR": "rupees"
+                                  "VAR": "rubies"
                                 },
                                 "inputs": {
                                   "VALUE": {
@@ -104,7 +104,7 @@
                                             "type": "variables_get",
                                             "id": "vget1",
                                             "fields": {
-                                              "VAR": "rupees"
+                                              "VAR": "rubies"
                                             }
                                           }
                                         },
@@ -127,14 +127,14 @@
                                     "id": "mf2",
                                     "next": {
                                       "block": {
-                                        "type": "collect_rupee",
+                                        "type": "collect_ruby",
                                         "id": "cr2",
                                         "next": {
                                           "block": {
                                             "type": "variables_set",
                                             "id": "vset3",
                                             "fields": {
-                                              "VAR": "rupees"
+                                              "VAR": "rubies"
                                             },
                                             "inputs": {
                                               "VALUE": {
@@ -150,7 +150,7 @@
                                                         "type": "variables_get",
                                                         "id": "vget2",
                                                         "fields": {
-                                                          "VAR": "rupees"
+                                                          "VAR": "rubies"
                                                         }
                                                       }
                                                     },
@@ -177,7 +177,7 @@
                                                       "type": "variables_get",
                                                       "id": "vget3",
                                                       "fields": {
-                                                        "VAR": "rupees"
+                                                        "VAR": "rubies"
                                                       }
                                                     }
                                                   }
@@ -209,7 +209,7 @@
           ]
         }
       },
-      "pythonCode": "def on_start():\n  rupees = 0\n  hero.move_forward()\n  hero.collect_rupee()\n  rupees = rupees + 1\n  hero.move_forward()\n  hero.collect_rupee()\n  rupees = rupees + 1\n  print(rupees)\n  hero.move_forward()\n"
+      "pythonCode": "def on_start():\n  rubies = 0\n  hero.move_forward()\n  hero.collect_ruby()\n  rubies = rubies + 1\n  hero.move_forward()\n  hero.collect_ruby()\n  rubies = rubies + 1\n  print(rubies)\n  hero.move_forward()\n"
     },
     "conditionals/room1": {
       "mode": "blocks",
@@ -333,7 +333,7 @@
                           "type": "move_forward",
                           "id": "mf1",
                           "next": {
-                            "type": "collect_rupee",
+                            "type": "collect_ruby",
                             "id": "cr1"
                           }
                         }
@@ -358,7 +358,7 @@
           ]
         }
       },
-      "pythonCode": "def on_start():\n  for i in range(4):\n    hero.move_forward()\n    hero.collect_rupee()\n  hero.move_forward()\n  hero.move_forward()\n"
+      "pythonCode": "def on_start():\n  for i in range(4):\n    hero.move_forward()\n    hero.collect_ruby()\n  hero.move_forward()\n  hero.move_forward()\n"
     },
     "functions/room1": {
       "mode": "blocks",
@@ -385,7 +385,7 @@
                         "id": "mf2",
                         "next": {
                           "block": {
-                            "type": "collect_rupee",
+                            "type": "collect_ruby",
                             "id": "cr1"
                           }
                         }
@@ -479,7 +479,7 @@
           ]
         }
       },
-      "pythonCode": "def step_and_collect():\n  hero.move_forward()\n  hero.move_forward()\n  hero.collect_rupee()\n\ndef on_start():\n  step_and_collect()\n  hero.turn_left()\n  step_and_collect()\n  hero.turn_right()\n  step_and_collect()\n  hero.turn_left()\n  step_and_collect()\n  hero.turn_right()\n  hero.move_forward()\n  hero.move_forward()\n"
+      "pythonCode": "def step_and_collect():\n  hero.move_forward()\n  hero.move_forward()\n  hero.collect_ruby()\n\ndef on_start():\n  step_and_collect()\n  hero.turn_left()\n  step_and_collect()\n  hero.turn_right()\n  step_and_collect()\n  hero.turn_left()\n  step_and_collect()\n  hero.turn_right()\n  hero.move_forward()\n  hero.move_forward()\n"
     },
     "lists/room1": {
       "mode": "blocks",

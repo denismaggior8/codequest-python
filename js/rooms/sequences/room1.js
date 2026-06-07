@@ -7,12 +7,12 @@ const ROOM_SEQUENCES_1 = {
   badge: "SEQUENCES",
   difficulty: "base",
   story: {
-    it: "Link si è svegliato in un misterioso dungeon di pietra! Il portale dorato della Triforza è dritto davanti a lui, ma ha bisogno dei tuoi comandi per muoversi. Scrivi una sequenza di comandi per guidarlo alla Triforza.",
-    en: "Link has awakened in a mysterious stone dungeon! The gold Triforce warp gate is straight ahead, but Link needs your commands to move. Write a sequence of movements to guide him to the Triforce."
+    it: "Knil si è svegliato in un misterioso dungeon di pietra! Il portale dorato della Triforza è dritto davanti a lui, ma ha bisogno dei tuoi comandi per muoversi. Scrivi una sequenza di comandi per guidarlo alla Triforza.",
+    en: "Knil has awakened in a mysterious stone dungeon! The gold Triforce warp gate is straight ahead, but Knil needs your commands to move. Write a sequence of movements to guide him to the Triforce."
   },
   goalText: {
-    it: "Fai muovere Link in avanti di 2 spazi per raggiungere la Triforza d'oro.",
-    en: "Move Link forward 2 spaces to reach the gold Triforce gate."
+    it: "Fai muovere Knil in avanti di 2 spazi per raggiungere la Triforza d'oro.",
+    en: "Move Knil forward 2 spaces to reach the gold Triforce gate."
   },
   tip: {
     it: "In Python, chiamiamo delle funzioni per eseguire azioni. Il comando 'hero.move_forward()' dice all'eroe di fare un passo in avanti nella direzione in cui è rivolto.",
@@ -20,10 +20,10 @@ const ROOM_SEQUENCES_1 = {
   },
   docs: {
     it: [
-      { code: "hero.move_forward()", desc: "Fai camminare Link in avanti di una casella." }
+      { code: "hero.move_forward()", desc: "Fai camminare Knil in avanti di una casella." }
     ],
     en: [
-      { code: "hero.move_forward()", desc: "Make Link walk forward one space." }
+      { code: "hero.move_forward()", desc: "Make Knil walk forward one space." }
     ]
   },
   gridSize: 5,

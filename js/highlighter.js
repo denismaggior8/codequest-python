@@ -1,4 +1,4 @@
-// The Legend of Python - Code Syntax Highlighter
+// Code quest - Code Syntax Highlighter
 
 // Code Highlighter
 function updateCodeOutput(highlightLine = null) {
@@ -68,7 +68,7 @@ function highlightPython(code) {
   });
   
   // 4. Highlight functions
-  const funcs = ['hero\\.move_forward', 'hero\\.collect_rupee', 'hero\\.turn_left', 'hero\\.turn_right', 'hero\\.scan_ahead', 'print', 'hero\\.unlock_gate'];
+  const funcs = ['hero\\.move_forward', 'hero\\.collect_ruby', 'hero\\.turn_left', 'hero\\.turn_right', 'hero\\.scan_ahead', 'print', 'hero\\.unlock_gate'];
   funcs.forEach(f => {
     const regex = new RegExp('\\b(' + f + ')\\b', 'g');
     processed = processed.replace(regex, '__FUNC_START__$1__FUNC_END__');
