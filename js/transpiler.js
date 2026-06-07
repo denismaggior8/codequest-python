@@ -180,7 +180,7 @@ async function compileActionQueuePyodide(pyCode) {
     unlock_gate: (code, blockId, lineNumber) => {
       if (shadowRobot.crashed) return;
       actionQueue.push({ type: 'UNLOCK_GATE', code: String(code), blockId: blockId, lineNumber: lineNumber });
-      if (code && (String(code).toLowerCase().trim() === "forza" || String(code).toLowerCase().trim() === "triforza")) {
+      if (code && String(code).toLowerCase().trim() === "forza") {
         const gateX = level.gateX !== undefined ? level.gateX : 2;
         const gateY = level.gateY !== undefined ? level.gateY : 1;
         shadowRobot.grid[gateY][gateX] = 0;
@@ -361,7 +361,7 @@ function compileActionQueue(jsCode) {
     if (!isExecutingStart) return;
     if (shadowRobot.crashed) return;
     actionQueue.push({ type: 'UNLOCK_GATE', code: String(code), blockId: blockId, lineNumber: lineNumber });
-    if (code && (String(code).toLowerCase().trim() === "forza" || String(code).toLowerCase().trim() === "triforza")) {
+    if (code && String(code).toLowerCase().trim() === "forza") {
       const gateX = level.gateX !== undefined ? level.gateX : 2;
       const gateY = level.gateY !== undefined ? level.gateY : 1;
       shadowRobot.grid[gateY][gateX] = 0;
@@ -422,7 +422,7 @@ function compileActionQueue(jsCode) {
       const r1Ok = this.rotor1 && this.rotor1.pos === 1 && this.rotor1.ring === 4;
       const r2Ok = this.rotor2 && this.rotor2.pos === 1 && this.rotor2.ring === 2;
       const r3Ok = this.rotor3 && this.rotor3.pos === 1 && this.rotor3.ring === 6;
-      if (text === "codjzbcl" && pbOk && r1Ok && r2Ok && r3Ok) {
+      if (text === "zlfmo" && pbOk && r1Ok && r2Ok && r3Ok) {
         return "forza";
       }
       return "";

@@ -80,7 +80,8 @@ function migrateOldSaveData() {
         .replace(/\bTriforce\b/g, 'Force')
         .replace(/\btriforce\b/g, 'force')
         .replace(/\bTriforza\b/g, 'Forza')
-        .replace(/\btriforza\b/g, 'forza');
+        .replace(/\btriforza\b/g, 'forza')
+        .replace(/codjzbcl/g, 'zlfmo');
       if (updated !== orig) {
         item.pythonCode = updated;
         migratedNames = true;
@@ -98,7 +99,8 @@ function migrateOldSaveData() {
           .replace(/\bTriforce\b/g, 'Force')
           .replace(/\btriforce\b/g, 'force')
           .replace(/\bTriforza\b/g, 'Forza')
-          .replace(/\btriforza\b/g, 'forza');
+          .replace(/\btriforza\b/g, 'forza')
+          .replace(/codjzbcl/g, 'zlfmo');
         if (updated !== orig) {
           item.blocksState = updated;
           migratedNames = true;
@@ -112,7 +114,8 @@ function migrateOldSaveData() {
           .replace(/\bTriforce\b/g, 'Force')
           .replace(/\btriforce\b/g, 'force')
           .replace(/\bTriforza\b/g, 'Forza')
-          .replace(/\btriforza\b/g, 'forza');
+          .replace(/\btriforza\b/g, 'forza')
+          .replace(/codjzbcl/g, 'zlfmo');
         if (updatedStr !== origStr) {
           try {
             item.blocksState = JSON.parse(updatedStr);
