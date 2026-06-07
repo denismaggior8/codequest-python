@@ -11,8 +11,8 @@ const ROOM_OBJECTS_1 = {
     en: "Knil is stuck in front of a massive iron gate. In the center of the room, there is a disassembled Enigma machine and a scroll explaining how to assemble and configure it. To open the steel gate, you must configure the Enigma M3 machine, decrypt the ciphertext, and enter the plaintext to unlock the gate!"
   },
   goalText: {
-    it: "Configura la macchina Enigma per decifrare 'codjzbcl', sblocca la porta usando 'hero.unlock_gate(decrypted)' e raggiungi il portale della Triforza.",
-    en: "Configure the Enigma machine to decrypt 'codjzbcl', unlock the gate using 'hero.unlock_gate(decrypted)', and reach the Triforce portal."
+    it: "Configura la macchina Enigma per decifrare 'codjzbcl', sblocca la porta usando 'hero.unlock_gate(decrypted)' e raggiungi il portale della Forza.",
+    en: "Configure the Enigma machine to decrypt 'codjzbcl', unlock the gate using 'hero.unlock_gate(decrypted)', and reach the Force portal."
   },
   tip: {
     it: "Configurazione: Rotor I (pos: 1, ring: 4), Rotor II (pos: 1, ring: 2), Rotor III (pos: 1, ring: 6). SwappablePlugboard con swap 'a'-'z', reflector UKWB, etw pass-through. auto_increment: True.",

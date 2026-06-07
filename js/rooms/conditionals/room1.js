@@ -12,8 +12,8 @@ const ROOM_CONDITIONALS_1 = {
     en: "A giant stone pillar is blocking the corridor ahead! Knil must use his sensor spell 'hero.scan_ahead()' to check for obstacles. If he detects one, turn right!"
   },
   goalText: {
-    it: "Evita di scontrarti con la colonna di pietra usando un costrutto 'if' con la scansione, poi raggiungi il portale della Triforza.",
-    en: "Avoid colliding with the stone pillar obstacle using an 'if' statement, then reach the Triforce."
+    it: "Evita di scontrarti con la colonna di pietra usando un costrutto 'if' con la scansione, poi raggiungi il portale della Forza.",
+    en: "Avoid colliding with the stone pillar obstacle using an 'if' statement, then reach the Force."
   },
   tip: {
     it: "I condizionali prendono decisioni. In Python, 'if hero.scan_ahead() == \"obstacle\":' controlla la casella di fronte. Se è bloccata, Knil eseguirà le istruzioni indentate sotto l'if.",

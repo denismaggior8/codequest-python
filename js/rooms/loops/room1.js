@@ -12,8 +12,8 @@ const ROOM_LOOPS_1 = {
     en: "A long hallway of sparkling red Rubies is ahead! Avoid cluttering your spell book with redundant actions. Use a 'for' loop to repeat the step-and-collect actions."
   },
   goalText: {
-    it: "Usa un blocco ciclo per raccogliere tutti e 4 i rubini in fila ed entra nel portale della Triforza.",
-    en: "Use a loop block to collect all 4 rubies in a row, then enter the Triforce gate."
+    it: "Usa un blocco ciclo per raccogliere tutti e 4 i rubini in fila ed entra nel portale della Forza.",
+    en: "Use a loop block to collect all 4 rubies in a row, then enter the Force gate."
   },
   tip: {
     it: "I cicli ripetono le azioni. In Python, 'for i in range(4):' esegue le istruzioni 4 volte. Questo rende il tuo codice più pulito ed evita le ripetizioni inutili.",

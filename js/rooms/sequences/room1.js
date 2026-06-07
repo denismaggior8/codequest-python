@@ -7,12 +7,12 @@ const ROOM_SEQUENCES_1 = {
   badge: "SEQUENCES",
   difficulty: "base",
   story: {
-    it: "Knil si è svegliato in un misterioso dungeon di pietra! Il portale dorato della Triforza è dritto davanti a lui, ma ha bisogno dei tuoi comandi per muoversi. Scrivi una sequenza di comandi per guidarlo alla Triforza.",
-    en: "Knil has awakened in a mysterious stone dungeon! The gold Triforce warp gate is straight ahead, but Knil needs your commands to move. Write a sequence of movements to guide him to the Triforce."
+    it: "Knil si è svegliato in un misterioso dungeon di pietra! Il portale dorato della Forza è dritto davanti a lui, ma ha bisogno dei tuoi comandi per muoversi. Scrivi una sequenza di comandi per guidarlo alla Forza.",
+    en: "Knil has awakened in a mysterious stone dungeon! The gold Force warp gate is straight ahead, but Knil needs your commands to move. Write a sequence of movements to guide him to the Force."
   },
   goalText: {
-    it: "Fai muovere Knil in avanti di 2 spazi per raggiungere la Triforza d'oro.",
-    en: "Move Knil forward 2 spaces to reach the gold Triforce gate."
+    it: "Fai muovere Knil in avanti di 2 spazi per raggiungere la Forza d'oro.",
+    en: "Move Knil forward 2 spaces to reach the gold Force gate."
   },
   tip: {
     it: "In Python, chiamiamo delle funzioni per eseguire azioni. Il comando 'hero.move_forward()' dice all'eroe di fare un passo in avanti nella direzione in cui è rivolto.",

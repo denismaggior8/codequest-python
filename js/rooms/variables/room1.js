@@ -7,12 +7,12 @@ const ROOM_VARIABLES_1 = {
   badge: "VARIABLES",
   difficulty: "base",
   story: {
-    it: "Il cancello della Triforza è sigillato! Knil deve raccogliere 2 rubini luccicanti, registrarli in una variabile chiamata 'rubies' e stampare il conteggio per aprire il passaggio.",
-    en: "The Triforce gate is sealed! Knil must collect 2 shiny rubies, record them in a variable named 'rubies', and print the count to open the path."
+    it: "Il cancello della Forza è sigillato! Knil deve raccogliere 2 rubini luccicanti, registrarli in una variabile chiamata 'rubies' e stampare il conteggio per aprire il passaggio.",
+    en: "The Force gate is sealed! Knil must collect 2 shiny rubies, record them in a variable named 'rubies', and print the count to open the path."
   },
   goalText: {
-    it: "Raccogli entrambi i rubini, aumenta la variabile 'rubies' per ciascuno, stampa il valore finale con print() ed entra nel portale della Triforza.",
-    en: "Collect both rubies, increment the 'rubies' variable, print its value, and enter the Triforce gate."
+    it: "Raccogli entrambi i rubini, aumenta la variabile 'rubies' per ciascuno, stampa il valore finale con print() ed entra nel portale della Forza.",
+    en: "Collect both rubies, increment the 'rubies' variable, print its value, and enter the Force gate."
   },
   tip: {
     it: "Una variabile è come uno scrigno in cui salvare valori. In Python, 'rubies = 0' crea una variabile per tracciare il conteggio. 'print(rubies)' mostra il valore nel registro del dungeon.",

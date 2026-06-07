@@ -600,7 +600,7 @@ function initSimulator() {
       appendConsoleLine(t('consoleRupeeWarn'), 'error');
     } else if (msg.startsWith("🗝️ THE TRIFORCE SHINES!")) {
       appendConsoleLine(t('consoleWin'), 'system');
-    } else if (msg.startsWith("⚠️ The Triforce gate is sealed")) {
+    } else if (msg.startsWith("⚠️ The Force gate is sealed")) {
       appendConsoleLine(t('consoleRupeeSeal', { count: simulator.collectedCount, target: simulator.level.targetCrystals }), 'error');
     } else if (msg.startsWith("⚠️ Almost cleared")) {
       appendConsoleLine(t('consolePrintSeal'), 'error');

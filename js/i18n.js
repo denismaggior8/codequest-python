@@ -60,10 +60,10 @@ const TRANSLATIONS = {
     helpStep2: "<strong>Guarda la Pergamena Python</strong>: Osserva la colonna a destra. Genera codice Python reale basato sui tuoi blocchi.",
     helpStep3: "<strong>Avvia la Simulazione</strong>: Clicca su <strong class='pixel-text-green'>AVVIA</strong> per eseguire il codice. Knil camminerà passo dopo passo seguendo i tuoi blocchi.",
     helpStep4: "<strong>Leggi il Registro Dungeon</strong>: Se usi il blocco <code>print()</code>, i risultati appariranno nel registro in basso a sinistra.",
-    helpStep5: "<strong>Completa la Missione</strong>: Raggiungi l'obiettivo della stanza (raccogliere rubini, evitare ostacoli) per sbloccare la Triforza d'oro e avanzare!",
+    helpStep5: "<strong>Completa la Missione</strong>: Raggiungi l'obiettivo della stanza (raccogliere rubini, evitare ostacoli) per sbloccare la Forza d'oro e avanzare!",
 
     // Console status lines
-    consoleInit: "Caricamento quest Triforza...",
+    consoleInit: "Caricamento quest Forza...",
     consoleCompass: "La bussola punta a Nord.",
     consoleEnter: "Knil è entrato nella stanza del dungeon...",
     consoleMove: "⚔️ hero.move_forward() -> Coordinate Dungeon ({x}, {y})",
@@ -71,9 +71,9 @@ const TRANSLATIONS = {
     consoleRupeeAcquired: "💎 Rubino ottenuto! Rubini totali: {count}",
     consoleRupeeWarn: "⚠️ hero.collect_ruby() -> Attenzione: Nessun rubino su questa casella.",
     consoleWin: "🗝️ LA TRIFORZA RISPLENDE! Stanza del dungeon completata.",
-    consoleRupeeSeal: "⚠️ Il portale della Triforza è sigillato. Raccogli tutti i rubini! ({count}/{target})",
+    consoleRupeeSeal: "⚠️ Il portale della Forza è sigillato. Raccogli tutti i rubini! ({count}/{target})",
     consolePrintSeal: "⚠️ Quasi fatta, ma non hai eseguito il print() del conteggio dei rubini!",
-    consoleFinishIncomplete: "🧭 Knil ha finito i movimenti ma non ha raggiunto il portale della Triforza.",
+    consoleFinishIncomplete: "🧭 Knil ha finito i movimenti ma non ha raggiunto il portale della Forza.",
     consoleErrorEmpty: "⚠️ Errore: Il libro degli incantesimi è vuoto!",
     consoleErrorNoStart: "⚠️ Errore: Il codice deve essere inserito dentro 'def on_start():'!",
     consoleErrorRequireConditional: "⚠️ Errore: Per risolvere questo livello, devi utilizzare un costrutto condizionale 'if'.",
@@ -98,10 +98,10 @@ const TRANSLATIONS = {
     consoleSimStopped: "Simulazione interrotta.",
     confirmResetProgress: "Sei sicuro di voler cancellare TUTTI i tuoi progressi nel gioco? Questa azione non può essere annullata.",
     consoleResetSuccess: "Progressi resettati!",
-    successUnlockedRoom: "Knil ha sbloccato con successo la Stanza {id} e ha ottenuto il frammento della Triforza!",
+    successUnlockedRoom: "Knil ha sbloccato con successo la Stanza {id} e ha ottenuto il frammento della Forza!",
     presetCompletedHeader: "QUEST COMPLETATA!",
     presetCompletedBadge: "🏆 PRESET COMPLETATO!",
-    presetCompletedMessage: "Congratulazioni! Hai sbloccato tutti i frammenti della Triforza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python.",
+    presetCompletedMessage: "Congratulazioni! Hai sbloccato tutti i frammenti della Forza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python.",
     noSpellsCast: "Nessun incantesimo lanciato."
   },
   en: {
@@ -163,10 +163,10 @@ const TRANSLATIONS = {
     helpStep2: "<strong>Watch Python Generate</strong>: Observe the <em>Python Scroll</em> column. It generates real-time Python code based on your blocks.",
     helpStep3: "<strong>Run the Simulation</strong>: Click <strong class='pixel-text-green'>RUN</strong> to execute your code. Knil will walk step-by-step according to your blocks.",
     helpStep4: "<strong>Read Dungeon Logs</strong>: If you use the <code>print()</code> block, the output will appear in the <em>Dungeon Log</em>.",
-    helpStep5: "<strong>Solve the Goal</strong>: Complete the objective listed in the <em>Dungeon Quest</em> (collecting rubies, dodging spike traps) to unlock the gold Triforce warp portal!",
+    helpStep5: "<strong>Solve the Goal</strong>: Complete the objective listed in the <em>Dungeon Quest</em> (collecting rubies, dodging spike traps) to unlock the gold Force warp portal!",
 
     // Console status lines
-    consoleInit: "Triforce Quest loaded...",
+    consoleInit: "Force Quest loaded...",
     consoleCompass: "Compass is pointing North.",
     consoleEnter: "Knil has entered the dungeon room...",
     consoleMove: "⚔️ hero.move_forward() -> Dungeon Coordinates ({x}, {y})",
@@ -174,9 +174,9 @@ const TRANSLATIONS = {
     consoleRupeeAcquired: "💎 Ruby acquired! Total rubies: {count}",
     consoleRupeeWarn: "⚠️ hero.collect_ruby() -> Warning: No rubies found on this tile.",
     consoleWin: "🗝️ THE TRIFORCE SHINES! Dungeon room solved.",
-    consoleRupeeSeal: "⚠️ The Triforce gate is sealed. Collect all rubies! ({count}/{target})",
+    consoleRupeeSeal: "⚠️ The Force gate is sealed. Collect all rubies! ({count}/{target})",
     consolePrintSeal: "⚠️ Almost cleared, but you did not print() the ruby count!",
-    consoleFinishIncomplete: "🧭 Knil finished movements but did not reach the Triforce Gate.",
+    consoleFinishIncomplete: "🧭 Knil finished movements but did not reach the Force Gate.",
     consoleErrorEmpty: "⚠️ Error: Spell book is empty!",
     consoleErrorNoStart: "⚠️ Error: All commands must be placed inside 'def on_start():'!",
     consoleErrorRequireConditional: "⚠️ Error: To solve this level, you must use an 'if' conditional construct.",
@@ -201,10 +201,10 @@ const TRANSLATIONS = {
     consoleSimStopped: "Simulation stopped.",
     confirmResetProgress: "Are you sure you want to reset ALL your achievements and code cache? This action cannot be undone.",
     consoleResetSuccess: "Achievements reset!",
-    successUnlockedRoom: "Knil successfully unlocked Room {id} and secured the Triforce piece!",
+    successUnlockedRoom: "Knil successfully unlocked Room {id} and secured the Force piece!",
     presetCompletedHeader: "QUEST COMPLETED!",
     presetCompletedBadge: "🏆 PRESET COMPLETED!",
-    presetCompletedMessage: "Congratulations! You have unlocked all Triforce pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.",
+    presetCompletedMessage: "Congratulations! You have unlocked all Force pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.",
     noSpellsCast: "No spells cast."
   }
 };

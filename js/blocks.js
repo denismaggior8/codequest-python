@@ -7,7 +7,7 @@ const BLOCK_TOOLTIPS = {
     collect_ruby: "Raccoglie il rubino sulla casella corrente.",
     turn_left: "Gira Knil di 90 gradi in senso antiorario.",
     turn_right: "Gira Knil di 90 gradi in senso orario.",
-    scan_ahead: "Controlla cosa c'è nella casella davanti a Knil. Restituisce 'obstacle' (ostacolo), 'crystal' (rubino), 'portal' (Triforza) o 'empty' (vuoto).",
+    scan_ahead: "Controlla cosa c'è nella casella davanti a Knil. Restituisce 'obstacle' (ostacolo), 'crystal' (rubino), 'portal' (Forza) o 'empty' (vuoto).",
     plugboard_passthrough: "Crea una Plugboard pass-through (senza scambi).",
     enigma_m3_rotor1: "Crea un Rotore di tipo I per Enigma M3.",
     enigma_m3_rotor2: "Crea un Rotore di tipo II per Enigma M3.",

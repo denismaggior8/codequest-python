@@ -1,19 +1,19 @@
 const ROOM_FUNCTIONS_1 = {
   id: "functions/room1",
   name: {
-    it: "Funzioni stanza 1: Il Santuario della Triforza",
-    en: "Functions room 1: The Triforce Chamber"
+    it: "Funzioni stanza 1: Il Santuario della Forza",
+    en: "Functions room 1: The Force Chamber"
   },
   badge: "FUNCTIONS",
   difficulty: "base",
   requireFunction: true,
   story: {
-    it: "Hai raggiunto l'ultima stanza! La Triforza finale è protetta da mura in un labirinto a zig-zag. Definisci una funzione personalizzata 'step_and_collect' per fare due passi in avanti e raccogliere un rubino, poi usala per navigare.",
-    en: "You have reached the final chamber! The ultimate Triforce is guarded by walls in a zig-zag labyrinth. Define a custom function called 'step_and_collect' to move forward twice and collect a ruby, then call it to navigate through."
+    it: "Hai raggiunto l'ultima stanza! La Forza finale è protetta da mura in un labirinto a zig-zag. Definisci una funzione personalizzata 'step_and_collect' per fare due passi in avanti e raccogliere un rubino, poi usala per navigare.",
+    en: "You have reached the final chamber! The ultimate Force is guarded by walls in a zig-zag labyrinth. Define a custom function called 'step_and_collect' to move forward twice and collect a ruby, then call it to navigate through."
   },
   goalText: {
-    it: "Definisci una funzione che fa due passi in avanti e raccoglie un rubino. Chiamala 4 volte per raccogliere tutti i rubini e raggiungere la Triforza.",
-    en: "Define a function that moves twice and collects a ruby. Call it 4 times to collect the rubies and reach the Triforce."
+    it: "Definisci una funzione che fa due passi in avanti e raccoglie un rubino. Chiamala 4 volte per raccogliere tutti i rubini e raggiungere la Forza.",
+    en: "Define a function that moves twice and collects a ruby. Call it 4 times to collect the rubies and reach the Force."
   },
   tip: {
     it: "Le funzioni raggruppano blocchi di codice. In Python, 'def step_and_collect():' definisce un blocco personalizzato che può essere richiamato scrivendone il nome.",

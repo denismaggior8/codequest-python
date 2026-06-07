@@ -4,7 +4,7 @@
 
 **Code quest** is an educational, browser-based retro programming game designed to teach Python and programming logic using a visual, gamified environment inspired by retro retro classics. 
 
-Players guide the hero, **Knil**, through grid-based stone dungeons to reach the gold **Triforce Warp Gate**, using either visual **Blockly** blocks or writing raw **Python** code.
+Players guide the hero, **Knil**, through grid-based stone dungeons to reach the gold **Force Warp Gate**, using either visual **Blockly** blocks or writing raw **Python** code.
 
 ---
 
@@ -75,7 +75,7 @@ Levels are organized in the selection dropdown under difficulty groupings:
 - **Variables room 1: The Ruby Caves** (`variables/room1`) - Declaring, incrementing variables (`rubies = rubies + 1`), and outputting results (`print(rubies)`).
 - **Conditionals room 1: Eye of Truth** (`conditionals/room1`) - Checking environment tiles using sensors (`if hero.scan_ahead() == "obstacle":`).
 - **Loops room 1: The Ruby Vault** (`loops/room1`) - Repeating routines cleanly (`for i in range(4):`).
-- **Functions room 1: The Triforce Chamber** (`functions/room1`) - Defining custom macros (`def step_and_collect():`) to navigate mazes.
+- **Functions room 1: The Force Chamber** (`functions/room1`) - Defining custom macros (`def step_and_collect():`) to navigate mazes.
 
 ### 🟡 Intermediate Level (Livello Intermedio)
 - **Lists room 1: Path of Crystals** (`lists/room1`) - Using array structures to store coordinates or move queues.
@@ -148,7 +148,7 @@ The tests are split into two sequential suites:
 #### A. Room Schema & Pathfinding (`tests/rooms.test.js`)
 - **Schema Conformity**: Checks types and translation coverage for all levels.
 - **Bounds Checking**: Assures start coordinates, sizes, and tiles are valid.
-- **BFS Pathfinding Solvability**: Runs a Breadth-First Search to programmatically prove a path exists from the hero's start to the Triforce portal without crossing walls.
+- **BFS Pathfinding Solvability**: Runs a Breadth-First Search to programmatically prove a path exists from the hero's start to the Force portal without crossing walls.
 - **Crystals/Ruby Reachability**: Confirms all crystals placed on the map are fully reachable from the starting point and match the configured target crystals.
 
 #### B. User Standpoint DOM Interactions (`tests/dom.test.js`)

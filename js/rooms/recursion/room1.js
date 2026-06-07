@@ -11,8 +11,8 @@ const ROOM_RECURSION_1 = {
     en: "[Advanced Level - Coming Soon] Learn to use recursion to solve complex dungeons or mazes."
   },
   goalText: {
-    it: "Scrivi una funzione ricorsiva per raggiungere la Triforza.",
-    en: "Write a recursive function to reach the Triforce."
+    it: "Scrivi una funzione ricorsiva per raggiungere la Forza.",
+    en: "Write a recursive function to reach the Force."
   },
   tip: {
     it: "La ricorsione si verifica quando una funzione chiama se stessa all'interno del proprio corpo.",

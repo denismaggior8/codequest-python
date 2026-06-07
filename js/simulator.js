@@ -8,8 +8,8 @@ const SPRITE_PALETTE = {
   'g': '#387a22', // Knil Tunic green
   'l': '#56b833', // Knil Tunic light green
   'c': '#fcd2a3', // Knil Skin peach
-  'h': '#f1c40f', // Triforce / Knil hair yellow
-  'o': '#b89308', // Triforce shadow yellow
+  'h': '#f1c40f', // Force / Knil hair yellow
+  'o': '#b89308', // Force shadow yellow
   's': '#995a3d', // Knil shield / strap brown
   'q': '#5c3624', // Knil hair shadow / boots brown
   'd': '#3a4454', // Dungeon wall slate
@@ -83,7 +83,7 @@ const SPRITES = {
     ".............."
   ],
 
-  // Gold Triforce Gate
+  // Gold Force Gate
   portal: [
     ".......kk.......",
     "......khhk......",
@@ -442,7 +442,7 @@ class GameSimulator {
   }
 
   unlockGate(code) {
-    if (code && (code.toLowerCase().trim() === "triforza" || code.toLowerCase().trim() === "forza")) {
+    if (code && (code.toLowerCase().trim() === "forza" || code.toLowerCase().trim() === "forza")) {
       const gateX = this.level.gateX !== undefined ? this.level.gateX : 2;
       const gateY = this.level.gateY !== undefined ? this.level.gateY : 1;
       if (this.grid[gateY][gateX] === 1) {
@@ -532,7 +532,7 @@ class GameSimulator {
         this.onFinishedCallback(true, "success");
       }
     } else if (isOnPortal && !hasAllCrystals) {
-      this.onStatus(`⚠️ The Triforce gate is sealed. Collect all rubies! (${this.collectedCount}/${this.level.targetCrystals})`, "error");
+      this.onStatus(`⚠️ The Force gate is sealed. Collect all rubies! (${this.collectedCount}/${this.level.targetCrystals})`, "error");
       this.onSound('error');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "missing_crystals");
@@ -544,7 +544,7 @@ class GameSimulator {
         this.onFinishedCallback(false, "missing_print");
       }
     } else {
-      this.onStatus("🧭 Knil finished movements but did not reach the Triforce Gate.", "error");
+      this.onStatus("🧭 Knil finished movements but did not reach the Force Gate.", "error");
       this.onSound('error');
       if (this.onFinishedCallback) {
         this.onFinishedCallback(false, "incomplete");
