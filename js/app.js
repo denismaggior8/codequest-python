@@ -595,13 +595,13 @@ function initSimulator() {
     } else if (msg.startsWith("⚔️ hero.turn_right()")) {
       appendConsoleLine(t('consoleTurn', { dir: 'right', name: simulator.getDirectionName(simulator.dir) }), 'system');
     } else if (msg.startsWith("💎 Ruby acquired!")) {
-      appendConsoleLine(t('consoleRupeeAcquired', { count: simulator.collectedCount }), 'output');
+      appendConsoleLine(t('consoleRubyAcquired', { count: simulator.collectedCount }), 'output');
     } else if (msg.startsWith("⚠️ hero.collect_ruby()")) {
-      appendConsoleLine(t('consoleRupeeWarn'), 'error');
+      appendConsoleLine(t('consoleRubyWarn'), 'error');
     } else if (msg.startsWith("🗝️ THE FORCE SHINES!")) {
       appendConsoleLine(t('consoleWin'), 'system');
     } else if (msg.startsWith("⚠️ The Force gate is sealed")) {
-      appendConsoleLine(t('consoleRupeeSeal', { count: simulator.collectedCount, target: simulator.level.targetCrystals }), 'error');
+      appendConsoleLine(t('consoleRubySeal', { count: simulator.collectedCount, target: simulator.level.targetCrystals }), 'error');
     } else if (msg.startsWith("⚠️ Almost cleared")) {
       appendConsoleLine(t('consolePrintSeal'), 'error');
     } else if (msg.startsWith("🧭 Knil finished movements")) {
