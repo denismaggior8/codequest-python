@@ -509,6 +509,7 @@ function setupUIEventListeners() {
     importFile.addEventListener('change', (e) => {
       if (e.target.files.length > 0) {
         importGameState(e.target.files[0]);
+        importFile.value = '';
       }
     });
   }
