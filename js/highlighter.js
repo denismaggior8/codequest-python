@@ -54,6 +54,9 @@ function updateCodeOutput(highlightLine = null) {
 function highlightPython(code) {
   const strings = [];
   const comments = [];
+  const funcs = [];
+  const kws = [];
+  const nums = [];
   
   // 1. Protect triple-quoted strings (multiline)
   let processed = code.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, (match) => {
@@ -73,22 +76,37 @@ function highlightPython(code) {
     return `__COM_PLACEHOLDER_${comments.length - 1}__`;
   });
   
-  // 4. Highlight functions and methods
-  // First, highlight method calls on hero (e.g. hero.move_forward, hero.anything)
-  processed = processed.replace(/\b(hero\.\w+)\b/g, '__FUNC_START__$1__FUNC_END__');
-  
-  // Then, highlight any word followed by an opening parenthesis (e.g. print(, on_start(, my_func()
-  processed = processed.replace(/\b(\w+)(?=\s*\()/g, '__FUNC_START__$1__FUNC_END__');
-  
-  // 5. Highlight keywords
-  const keywords = ['def', 'for', 'in', 'range', 'if', 'else', 'while', 'return', 'pass'];
-  keywords.forEach(kw => {
-    const regex = new RegExp('\\b(' + kw + ')\\b', 'g');
-    processed = processed.replace(regex, '__KW_START__$1__KW_END__');
+  // 4. Protect functions and methods
+  // First, protect method calls on hero (e.g. hero.move_forward, hero.anything)
+  processed = processed.replace(/\b(hero\.\w+)\b/g, (match) => {
+    funcs.push(match);
+    return `__FUNC_PLACEHOLDER_${funcs.length - 1}__`;
   });
   
-  // 6. Highlight numbers
-  processed = processed.replace(/\b(\d+)\b/g, '__NUM_START__$1__NUM_END__');
+  // Then, protect any word followed by an opening parenthesis (e.g. print(, on_start(, my_func()
+  const keywords = ['def', 'for', 'in', 'range', 'if', 'else', 'while', 'return', 'pass'];
+  processed = processed.replace(/\b(\w+)(?=\s*\()/g, (match) => {
+    if (match.startsWith('__') || keywords.includes(match)) {
+      return match;
+    }
+    funcs.push(match);
+    return `__FUNC_PLACEHOLDER_${funcs.length - 1}__`;
+  });
+  
+  // 5. Protect keywords
+  keywords.forEach(kw => {
+    const regex = new RegExp('\\b(' + kw + ')\\b', 'g');
+    processed = processed.replace(regex, (match) => {
+      kws.push(match);
+      return `__KW_PLACEHOLDER_${kws.length - 1}__`;
+    });
+  });
+  
+  // 6. Protect numbers
+  processed = processed.replace(/\b(\d+)\b/g, (match) => {
+    nums.push(match);
+    return `__NUM_PLACEHOLDER_${nums.length - 1}__`;
+  });
   
   // 7. Escape HTML characters
   let escaped = processed
@@ -97,9 +115,24 @@ function highlightPython(code) {
     .replace(/>/g, "&gt;");
   
   // 8. Replace placeholders with actual HTML spans
-  escaped = escaped.replace(/__KW_START__(.*?)__KW_END__/g, '<span class="py-kw">$1</span>');
-  escaped = escaped.replace(/__FUNC_START__(.*?)__FUNC_END__/g, '<span class="py-func">$1</span>');
-  escaped = escaped.replace(/__NUM_START__(.*?)__NUM_END__/g, '<span class="py-num">$1</span>');
+  escaped = escaped.replace(/__KW_PLACEHOLDER_(\d+)__/g, (match, id) => {
+    const originalKw = kws[parseInt(id)];
+    return `<span class="py-kw">${originalKw}</span>`;
+  });
+
+  escaped = escaped.replace(/__FUNC_PLACEHOLDER_(\d+)__/g, (match, id) => {
+    const originalFunc = funcs[parseInt(id)];
+    const escapedFunc = originalFunc
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return `<span class="py-func">${escapedFunc}</span>`;
+  });
+
+  escaped = escaped.replace(/__NUM_PLACEHOLDER_(\d+)__/g, (match, id) => {
+    const originalNum = nums[parseInt(id)];
+    return `<span class="py-num">${originalNum}</span>`;
+  });
   
   escaped = escaped.replace(/__STR_PLACEHOLDER_(\d+)__/g, (match, id) => {
     const originalStr = strings[parseInt(id)];
