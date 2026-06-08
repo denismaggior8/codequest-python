@@ -27,6 +27,49 @@
 
   <div class="scanlines"></div>
 
+  <!-- Splash Screen Overlay -->
+  <div id="splash-screen" class="splash-screen-overlay flex-col align-center justify-center font-press">
+    <div class="splash-content flex-col align-center">
+      <h1 class="splash-title pixel-text-yellow">CODE QUEST</h1>
+      <h2 class="splash-subtitle pixel-text-red" data-i18n="logoSub">A 2D #HeroAsCode adventure</h2>
+      <p class="splash-desc font-vt" data-i18n="splashDesc">Lancia incantesimi di programmazione per guidare il tuo eroe attraverso i dungeon del castello!</p>
+      
+      <!-- Visual container for character and code blocks -->
+      <div class="splash-visuals flex-row align-center justify-center">
+        <!-- Visual Code Blocks -->
+        <div class="splash-code-blocks flex-col">
+          <div class="retro-block block-def">
+            <span class="block-text">def start_quest():</span>
+            <div class="retro-block block-move">
+              <span class="block-text">hero.move_forward()</span>
+            </div>
+            <div class="retro-block block-collect">
+              <span class="block-text">hero.collect_ruby()</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Knil Hero sprite display -->
+        <div class="splash-hero-box">
+          <canvas id="splash-hero-canvas" width="96" height="96"></canvas>
+        </div>
+      </div>
+
+      <div class="splash-prompt animate-blink" data-i18n="splashPrompt">PREMI UN TASTO PER COMINCIARE</div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      try {
+        var storage = window.safeLocalStorage || localStorage;
+        if (storage && storage.getItem('codequest_seen_splash') === 'true') {
+          var splash = document.getElementById('splash-screen');
+          if (splash) splash.style.display = 'none';
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Header Section -->
   <header class="pixel-border-outer">
     <div class="logo">

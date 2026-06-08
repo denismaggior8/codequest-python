@@ -25,12 +25,81 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load Blockly language locale file, then initialize level
   loadBlocklyLocale(currentLanguage, () => {
     applyTranslations(currentLanguage);
+    setupSplashOverlay();
     setupUIEventListeners();
     initSimulator();
     refreshLevelSelector();
     loadLevel(currentLevelIndex);
   });
 });
+
+function setupSplashOverlay() {
+  const splash = document.getElementById('splash-screen');
+  if (splash && splash.style.display !== 'none') {
+    // Render the Knil sprite on the canvas
+    setTimeout(drawSplashHero, 50);
+
+    const dismissSplash = () => {
+      window.removeEventListener('keydown', dismissSplash);
+      window.removeEventListener('click', dismissSplash);
+      
+      try {
+        storage.setItem('codequest_seen_splash', 'true');
+      } catch (err) {}
+      
+      if (typeof synth !== 'undefined') {
+        synth.init();
+        synth.play('win');
+      }
+      
+      splash.classList.add('fade-out');
+      setTimeout(() => {
+        splash.style.display = 'none';
+        splash.classList.remove('fade-out');
+      }, 1000);
+    };
+    
+    window.addEventListener('keydown', dismissSplash);
+    window.addEventListener('click', dismissSplash);
+  }
+}
+
+function drawSplashHero() {
+  const canvas = document.getElementById('splash-hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  // Retrieve SPRITES and SPRITE_PALETTE from simulator.js scope
+  const spritesObj = window.SPRITES || (typeof SPRITES !== 'undefined' ? SPRITES : null);
+  const paletteObj = window.SPRITE_PALETTE || (typeof SPRITE_PALETTE !== 'undefined' ? SPRITE_PALETTE : null);
+  
+  if (!spritesObj || !paletteObj) {
+    console.warn("Could not load sprites or palette for splash hero.");
+    return;
+  }
+  
+  const sprite = spritesObj.zog_1; // Front facing Knil
+  if (!sprite) return;
+  
+  const pixelSize = canvas.width / 16;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  for (let row = 0; row < 16; row++) {
+    for (let col = 0; col < 16; col++) {
+      const colorChar = sprite[row][col];
+      const color = paletteObj[colorChar];
+      if (color && color !== 'transparent') {
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          col * pixelSize, 
+          row * pixelSize, 
+          Math.ceil(pixelSize), 
+          Math.ceil(pixelSize)
+        );
+      }
+    }
+  }
+}
 
 // Load Blockly language definitions dynamically
 function loadBlocklyLocale(lang, callback) {
@@ -374,6 +443,7 @@ function setupUIEventListeners() {
         storage.removeItem('codequest_completed');
         storage.removeItem('codequest_levels_code');
         storage.removeItem('codequest_current_level_idx');
+        storage.removeItem('codequest_seen_splash');
         completedLevels = {};
         levelsCodeCache = {};
         currentLevelIndex = 0;
@@ -384,6 +454,13 @@ function setupUIEventListeners() {
         loadLevel(currentLevelIndex);
         
         appendConsoleLine("⚠️ " + t('consoleResetSuccess'), "error");
+        
+        // Show the splash screen overlay again
+        const splash = document.getElementById('splash-screen');
+        if (splash) {
+          splash.style.display = 'flex';
+          setupSplashOverlay();
+        }
       }
     });
   }
@@ -1221,6 +1298,10 @@ function initColumnResizers() {
         
         leftPanel.style.width = `${leftPercent}%`;
         centerPanel.style.width = `${centerPercent}%`;
+        const logo = document.querySelector('header .logo');
+        if (logo) {
+          logo.style.width = `${leftPercent}%`;
+        }
       }
     } else if (activeResizer === rightResizer) {
       let newCenterWidth = startCenterWidth + dx;
@@ -1278,7 +1359,11 @@ function initColumnResizers() {
     const savedCenter = storage.getItem('codequest_layout_center');
     const savedRight = storage.getItem('codequest_layout_right');
 
-    if (savedLeft) leftPanel.style.width = savedLeft;
+    if (savedLeft) {
+      leftPanel.style.width = savedLeft;
+      const logo = document.querySelector('header .logo');
+      if (logo) logo.style.width = savedLeft;
+    }
     if (savedCenter) centerPanel.style.width = savedCenter;
     if (savedRight) rightPanel.style.width = savedRight;
     

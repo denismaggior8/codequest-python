@@ -102,7 +102,9 @@ const TRANSLATIONS = {
     presetCompletedHeader: "QUEST COMPLETATA!",
     presetCompletedBadge: "🏆 PRESET COMPLETATO!",
     presetCompletedMessage: "Congratulazioni! Hai sbloccato tutti i frammenti della Forza e completato tutti gli argomenti di questo preset! La pace è tornata nel Regno di Python.",
-    noSpellsCast: "Nessun incantesimo lanciato."
+    noSpellsCast: "Nessun incantesimo lanciato.",
+    splashDesc: "Lancia incantesimi di programmazione per guidare il tuo eroe attraverso i dungeon del castello!",
+    splashPrompt: "PREMI UN TASTO PER COMINCIARE"
   },
   en: {
     // Header
@@ -205,7 +207,9 @@ const TRANSLATIONS = {
     presetCompletedHeader: "QUEST COMPLETED!",
     presetCompletedBadge: "🏆 PRESET COMPLETED!",
     presetCompletedMessage: "Congratulations! You have unlocked all Force pieces and completed all topics in this preset! Peace has returned to the Python Kingdom.",
-    noSpellsCast: "No spells cast."
+    noSpellsCast: "No spells cast.",
+    splashDesc: "Cast programming spells to guide your hero through castle dungeons!",
+    splashPrompt: "PRESS ANY KEY TO START"
   }
 };
 
