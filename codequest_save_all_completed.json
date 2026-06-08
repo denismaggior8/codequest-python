@@ -529,7 +529,7 @@
                                 "type": "math_number",
                                 "id": "num_1_a",
                                 "fields": {
-                                  "NUM": 1
+                                  "NUM": 0
                                 }
                               }
                             },
@@ -538,7 +538,7 @@
                                 "type": "math_number",
                                 "id": "num_2_a",
                                 "fields": {
-                                  "NUM": 2
+                                  "NUM": 1
                                 }
                               }
                             },
@@ -547,7 +547,7 @@
                                 "type": "math_number",
                                 "id": "num_1_b",
                                 "fields": {
-                                  "NUM": 1
+                                  "NUM": 0
                                 }
                               }
                             },
@@ -556,7 +556,7 @@
                                 "type": "math_number",
                                 "id": "num_2_b",
                                 "fields": {
-                                  "NUM": 2
+                                  "NUM": 1
                                 }
                               }
                             }
@@ -668,7 +668,7 @@
                                                       "type": "math_number",
                                                       "id": "one_num",
                                                       "fields": {
-                                                        "NUM": 1
+                                                        "NUM": 0
                                                       }
                                                     }
                                                   }
@@ -712,7 +712,7 @@
           ]
         }
       },
-      "pythonCode": "def on_start():\n  turns = [1, 2, 1, 2]\n  for i in range(4):\n    hero.move_forward()\n    hero.move_forward()\n    hero.collect_ruby()\n    if turns[i] == 1:\n      hero.turn_left()\n    else:\n      hero.turn_right()\n  hero.move_forward()\n"
+      "pythonCode": "def on_start():\n  turns = [0, 1, 0, 1]\n  for i in range(4):\n    hero.move_forward()\n    hero.move_forward()\n    hero.collect_ruby()\n    if turns[i] == 0:\n      hero.turn_left()\n    else:\n      hero.turn_right()\n  hero.move_forward()\n"
     },
     "objects/room1": {
       "mode": "blocks",

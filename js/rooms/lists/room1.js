@@ -10,23 +10,23 @@ const ROOM_LISTS_1 = {
   requireLoop: true,
   runWithPyodide: true,
   story: {
-    it: "Il saggio del castello ha segnato su una pergamena le svolte da effettuare a ogni rubino: [1, 2, 1, 2] (dove 1 significa svoltare a sinistra e 2 svoltare a destra). In ogni corridoio Knil deve camminare per esattamente 2 passi prima di svoltare. Crea una lista con questi numeri, poi usa un ciclo per scorrere la lista, camminare in avanti di 2 passi, raccogliere il rubino e svoltare in base al valore della lista!",
-    en: "The castle sage has marked the turns to make at each ruby on a scroll: [1, 2, 1, 2] (where 1 means turn left and 2 means turn right). In each hallway, Knil must walk exactly 2 steps before turning. Create a list with these numbers, then use a loop to iterate through the list, walk forward 2 steps, collect the ruby, and turn according to the list value!"
+    it: "Il saggio del castello ha segnato su una pergamena le svolte da effettuare a ogni rubino: [0, 1, 0, 1] (dove 0 significa svoltare a sinistra e 1 svoltare a destra). In ogni corridoio Knil deve camminare per esattamente 2 passi prima di svoltare. Crea una lista con questi numeri, poi usa un ciclo per scorrere la lista, camminare in avanti di 2 passi, raccogliere il rubino e svoltare in base al valore della lista!",
+    en: "The castle sage has marked the turns to make at each ruby on a scroll: [0, 1, 0, 1] (where 0 means turn left and 1 means turn right). In each hallway, Knil must walk exactly 2 steps before turning. Create a list with these numbers, then use a loop to iterate through the list, walk forward 2 steps, collect the ruby, and turn according to the list value!"
   },
   goalText: {
-    it: "Usa una lista con i valori [1, 2, 1, 2] per guidare Knil nel dungeon, raccogli tutti e 4 i rubini ed entra nel portale della Forza.",
-    en: "Use a list with values [1, 2, 1, 2] to guide Knil in the dungeon, collect all 4 rubies, and enter the Force portal."
+    it: "Usa una lista con i valori [0, 1, 0, 1] per guidare Knil nel dungeon, raccogli tutti e 4 i rubini ed entra nel portale della Forza.",
+    en: "Use a list with values [0, 1, 0, 1] to guide Knil in the dungeon, collect all 4 rubies, and enter the Force portal."
   },
   tip: {
-    it: "Usa una lista per definire le svolte, ad esempio: turns = [1, 2, 1, 2]. Scorri la lista con un ciclo. In ogni iterazione, fai fare 2 passi in avanti all'eroe, raccogli il rubino, poi usa una condizione 'if turns[i] == 1:' per svoltare a sinistra, altrimenti a destra.",
-    en: "Use a list to define the turns, for example: turns = [1, 2, 1, 2]. Iterate through the list with a loop. In each iteration, make the hero walk forward 2 steps, collect the ruby, then use an 'if turns[i] == 1:' condition to turn left, otherwise turn right."
+    it: "Usa una lista per definire le svolte, ad esempio: turns = [0, 1, 0, 1]. Scorri la lista con un ciclo. In ogni iterazione, fai fare 2 passi in avanti all'eroe, raccogli il rubino, poi usa una condizione 'if turns[i] == 0:' per svoltare a sinistra, altrimenti a destra.",
+    en: "Use a list to define the turns, for example: turns = [0, 1, 0, 1]. Iterate through the list with a loop. In each iteration, make the hero walk forward 2 steps, collect the ruby, then use an 'if turns[i] == 0:' condition to turn left, otherwise turn right."
   },
   docs: {
     it: [
       { code: "hero.move_forward()", desc: "Fai camminare Knil in avanti." },
       { code: "hero.collect_ruby()", desc: "Raccogli il rubino corrente." },
       { code: "hero.turn_left() / turn_right()", desc: "Svolta a sinistra o destra." },
-      { code: "turns = [1, 2, 1, 2]", desc: "Crea una lista con le svolte specificate (1=sinistra, 2=destra)." },
+      { code: "turns = [0, 1, 0, 1]", desc: "Crea una lista con le svolte specificate (0=sinistra, 1=destra)." },
       { code: "for i in range(len(turns)):", desc: "Scorre gli indici da 0 a 3 della lista." },
       { code: "turns[i]", desc: "Ottiene la svolta corrente dall'elenco." }
     ],
@@ -34,7 +34,7 @@ const ROOM_LISTS_1 = {
       { code: "hero.move_forward()", desc: "Make Knil walk forward." },
       { code: "hero.collect_ruby()", desc: "Collect the ruby on the current tile." },
       { code: "hero.turn_left() / turn_right()", desc: "Turn Knil 90 degrees left or right." },
-      { code: "turns = [1, 2, 1, 2]", desc: "Create a list with the specified turns (1=left, 2=right)." },
+      { code: "turns = [0, 1, 0, 1]", desc: "Create a list with the specified turns (0=left, 1=right)." },
       { code: "for i in range(len(turns)):", desc: "Loops index values from 0 to 3 of the list." },
       { code: "turns[i]", desc: "Gets the current turn from the list." }
     ]

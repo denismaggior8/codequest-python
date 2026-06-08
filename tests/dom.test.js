@@ -607,7 +607,7 @@ runTest('validateLevelConstructs checks requireList constraints on lists/room1',
   assert(err && err.includes('lista'), 'Should return a validation error requiring lists');
 
   // Set mock python code with valid list definition
-  textarea.value = "def on_start():\n  turns = [1, 2, 1, 2]\n  for count in turns:\n    hero.move_forward()\n";
+  textarea.value = "def on_start():\n  turns = [0, 1, 0, 1]\n  for count in turns:\n    hero.move_forward()\n";
   const noErr = window.eval('validateLevelConstructs(LEVELS[5])');
   assert.strictEqual(noErr, null, 'Should pass validation when list syntax [] is present');
 });
