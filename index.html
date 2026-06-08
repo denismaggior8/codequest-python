@@ -36,17 +36,9 @@
       
       <!-- Visual container for character and code blocks -->
       <div class="splash-visuals flex-row align-center justify-center">
-        <!-- Visual Code Blocks -->
-        <div class="splash-code-blocks flex-col">
-          <div class="retro-block block-def">
-            <span class="block-text">def start_quest():</span>
-            <div class="retro-block block-move">
-              <span class="block-text">hero.move_forward()</span>
-            </div>
-            <div class="retro-block block-collect">
-              <span class="block-text">hero.collect_ruby()</span>
-            </div>
-          </div>
+        <!-- Visual Code Blocks (Blockly Workspace Container) -->
+        <div class="splash-code-blocks-container">
+          <div id="splashBlocklyDiv"></div>
         </div>
         
         <!-- Knil Hero sprite display -->
@@ -55,6 +47,7 @@
         </div>
       </div>
 
+      <div class="splash-authors font-vt" data-i18n="splashAuthors">Creato da Denis Maggiorotto e Andrea Maggiorotto</div>
       <div class="splash-prompt animate-blink" data-i18n="splashPrompt">PREMI UN TASTO PER COMINCIARE</div>
     </div>
   </div>

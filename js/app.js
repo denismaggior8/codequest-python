@@ -38,6 +38,8 @@ function setupSplashOverlay() {
   if (splash && splash.style.display !== 'none') {
     // Render the Knil sprite on the canvas
     setTimeout(drawSplashHero, 50);
+    // Render real Blockly blocks in read-only workspace
+    setTimeout(initSplashBlockly, 50);
 
     const dismissSplash = () => {
       window.removeEventListener('keydown', dismissSplash);
@@ -56,11 +58,90 @@ function setupSplashOverlay() {
       setTimeout(() => {
         splash.style.display = 'none';
         splash.classList.remove('fade-out');
+        if (splashWorkspace) {
+          try {
+            splashWorkspace.dispose();
+          } catch (e) {}
+          splashWorkspace = null;
+        }
       }, 1000);
     };
     
     window.addEventListener('keydown', dismissSplash);
     window.addEventListener('click', dismissSplash);
+  }
+}
+
+let splashWorkspace = null;
+
+function initSplashBlockly() {
+  const container = document.getElementById('splashBlocklyDiv');
+  if (!container) return;
+
+  // Clean previous instance if re-triggering (e.g. from reset progress)
+  if (splashWorkspace) {
+    try {
+      splashWorkspace.dispose();
+    } catch (e) {}
+    splashWorkspace = null;
+  }
+
+  try {
+    const width = container.clientWidth || 300;
+    const scale = width < 280 ? 0.85 : 0.95;
+
+    splashWorkspace = Blockly.inject('splashBlocklyDiv', {
+      readOnly: true,
+      scrollbars: false,
+      zoom: {
+        controls: false,
+        wheel: false,
+        startScale: scale
+      },
+      theme: {
+        componentStyles: {
+          workspaceBackgroundColour: 'transparent'
+        }
+      }
+    });
+
+    const splashState = {
+      "blocks": {
+        "languageVersion": 0,
+        "blocks": [
+          {
+            "type": "on_start",
+            "id": "start",
+            "x": 15,
+            "y": 15,
+            "deletable": false,
+            "movable": false,
+            "inputs": {
+              "STACK": {
+                "block": {
+                  "type": "move_forward",
+                  "id": "mf1",
+                  "deletable": false,
+                  "movable": false,
+                  "next": {
+                    "block": {
+                      "type": "collect_ruby",
+                      "id": "cr1",
+                      "deletable": false,
+                      "movable": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    };
+
+    Blockly.serialization.workspaces.load(splashState, splashWorkspace);
+  } catch (err) {
+    console.error("Failed to initialize splash Blockly workspace:", err);
   }
 }
 
@@ -435,7 +516,8 @@ function setupUIEventListeners() {
   // Reset progress listener
   const resetBtn = document.getElementById('reset-progress-btn');
   if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
+    resetBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const confirmMsg = t('confirmResetProgress');
       
       if (confirm(confirmMsg)) {

@@ -1018,6 +1018,7 @@ header .logo .logo-main {
   transition: opacity 1s ease-out;
   box-sizing: border-box;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .splash-screen-overlay.fade-out {
@@ -1030,12 +1031,14 @@ header .logo .logo-main {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 650px;
+  width: 90%;
+  max-width: 600px;
   background-color: rgba(7, 5, 4, 0.95);
-  padding: 40px;
+  padding: 30px 24px;
   border: 4px solid var(--pixel-black);
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(243, 156, 18, 0.15);
   position: relative;
+  box-sizing: border-box;
 }
 
 .splash-content::before {
@@ -1052,23 +1055,23 @@ header .logo .logo-main {
 
 .splash-title {
   font-size: 52px;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   letter-spacing: 2px;
   text-shadow: 4px 4px 0px #000, 6px 6px 0px var(--retro-yellow-dark);
 }
 
 .splash-subtitle {
   font-size: 16px;
-  margin: 0 0 28px 0;
+  margin: 0 0 24px 0;
   letter-spacing: 1px;
   text-shadow: 2px 2px 0px #000;
 }
 
 .splash-desc {
-  font-size: 22px;
-  line-height: 1.5;
+  font-size: 20px;
+  line-height: 1.45;
   color: #ffd88a;
-  margin: 0 0 45px 0;
+  margin: 0 0 32px 0;
   text-shadow: 1px 1px 0px #000;
 }
 
@@ -1092,56 +1095,43 @@ header .logo .logo-main {
   align-items: center;
   justify-content: center;
   gap: 30px;
-  margin-bottom: 45px;
+  margin-bottom: 35px;
   width: 100%;
 }
 
-.splash-code-blocks {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+.splash-code-blocks-container {
+  width: 300px;
+  height: 170px;
+  position: relative;
   flex-shrink: 0;
-}
-
-.retro-block {
-  border: 3px solid #070504;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-family: 'VT323', monospace;
-  font-size: 22px;
-  color: #fff;
-  text-shadow: 1px 1px 0px #000;
-  box-shadow: 3px 3px 0px #000;
-  display: flex;
-  align-items: center;
   box-sizing: border-box;
+  overflow: hidden;
+  margin-bottom: 0px;
+  padding: 0;
 }
 
-.block-def {
-  background-color: #27ae60; /* Green */
-  margin-bottom: 6px;
+#splashBlocklyDiv {
+  width: 100%;
+  height: 100%;
 }
 
-.block-move {
-  background-color: #2980b9; /* Blue */
-  margin-left: 24px;
-  margin-bottom: 6px;
+#splashBlocklyDiv .blocklySvg {
+  border: none !important;
+  background-color: transparent !important;
 }
 
-.block-collect {
-  background-color: #f39c12; /* Gold */
-  margin-left: 24px;
+#splashBlocklyDiv .blocklyMainBackground {
+  stroke: none !important;
+  fill: transparent !important;
 }
 
 .splash-hero-box {
-  border: 4px solid #070504;
-  background-color: #221914; /* Dark stone floor brown */
-  padding: 10px;
-  box-shadow: 3px 3px 0px #000;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-bottom: 0px;
+  padding: 10px;
 }
 
 #splash-hero-canvas {
@@ -1149,10 +1139,60 @@ header .logo .logo-main {
   display: block;
 }
 
+.splash-authors {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: #ffd88a;
+  text-shadow: 1px 1px 0px #000;
+  margin-top: 10px;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
+}
+
+/* Responsiveness for Smaller Screen Widths and Heights */
 @media (max-width: 600px) {
+  .splash-content {
+    padding: 20px 16px;
+  }
+  .splash-title {
+    font-size: 38px;
+    margin-bottom: 8px;
+  }
+  .splash-subtitle {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .splash-desc {
+    font-size: 17px;
+    margin-bottom: 24px;
+  }
   .splash-visuals {
     flex-direction: column;
     gap: 20px;
+    margin-bottom: 24px;
+  }
+  .splash-code-blocks-container {
+    width: 260px;
+    height: 140px;
+  }
+  .splash-prompt {
+    font-size: 18px;
+  }
+  .splash-authors {
+    font-size: 17px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-height: 600px) {
+  .splash-screen-overlay {
+    justify-content: flex-start;
+    padding: 20px;
+  }
+  .splash-content {
+    margin-top: 10px;
+    margin-bottom: 20px;
   }
 }
 
