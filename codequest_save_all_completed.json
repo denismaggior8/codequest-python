@@ -677,14 +677,14 @@
                                             },
                                             "DO0": {
                                               "block": {
-                                                "type": "turn_left",
-                                                "id": "turn_l"
+                                                "type": "turn_right",
+                                                "id": "turn_r"
                                               }
                                             },
                                             "ELSE": {
                                               "block": {
-                                                "type": "turn_right",
-                                                "id": "turn_r"
+                                                "type": "turn_left",
+                                                "id": "turn_l"
                                               }
                                             }
                                           }
