@@ -612,6 +612,35 @@ runTest('validateLevelConstructs checks requireList constraints on lists/room1',
   assert.strictEqual(noErr, null, 'Should pass validation when list syntax [] is present');
 });
 
+// 13. Recursion Validation Level Constraints
+runTest('validateLevelConstructs checks requireRecursion constraints on recursion/room1', () => {
+  const { document, window } = createTestEnvironment();
+
+  // Load level 7 (recursion/room1)
+  window.eval('loadLevel(7)');
+
+  // Verify it is the recursion level
+  const level = window.eval('LEVELS[7]');
+  assert.strictEqual(level.id, 'recursion/room1');
+  assert.strictEqual(level.requireRecursion, true);
+
+  // Set mock python code without recursion (has if, but not recursion)
+  const textarea = document.getElementById('python-textarea');
+  textarea.value = "def solve():\n  if True:\n    hero.move_forward()\n\ndef on_start():\n  solve()\n";
+
+  // Force python mode
+  window.eval('currentMode = "python"');
+
+  // Validate should return error requiring recursion
+  const err = window.eval('validateLevelConstructs(LEVELS[7])');
+  assert(err && err.includes('ricorsiv'), 'Should return a validation error requiring recursion');
+
+  // Set mock python code with valid recursion call (including if to satisfy requireConditional)
+  textarea.value = "def solve():\n  if True:\n    solve()\n\ndef on_start():\n  solve()\n";
+  const noErr = window.eval('validateLevelConstructs(LEVELS[7])');
+  assert.strictEqual(noErr, null, 'Should pass validation when recursion is present');
+});
+
 console.log('\n--- DOM Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);

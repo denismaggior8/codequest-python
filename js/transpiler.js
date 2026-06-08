@@ -5,6 +5,7 @@ function validateLevelConstructs(level) {
   let hasLoop = false;
   let hasDef = false;
   let hasList = false;
+  let hasRecursion = false;
 
   if (currentMode === 'blocks') {
     if (typeof workspace !== 'undefined' && workspace) {
@@ -13,6 +14,23 @@ function validateLevelConstructs(level) {
       hasLoop = blocks.some(b => ['controls_repeat_ext', 'controls_repeat', 'controls_whileUntil', 'controls_for'].includes(b.type));
       hasDef = blocks.some(b => ['procedures_defnoreturn', 'procedures_defreturn'].includes(b.type));
       hasList = blocks.some(b => b.type.startsWith('lists_'));
+      
+      const callBlocks = blocks.filter(b => ['procedures_callnoreturn', 'procedures_callreturn'].includes(b.type));
+      const defBlocks = blocks.filter(b => ['procedures_defnoreturn', 'procedures_defreturn'].includes(b.type));
+      hasRecursion = defBlocks.some(defBlock => {
+        const defName = defBlock.getFieldValue('NAME');
+        if (!defName) return false;
+        return callBlocks.some(callBlock => {
+          const callName = callBlock.getFieldValue('NAME');
+          if (callName !== defName) return false;
+          let cur = callBlock.getParent();
+          while (cur) {
+            if (cur === defBlock) return true;
+            cur = cur.getParent();
+          }
+          return false;
+        });
+      });
     }
   } else {
     const pyTextarea = document.getElementById('python-textarea');
@@ -28,6 +46,43 @@ function validateLevelConstructs(level) {
     hasLoop = /\bfor\b/.test(cleanCode) || /\bwhile\b/.test(cleanCode);
     hasDef = /\bdef\b/.test(cleanCode);
     hasList = /\[.*\]/.test(cleanCode) || /\blist\b/.test(cleanCode);
+    
+    // Check recursion in Python code (only calls inside its own body)
+    const codeLines = cleanCode.split('\n');
+    let insideFn = null;
+    let fnIndent = 0;
+    let fnBody = '';
+    
+    for (let i = 0; i < codeLines.length; i++) {
+      const line = codeLines[i];
+      if (!line.trim()) continue;
+      
+      const match = line.match(/^(\s*)def\s+(\w+)\s*\(/);
+      if (match) {
+        if (insideFn && insideFn !== 'on_start') {
+          const occurrences = fnBody.split(new RegExp('\\b' + insideFn + '\\b')).length - 1;
+          if (occurrences >= 1) hasRecursion = true;
+        }
+        insideFn = match[2];
+        fnIndent = match[1].length;
+        fnBody = '';
+      } else if (insideFn) {
+        const currentIndent = line.match(/^(\s*)/)[0].length;
+        if (currentIndent > fnIndent) {
+          fnBody += line + '\n';
+        } else {
+          if (insideFn !== 'on_start') {
+            const occurrences = fnBody.split(new RegExp('\\b' + insideFn + '\\b')).length - 1;
+            if (occurrences >= 1) hasRecursion = true;
+          }
+          insideFn = null;
+        }
+      }
+    }
+    if (insideFn && insideFn !== 'on_start') {
+      const occurrences = fnBody.split(new RegExp('\\b' + insideFn + '\\b')).length - 1;
+      if (occurrences >= 1) hasRecursion = true;
+    }
   }
 
   if (level.requireConditional && !hasIf) {
@@ -41,6 +96,9 @@ function validateLevelConstructs(level) {
   }
   if (level.requireList && !hasList) {
     return t('consoleErrorRequireList');
+  }
+  if (level.requireRecursion && !hasRecursion) {
+    return t('consoleErrorRequireRecursion');
   }
 
   return null;

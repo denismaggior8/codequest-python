@@ -837,12 +837,84 @@
               "inputs": {
                 "STACK": {
                   "block": {
-                    "type": "move_forward",
-                    "id": "mf1",
-                    "next": {
-                      "block": {
-                        "type": "move_forward",
-                        "id": "mf2"
+                    "type": "procedures_callnoreturn",
+                    "id": "call_solve_start",
+                    "extraState": {
+                      "name": "solve"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "procedures_defnoreturn",
+              "id": "def_solve",
+              "x": 100,
+              "y": 150,
+              "fields": {
+                "NAME": "solve"
+              },
+              "inputs": {
+                "STACK": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "if_block",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "comp_block",
+                          "fields": {
+                            "OP": "NEQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "scan_ahead",
+                                "id": "scan_block"
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "text",
+                                "id": "portal_text",
+                                "fields": {
+                                  "TEXT": "portal"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "move_forward",
+                          "id": "mv_fwd_1",
+                          "next": {
+                            "block": {
+                              "type": "collect_ruby",
+                              "id": "coll_ruby",
+                              "next": {
+                                "block": {
+                                  "type": "procedures_callnoreturn",
+                                  "id": "call_solve_recur",
+                                  "extraState": {
+                                    "name": "solve"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "move_forward",
+                          "id": "mv_fwd_2"
+                        }
                       }
                     }
                   }
@@ -852,7 +924,7 @@
           ]
         }
       },
-      "pythonCode": "def on_start():\n  hero.move_forward()\n  hero.move_forward()\n"
+      "pythonCode": "def solve():\n  if hero.scan_ahead() != \"portal\":\n    hero.move_forward()\n    hero.collect_ruby()\n    solve()\n  else:\n    hero.move_forward()\n\ndef on_start():\n  solve()\n"
     }
   },
   "settings": {
