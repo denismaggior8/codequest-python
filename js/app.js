@@ -501,6 +501,22 @@ function setupUIEventListeners() {
     });
   }
   
+  // Intercept Tab key in Python textarea to insert 2 spaces
+  pyTextarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = pyTextarea.selectionStart;
+      const end = pyTextarea.selectionEnd;
+      const val = pyTextarea.value;
+      pyTextarea.value = val.substring(0, start) + "  " + val.substring(end);
+      pyTextarea.selectionStart = pyTextarea.selectionEnd = start + 2;
+      
+      // Trigger input event to update auto-save, line numbers, and backdrop syntax highlighting
+      const event = new Event('input', { bubbles: true });
+      pyTextarea.dispatchEvent(event);
+    }
+  });
+
   // Textarea input event for line numbers and output highlights
   pyTextarea.addEventListener('input', () => {
     // Auto-save python code changes
