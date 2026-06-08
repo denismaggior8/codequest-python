@@ -166,6 +166,8 @@ function createTestEnvironment() {
     window.synth = synth;
     window.loadLevel = loadLevel;
     window.markLevelCompleted = markLevelCompleted;
+    window.LEVELS = LEVELS;
+    window.validateLevelConstructs = validateLevelConstructs;
 
     Object.defineProperty(window, 'completedLevels', {
       get: () => completedLevels,
@@ -579,6 +581,35 @@ runTest('Importing legacy save file migrates rupee and triforce/triforza terms',
 
   // Check numeric level ID migration was also called
   assert.strictEqual(window.completedLevels['sequences/room1'], true, 'Old numeric level IDs should also be migrated');
+});
+
+// 12. List Validation Level Constraints
+runTest('validateLevelConstructs checks requireList constraints on lists/room1', () => {
+  const { document, window } = createTestEnvironment();
+
+  // Load level 5 (lists/room1)
+  window.eval('loadLevel(5)');
+
+  // Verify it is the lists level
+  const level = window.eval('LEVELS[5]');
+  assert.strictEqual(level.id, 'lists/room1');
+  assert.strictEqual(level.requireList, true);
+
+  // Set mock python code with loop but without list definition
+  const textarea = document.getElementById('python-textarea');
+  textarea.value = "def on_start():\n  for i in range(4):\n    hero.move_forward()\n";
+
+  // Force python mode
+  window.eval('currentMode = "python"');
+
+  // Validate should return error requiring a list
+  const err = window.eval('validateLevelConstructs(LEVELS[5])');
+  assert(err && err.includes('lista'), 'Should return a validation error requiring lists');
+
+  // Set mock python code with valid list definition
+  textarea.value = "def on_start():\n  steps = [2, 3, 2, 2]\n  for count in steps:\n    hero.move_forward()\n";
+  const noErr = window.eval('validateLevelConstructs(LEVELS[5])');
+  assert.strictEqual(noErr, null, 'Should pass validation when list syntax [] is present');
 });
 
 console.log('\n--- DOM Test Run Summary ---');

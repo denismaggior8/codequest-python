@@ -1122,14 +1122,28 @@ async function runProgram() {
   let actionQueue = [];
   const runBtn = document.getElementById('run-btn');
   const stepBtn = document.getElementById('step-btn');
+
+  const pyCode = currentMode === 'blocks'
+    ? (Blockly.Python ? Blockly.Python.workspaceToCode(workspace) : '')
+    : document.getElementById('python-textarea').value;
+
+  if (pyCode.trim() === "") {
+    synth.play('error');
+    appendConsoleLine(t('consoleErrorEmpty'), "error");
+    return;
+  }
+
+  const validationError = validateLevelConstructs(level);
+  if (validationError) {
+    synth.play('error');
+    appendConsoleLine(validationError, "error");
+    return;
+  }
   
   if (level.runWithPyodide) {
     runBtn.disabled = true;
     stepBtn.disabled = true;
     try {
-      const pyCode = currentMode === 'blocks'
-        ? (Blockly.Python ? Blockly.Python.workspaceToCode(workspace) : '')
-        : document.getElementById('python-textarea').value;
       actionQueue = await compileActionQueuePyodide(pyCode);
     } catch (err) {
       appendConsoleLine(`❌ Error: ${err.message}`, "error");
@@ -1143,21 +1157,7 @@ async function runProgram() {
       const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
       jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
     } else {
-      const pyCode = document.getElementById('python-textarea').value;
       jsCode = transpilePythonToJS(pyCode);
-    }
-    
-    if (jsCode.trim() === "") {
-      synth.play('error');
-      appendConsoleLine(t('consoleErrorEmpty'), "error");
-      return;
-    }
-    
-    const validationError = validateLevelConstructs(level);
-    if (validationError) {
-      synth.play('error');
-      appendConsoleLine(validationError, "error");
-      return;
     }
     
     actionQueue = compileActionQueue(jsCode);
@@ -1179,13 +1179,28 @@ async function stepProgram() {
   
   if (!simulator.isPlaying && simulator.actionQueue.length === 0) {
     let actionQueue = [];
+
+    const pyCode = currentMode === 'blocks'
+      ? (Blockly.Python ? Blockly.Python.workspaceToCode(workspace) : '')
+      : document.getElementById('python-textarea').value;
+
+    if (pyCode.trim() === "") {
+      synth.play('error');
+      appendConsoleLine(t('consoleErrorEmpty'), "error");
+      return;
+    }
+
+    const validationError = validateLevelConstructs(level);
+    if (validationError) {
+      synth.play('error');
+      appendConsoleLine(validationError, "error");
+      return;
+    }
+
     if (level.runWithPyodide) {
       runBtn.disabled = true;
       stepBtn.disabled = true;
       try {
-        const pyCode = currentMode === 'blocks'
-          ? (Blockly.Python ? Blockly.Python.workspaceToCode(workspace) : '')
-          : document.getElementById('python-textarea').value;
         actionQueue = await compileActionQueuePyodide(pyCode);
       } catch (err) {
         appendConsoleLine(`❌ Error: ${err.message}`, "error");
@@ -1201,21 +1216,7 @@ async function stepProgram() {
         const jsGen = Blockly.JavaScript || (window.javascript && window.javascript.javascriptGenerator);
         jsCode = jsGen ? jsGen.workspaceToCode(workspace) : '';
       } else {
-        const pyCode = document.getElementById('python-textarea').value;
         jsCode = transpilePythonToJS(pyCode);
-      }
-      
-      if (jsCode.trim() === "") {
-        synth.play('error');
-        appendConsoleLine(t('consoleErrorEmpty'), "error");
-        return;
-      }
-      
-      const validationError = validateLevelConstructs(level);
-      if (validationError) {
-        synth.play('error');
-        appendConsoleLine(validationError, "error");
-        return;
       }
       
       actionQueue = compileActionQueue(jsCode);

@@ -4,6 +4,7 @@ function validateLevelConstructs(level) {
   let hasIf = false;
   let hasLoop = false;
   let hasDef = false;
+  let hasList = false;
 
   if (currentMode === 'blocks') {
     if (typeof workspace !== 'undefined' && workspace) {
@@ -11,6 +12,7 @@ function validateLevelConstructs(level) {
       hasIf = blocks.some(b => b.type === 'controls_if');
       hasLoop = blocks.some(b => ['controls_repeat_ext', 'controls_repeat', 'controls_whileUntil', 'controls_for'].includes(b.type));
       hasDef = blocks.some(b => ['procedures_defnoreturn', 'procedures_defreturn'].includes(b.type));
+      hasList = blocks.some(b => b.type.startsWith('lists_'));
     }
   } else {
     const pyTextarea = document.getElementById('python-textarea');
@@ -25,6 +27,7 @@ function validateLevelConstructs(level) {
     hasIf = /\bif\b/.test(cleanCode) || /\belif\b/.test(cleanCode);
     hasLoop = /\bfor\b/.test(cleanCode) || /\bwhile\b/.test(cleanCode);
     hasDef = /\bdef\b/.test(cleanCode);
+    hasList = /\[.*\]/.test(cleanCode) || /\blist\b/.test(cleanCode);
   }
 
   if (level.requireConditional && !hasIf) {
@@ -35,6 +38,9 @@ function validateLevelConstructs(level) {
   }
   if (level.requireFunction && !hasDef) {
     return t('consoleErrorRequireFunction');
+  }
+  if (level.requireList && !hasList) {
+    return t('consoleErrorRequireList');
   }
 
   return null;
