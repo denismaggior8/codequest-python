@@ -238,8 +238,8 @@ function applyTranslations(lang) {
 
   // Apply document title
   document.title = currentLanguage === 'it'
-    ? "Code quest, an #HeroAsCode adventure"
-    : "Code quest, an #HeroAsCode adventure";
+    ? "Code quest, a 2D #HeroAsCode adventure"
+    : "Code quest, a 2D #HeroAsCode adventure";
 
   // Update Sound button label based on active language
   if (typeof updateSoundButtonText === 'function') {

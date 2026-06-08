@@ -1,4 +1,4 @@
-# Code quest, an #HeroAsCode adventure
+# Code quest, a 2D #HeroAsCode adventure
 
 ![Code quest Gameplay](img/gameplay.png)
 
