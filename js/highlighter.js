@@ -73,12 +73,12 @@ function highlightPython(code) {
     return `__COM_PLACEHOLDER_${comments.length - 1}__`;
   });
   
-  // 4. Highlight functions
-  const funcs = ['hero\\.move_forward', 'hero\\.collect_ruby', 'hero\\.turn_left', 'hero\\.turn_right', 'hero\\.scan_ahead', 'print', 'hero\\.unlock_gate'];
-  funcs.forEach(f => {
-    const regex = new RegExp('\\b(' + f + ')\\b', 'g');
-    processed = processed.replace(regex, '__FUNC_START__$1__FUNC_END__');
-  });
+  // 4. Highlight functions and methods
+  // First, highlight method calls on hero (e.g. hero.move_forward, hero.anything)
+  processed = processed.replace(/\b(hero\.\w+)\b/g, '__FUNC_START__$1__FUNC_END__');
+  
+  // Then, highlight any word followed by an opening parenthesis (e.g. print(, on_start(, my_func()
+  processed = processed.replace(/\b(\w+)(?=\s*\()/g, '__FUNC_START__$1__FUNC_END__');
   
   // 5. Highlight keywords
   const keywords = ['def', 'for', 'in', 'range', 'if', 'else', 'while', 'return', 'pass'];
