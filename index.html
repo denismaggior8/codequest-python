@@ -145,8 +145,11 @@
       <div class="panel-content flex-grow hidden flex-col" id="editor-container" style="height: 100%;">
         <div class="editor-wrapper flex-row flex-grow">
           <div class="line-numbers font-vt" id="editor-line-numbers">1</div>
-          <textarea id="python-textarea" class="code-editor-area font-vt" spellcheck="false"
-            placeholder="# Scrivi qui il tuo incantesimo Python..."></textarea>
+          <div class="editor-highlight-container flex-grow">
+            <div id="editor-highlight-backdrop" class="font-vt"></div>
+            <textarea id="python-textarea" class="code-editor-area font-vt" spellcheck="false"
+              placeholder="# Scrivi qui il tuo incantesimo Python..."></textarea>
+          </div>
         </div>
       </div>
     </section>

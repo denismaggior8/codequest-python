@@ -524,11 +524,16 @@ function setupUIEventListeners() {
     updateCodeOutput();
   });
   
-  // Sync scrolling of line numbers with textarea scroll
+  // Sync scrolling of line numbers and highlight backdrop with textarea scroll
   pyTextarea.addEventListener('scroll', () => {
     const lineNumbers = document.getElementById('editor-line-numbers');
     if (lineNumbers) {
       lineNumbers.scrollTop = pyTextarea.scrollTop;
+    }
+    const backdrop = document.getElementById('editor-highlight-backdrop');
+    if (backdrop) {
+      backdrop.scrollTop = pyTextarea.scrollTop;
+      backdrop.scrollLeft = pyTextarea.scrollLeft;
     }
   });
 

@@ -2,11 +2,17 @@
 
 // Code Highlighter
 function updateCodeOutput(highlightLine = null) {
+  const pyTextarea = document.getElementById('python-textarea');
+  const backdrop = document.getElementById('editor-highlight-backdrop');
+  if (pyTextarea && backdrop) {
+    backdrop.innerHTML = highlightPython(pyTextarea.value) + '\n';
+  }
+
   const outputEl = document.getElementById('python-output');
   if (!outputEl) return;
   
   if (currentMode === 'python') {
-    const pyCode = document.getElementById('python-textarea').value;
+    const pyCode = pyTextarea ? pyTextarea.value : '';
     if (pyCode.trim() === "") {
       outputEl.innerHTML = `<span class="py-comment">${t('dragSpells')}</span>`;
       return;
