@@ -1138,11 +1138,11 @@ function loadLevel(index) {
         try {
           blocks.forEach(b => {
             if (b.type === 'on_start') {
-              b.setEnabled(true);
+              b.setDisabled(false);
             } else {
               const shouldBeEnabled = connectedIds.has(b.id);
               if (b.isEnabled() !== shouldBeEnabled) {
-                b.setEnabled(shouldBeEnabled);
+                b.setDisabled(!shouldBeEnabled);
               }
             }
           });

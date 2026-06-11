@@ -82,6 +82,8 @@ function createTestEnvironment() {
         setDeletable() {},
         setMovable() {},
         setEditable() {},
+        setDisabled() {},
+        isEnabled() { return true; },
         moveBy() {}
       }),
       getToolbox: () => ({ selectItemByPosition() {} }),
