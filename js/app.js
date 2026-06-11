@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedLang = storage.getItem('codequest_lang') || 'it';
   currentLanguage = savedLang;
   document.getElementById('lang-select').value = currentLanguage;
+  const splashLangSelect = document.getElementById('splash-lang-select');
+  if (splashLangSelect) {
+    splashLangSelect.value = currentLanguage;
+  }
   
   // Load Blockly language locale file, then initialize level
   loadBlocklyLocale(currentLanguage, () => {
@@ -41,7 +45,15 @@ function setupSplashOverlay() {
     // Render real Blockly blocks in read-only workspace
     setTimeout(initSplashBlockly, 50);
 
-    const dismissSplash = () => {
+    const dismissSplash = (e) => {
+      // Ignore click/keydown events originating from the splash screen language selector
+      if (e && e.target && e.target.closest('#splash-lang-select')) {
+        return;
+      }
+      if (e && e.type === 'keydown' && document.activeElement && document.activeElement.id === 'splash-lang-select') {
+        return;
+      }
+
       window.removeEventListener('keydown', dismissSplash);
       window.removeEventListener('click', dismissSplash);
       
@@ -69,6 +81,40 @@ function setupSplashOverlay() {
     
     window.addEventListener('keydown', dismissSplash);
     window.addEventListener('click', dismissSplash);
+
+    // Setup events for splash lang selector
+    const splashLangSelect = document.getElementById('splash-lang-select');
+    if (splashLangSelect) {
+      const stopProp = (ev) => ev.stopPropagation();
+      splashLangSelect.addEventListener('click', stopProp);
+      splashLangSelect.addEventListener('mousedown', stopProp);
+      splashLangSelect.addEventListener('pointerdown', stopProp);
+      splashLangSelect.addEventListener('touchstart', stopProp);
+      splashLangSelect.addEventListener('keydown', stopProp);
+      splashLangSelect.addEventListener('keyup', stopProp);
+      
+      splashLangSelect.addEventListener('change', (e) => {
+        if (typeof synth !== 'undefined' && typeof synth.play === 'function') {
+          synth.play('click');
+        }
+        const newLang = e.target.value;
+        storage.setItem('codequest_lang', newLang);
+        
+        // Sync main header dropdown
+        const headerSelect = document.getElementById('lang-select');
+        if (headerSelect) {
+          headerSelect.value = newLang;
+        }
+        
+        loadBlocklyLocale(newLang, () => {
+          applyTranslations(newLang);
+          refreshLevelSelector();
+          updateHeartsDisplay();
+          loadLevel(currentLevelIndex);
+          initSplashBlockly();
+        });
+      });
+    }
   }
 }
 
@@ -516,34 +562,60 @@ function setupUIEventListeners() {
 
   // Reset progress listener
   const resetBtn = document.getElementById('reset-progress-btn');
-  if (resetBtn) {
+  const resetModal = document.getElementById('reset-modal');
+  const resetCancelBtn = document.getElementById('reset-cancel-btn');
+  const resetConfirmBtn = document.getElementById('reset-confirm-btn');
+
+  if (resetBtn && resetModal && resetCancelBtn && resetConfirmBtn) {
     resetBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const confirmMsg = t('confirmResetProgress');
-      
-      if (confirm(confirmMsg)) {
+      if (typeof synth !== 'undefined' && typeof synth.play === 'function') {
+        synth.play('click');
+      }
+      applyTranslations(currentLanguage);
+      resetModal.classList.remove('hidden');
+    });
+
+    resetCancelBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof synth !== 'undefined' && typeof synth.play === 'function') {
+        synth.play('click');
+      }
+      resetModal.classList.add('hidden');
+    });
+
+    resetConfirmBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetModal.classList.add('hidden');
+      if (typeof synth !== 'undefined' && typeof synth.play === 'function') {
         synth.play('error');
-        storage.removeItem('codequest_completed');
-        storage.removeItem('codequest_levels_code');
-        storage.removeItem('codequest_current_level_idx');
-        storage.removeItem('codequest_seen_splash');
-        completedLevels = {};
-        levelsCodeCache = {};
-        currentLevelIndex = 0;
-        
-        loadProgress();
-        refreshLevelSelector();
-        updateHeartsDisplay();
-        loadLevel(currentLevelIndex);
-        
-        appendConsoleLine("⚠️ " + t('consoleResetSuccess'), "error");
-        
-        // Show the splash screen overlay again
-        const splash = document.getElementById('splash-screen');
-        if (splash) {
-          splash.style.display = 'flex';
-          setupSplashOverlay();
-        }
+      }
+      storage.removeItem('codequest_completed');
+      storage.removeItem('codequest_levels_code');
+      storage.removeItem('codequest_current_level_idx');
+      storage.removeItem('codequest_seen_splash');
+      completedLevels = {};
+      levelsCodeCache = {};
+      currentLevelIndex = 0;
+      
+      loadProgress();
+      refreshLevelSelector();
+      updateHeartsDisplay();
+      loadLevel(currentLevelIndex);
+      
+      appendConsoleLine("⚠️ " + t('consoleResetSuccess'), "error");
+      
+      // Show the splash screen overlay again
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        splash.style.display = 'flex';
+        setupSplashOverlay();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !resetModal.classList.contains('hidden')) {
+        resetModal.classList.add('hidden');
       }
     });
   }
@@ -625,6 +697,11 @@ function setupUIEventListeners() {
       synth.play('click');
       const newLang = e.target.value;
       storage.setItem('codequest_lang', newLang);
+      
+      const splashLangSelect = document.getElementById('splash-lang-select');
+      if (splashLangSelect) {
+        splashLangSelect.value = newLang;
+      }
       
       loadBlocklyLocale(newLang, () => {
         applyTranslations(newLang);

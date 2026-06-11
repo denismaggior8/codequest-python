@@ -30,6 +30,14 @@
   <!-- Splash Screen Overlay -->
   <div id="splash-screen" class="splash-screen-overlay flex-col align-center justify-center font-press">
     <div class="splash-content flex-col align-center">
+      <!-- Splash Language Selector -->
+      <div class="splash-lang-container" style="position: absolute; top: 12px; right: 12px; z-index: 100;">
+        <select id="splash-lang-select" class="pixel-select font-vt" style="font-size: 16px; padding: 2px 4px;">
+          <option value="it">🇮🇹 IT</option>
+          <option value="en">🇬🇧 EN</option>
+        </select>
+      </div>
+
       <h1 class="splash-title pixel-text-yellow">CODE QUEST</h1>
       <h2 class="splash-subtitle pixel-text-red" data-i18n="logoSub">A 2D #HeroAsCode adventure</h2>
       <p class="splash-desc font-vt" data-i18n="splashDesc">Lancia incantesimi di programmazione per guidare il tuo eroe attraverso i dungeon del castello!</p>
@@ -237,6 +245,20 @@
         <button id="modal-retry-btn" data-i18n="modalReplay" class="pixel-btn font-vt">RIGIOCA</button>
         <button id="modal-next-btn" data-i18n="modalNext" class="pixel-btn run-btn font-vt">PROSSIMA STANZA
           &gt;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div id="reset-modal" class="modal-overlay hidden">
+    <div class="modal-content pixel-border-outer text-center" style="padding: 24px;">
+      <h2 class="pixel-text-red font-press animate-bounce" data-i18n="resetModalTitle" style="font-size: 20px; margin-bottom: 20px;">RESETTA QUEST?</h2>
+      <p class="font-vt" data-i18n="confirmResetProgress" style="font-size: 20px; margin-bottom: 24px; line-height: 1.4;">
+        Sei sicuro di voler cancellare TUTTI i tuoi progressi nel gioco? Questa azione non può essere annullata.
+      </p>
+      <div class="modal-buttons">
+        <button id="reset-cancel-btn" data-i18n="resetCancel" class="pixel-btn font-vt">ANNULLA</button>
+        <button id="reset-confirm-btn" data-i18n="resetConfirm" class="pixel-btn danger-btn font-vt">RESETTA</button>
       </div>
     </div>
   </div>

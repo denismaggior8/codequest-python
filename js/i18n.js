@@ -107,7 +107,10 @@ const TRANSLATIONS = {
     noSpellsCast: "Nessun incantesimo lanciato.",
     splashDesc: "Lancia incantesimi di programmazione per guidare il tuo eroe attraverso i dungeon del castello!",
     splashAuthors: "Creato da Denis Maggiorotto e Andrea Maggiorotto",
-    splashPrompt: "PREMI UN TASTO PER COMINCIARE"
+    splashPrompt: "PREMI UN TASTO PER COMINCIARE",
+    resetModalTitle: "RESETTA QUEST?",
+    resetCancel: "ANNULLA",
+    resetConfirm: "RESETTA"
   },
   en: {
     // Header
@@ -215,7 +218,10 @@ const TRANSLATIONS = {
     noSpellsCast: "No spells cast.",
     splashDesc: "Cast programming spells to guide your hero through castle dungeons!",
     splashAuthors: "Created by Denis Maggiorotto and Andrea Maggiorotto",
-    splashPrompt: "PRESS ANY KEY TO START"
+    splashPrompt: "PRESS ANY KEY TO START",
+    resetModalTitle: "RESET QUEST?",
+    resetCancel: "CANCEL",
+    resetConfirm: "RESET"
   }
 };
 

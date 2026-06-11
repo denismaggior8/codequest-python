@@ -641,6 +641,57 @@ runTest('validateLevelConstructs checks requireRecursion constraints on recursio
   assert.strictEqual(noErr, null, 'Should pass validation when recursion is present');
 });
 
+// 14. Custom Reset Confirmation Modal Behavior
+runTest('Custom Reset Confirmation Modal Behavior', () => {
+  const { document, window } = createTestEnvironment();
+
+  const resetBtn = document.getElementById('reset-progress-btn');
+  const resetModal = document.getElementById('reset-modal');
+  const resetCancelBtn = document.getElementById('reset-cancel-btn');
+  const resetConfirmBtn = document.getElementById('reset-confirm-btn');
+
+  assert(resetBtn, 'Reset progress button should exist');
+  assert(resetModal, 'Reset modal should exist');
+  assert(resetCancelBtn, 'Reset cancel button should exist');
+  assert(resetConfirmBtn, 'Reset confirm button should exist');
+
+  // Verify modal starts hidden
+  assert(resetModal.classList.contains('hidden'), 'Reset modal should be hidden by default');
+
+  // Trigger click on reset progress button
+  resetBtn.dispatchEvent(new window.Event('click'));
+
+  // Modal should be visible
+  assert(!resetModal.classList.contains('hidden'), 'Reset modal should be visible after clicking reset button');
+
+  // Set mock progress in localStorage
+  window.localStorage.setItem('codequest_completed', JSON.stringify({ 'sequences/room1': true }));
+  window.completedLevels = { 'sequences/room1': true };
+
+  // Trigger cancel
+  resetCancelBtn.dispatchEvent(new window.Event('click'));
+
+  // Modal should be hidden again, progress should NOT be reset
+  assert(resetModal.classList.contains('hidden'), 'Reset modal should be hidden after cancel');
+  assert.strictEqual(window.localStorage.getItem('codequest_completed'), JSON.stringify({ 'sequences/room1': true }), 'Progress should not be deleted on cancel');
+
+  // Open modal again
+  resetBtn.dispatchEvent(new window.Event('click'));
+  assert(!resetModal.classList.contains('hidden'), 'Reset modal should be visible again');
+
+  // Trigger confirm
+  resetConfirmBtn.dispatchEvent(new window.Event('click'));
+
+  // Modal should be hidden, storage should be cleared
+  assert(resetModal.classList.contains('hidden'), 'Reset modal should be hidden after confirm');
+  assert.strictEqual(window.localStorage.getItem('codequest_completed'), null, 'Progress completed levels should be removed');
+  assert.strictEqual(window.currentLevelIndex, 0, 'Current level index should be reset to 0');
+  
+  // Splash screen overlay should be displayed
+  const splash = document.getElementById('splash-screen');
+  assert.strictEqual(splash.style.display, 'flex', 'Splash screen overlay should be visible again after confirm');
+});
+
 console.log('\n--- DOM Test Run Summary ---');
 console.log(`Passed: ${passedTestsCount}`);
 console.log(`Failed: ${failedTestsCount}`);
