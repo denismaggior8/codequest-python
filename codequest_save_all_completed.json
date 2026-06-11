@@ -810,7 +810,13 @@
                     "next": {
                       "block": {
                         "type": "move_forward",
-                        "id": "mf1"
+                        "id": "mf1",
+                        "next": {
+                          "block": {
+                            "type": "move_forward",
+                            "id": "mf2"
+                          }
+                        }
                       }
                     }
                   }
@@ -820,7 +826,7 @@
           ]
         }
       },
-      "pythonCode": "from enigmapython.SwappablePlugboard import SwappablePlugboard\nfrom enigmapython.EnigmaM3RotorI import EnigmaM3RotorI\nfrom enigmapython.EnigmaM3RotorII import EnigmaM3RotorII\nfrom enigmapython.EnigmaM3RotorIII import EnigmaM3RotorIII\nfrom enigmapython.ReflectorUKWB import ReflectorUKWB\nfrom enigmapython.EtwPassthrough import EtwPassthrough\nfrom enigmapython.EnigmaM3 import EnigmaM3\n\ndef on_start():\n  hero.unlock_gate(EnigmaM3(SwappablePlugboard(chars={\"a\": \"z\"}), EnigmaM3RotorI(1, 1), EnigmaM3RotorII(1, 1), EnigmaM3RotorIII(1, 1), ReflectorUKWB(), EtwPassthrough(), True).input_string(\"zlfmo\"))\n  hero.move_forward()\n"
+      "pythonCode": "from enigmapython.SwappablePlugboard import SwappablePlugboard\nfrom enigmapython.EnigmaM3RotorI import EnigmaM3RotorI\nfrom enigmapython.EnigmaM3RotorII import EnigmaM3RotorII\nfrom enigmapython.EnigmaM3RotorIII import EnigmaM3RotorIII\nfrom enigmapython.ReflectorUKWB import ReflectorUKWB\nfrom enigmapython.EtwPassthrough import EtwPassthrough\nfrom enigmapython.EnigmaM3 import EnigmaM3\n\ndef on_start():\n  hero.unlock_gate(EnigmaM3(SwappablePlugboard(chars={\"a\": \"z\"}), EnigmaM3RotorI(1, 1), EnigmaM3RotorII(1, 1), EnigmaM3RotorIII(1, 1), ReflectorUKWB(), EtwPassthrough(), True).input_string(\"zlfmo\"))\n  hero.move_forward()\n  hero.move_forward()\n"
     },
     "recursion/room1": {
       "mode": "blocks",
