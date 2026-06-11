@@ -15,8 +15,8 @@ const ROOM_OBJECTS_1 = {
     en: "Configure the Enigma machine to decrypt 'zlfmo', unlock the gate using 'hero.unlock_gate(decrypted)', and reach the Force portal."
   },
   tip: {
-    it: "Configurazione: Rotor I (pos: 1, ring: 4), Rotor II (pos: 1, ring: 2), Rotor III (pos: 1, ring: 6). SwappablePlugboard con swap 'a'-'z', reflector UKWB, etw pass-through. auto_increment: True.",
-    en: "Configuration: Rotor I (pos: 1, ring: 4), Rotor II (pos: 1, ring: 2), Rotor III (pos: 1, ring: 6). SwappablePlugboard with swap 'a'-'z', reflector UKWB, etw pass-through. auto_increment: True."
+    it: "Configurazione: Rotor I (pos: 1, ring: 1), Rotor II (pos: 1, ring: 1), Rotor III (pos: 1, ring: 1). SwappablePlugboard con swap 'a'-'z', reflector UKWB, etw pass-through. auto_increment: True.",
+    en: "Configuration: Rotor I (pos: 1, ring: 1), Rotor II (pos: 1, ring: 1), Rotor III (pos: 1, ring: 1). SwappablePlugboard with swap 'a'-'z', reflector UKWB, etw pass-through. auto_increment: True."
   },
   docs: {
     it: [
@@ -32,7 +32,7 @@ const ROOM_OBJECTS_1 = {
       { code: "rotor1 = EnigmaM3RotorI(pos, ring)", desc: "Istanzia un Rotore I con posizione iniziale (1-26) e ring setting (1-26)." },
       { code: "rotor2 = EnigmaM3RotorII(pos, ring)", desc: "Istanzia un Rotore II con posizione iniziale (1-26) e ring setting (1-26)." },
       { code: "rotor3 = EnigmaM3RotorIII(pos, ring)", desc: "Istanzia un Rotore III con posizione iniziale (1-26) e ring setting (1-26)." },
-      { code: "enigma = EnigmaM3(plugboard, rotor3, rotor2, rotor1, reflector, etw, True)", desc: "Istanzia una macchina Enigma M3 (plugboard, rotor L, rotor M, rotor R, reflector, etw, auto_increment)." },
+      { code: "enigma = EnigmaM3(plugboard, rotor1, rotor2, rotor3, reflector, etw, True)", desc: "Istanzia una macchina Enigma M3 (plugboard, rotor R, rotor M, rotor L, reflector, etw, auto_increment)." },
       { code: "decrypted = enigma.input_string('zlfmo')", desc: "Cifra o decifra una stringa usando la macchina Enigma." },
       { code: "hero.unlock_gate(decrypted)", desc: "Invia il codice decifrato alla porta per aprirla." }
     ],
@@ -49,7 +49,7 @@ const ROOM_OBJECTS_1 = {
       { code: "rotor1 = EnigmaM3RotorI(pos, ring)", desc: "Instantiates Rotor I with initial position (1-26) and ring setting (1-26)." },
       { code: "rotor2 = EnigmaM3RotorII(pos, ring)", desc: "Instantiates Rotor II with initial position (1-26) and ring setting (1-26)." },
       { code: "rotor3 = EnigmaM3RotorIII(pos, ring)", desc: "Instantiates Rotor III with initial position (1-26) and ring setting (1-26)." },
-      { code: "enigma = EnigmaM3(plugboard, rotor3, rotor2, rotor1, reflector, etw, True)", desc: "Instantiates an Enigma M3 machine (plugboard, rotor L, rotor M, rotor R, reflector, etw, auto_increment)." },
+      { code: "enigma = EnigmaM3(plugboard, rotor1, rotor2, rotor3, reflector, etw, True)", desc: "Instantiates an Enigma M3 machine (plugboard, rotor R, rotor M, rotor L, reflector, etw, auto_increment)." },
       { code: "decrypted = enigma.input_string('zlfmo')", desc: "Encrypt or decrypt a string using the Enigma machine." },
       { code: "hero.unlock_gate(decrypted)", desc: "Unlock the gate using the decrypted code." }
     ]

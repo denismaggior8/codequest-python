@@ -306,9 +306,9 @@ Blockly.Blocks['enigma_m3'] = {
   init: function () {
     this.appendDummyInput().appendField("EnigmaM3");
     this.appendValueInput("PLUGBOARD").setCheck("Plugboard").appendField("plugboard:");
-    this.appendValueInput("ROTOR3").setCheck("Rotor").appendField("rotor R (III):");
+    this.appendValueInput("ROTOR3").setCheck("Rotor").appendField("rotor R (I):");
     this.appendValueInput("ROTOR2").setCheck("Rotor").appendField("rotor M (II):");
-    this.appendValueInput("ROTOR1").setCheck("Rotor").appendField("rotor L (I):");
+    this.appendValueInput("ROTOR1").setCheck("Rotor").appendField("rotor L (III):");
     this.appendValueInput("REFLECTOR").setCheck("Reflector").appendField("reflector:");
     this.appendValueInput("ETW").setCheck("Etw").appendField("etw:");
     this.appendDummyInput().appendField("auto_increment:")

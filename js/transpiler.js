@@ -471,11 +471,11 @@ function compileActionQueue(jsCode) {
   globalThis.ReflectorUKWB = class ReflectorUKWB {};
   globalThis.EtwPassthrough = class EtwPassthrough {};
   globalThis.EnigmaM3 = class EnigmaM3 {
-    constructor(plugboard, rotor3, rotor2, rotor1, reflector, etw, auto) {
+    constructor(plugboard, rotor1, rotor2, rotor3, reflector, etw, auto) {
       this.plugboard = plugboard;
-      this.rotor3 = rotor3;
-      this.rotor2 = rotor2;
       this.rotor1 = rotor1;
+      this.rotor2 = rotor2;
+      this.rotor3 = rotor3;
       this.reflector = reflector;
       this.etw = etw;
       this.auto = auto;
@@ -483,9 +483,9 @@ function compileActionQueue(jsCode) {
     input_string(text) {
       const pbOk = this.plugboard && this.plugboard.swaps &&
                    ((this.plugboard.swaps['a'] === 'z' && this.plugboard.swaps['z'] === 'a'));
-      const r1Ok = this.rotor1 && this.rotor1.pos === 1 && this.rotor1.ring === 4;
-      const r2Ok = this.rotor2 && this.rotor2.pos === 1 && this.rotor2.ring === 2;
-      const r3Ok = this.rotor3 && this.rotor3.pos === 1 && this.rotor3.ring === 6;
+      const r1Ok = this.rotor1 && (this.rotor1 instanceof globalThis.EnigmaM3RotorI) && this.rotor1.pos === 1 && this.rotor1.ring === 1;
+      const r2Ok = this.rotor2 && (this.rotor2 instanceof globalThis.EnigmaM3RotorII) && this.rotor2.pos === 1 && this.rotor2.ring === 1;
+      const r3Ok = this.rotor3 && (this.rotor3 instanceof globalThis.EnigmaM3RotorIII) && this.rotor3.pos === 1 && this.rotor3.ring === 1;
       if (text === "zlfmo" && pbOk && r1Ok && r2Ok && r3Ok) {
         return "forza";
       }
