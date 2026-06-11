@@ -49,14 +49,14 @@ Advanced rooms (like the Enigma level) are executed client-side using a sandboxe
 Players can toggle "Expert Mode" (via the 🧠 button in the header) which hides the visual Blockly workspace entirely, forcing the player to code solely in Python text. The preference persists in local storage.
 
 ### 7. Space-Saving Iconized Controls & Dynamic Titles
-- **Header Controls**: Switched to square, emoji-based icon buttons (🔊, 📺, 🧠, ?, 💾, 📂, 🔄) to prevent layout overflows. Tooltips are localized and dynamically updated with state info, such as `(ON)` / `(OFF)`.
+- **Header Controls**: Switched to square, emoji-based icon buttons (🔊, 📺, 🧠, ?, 💾, 📂, 🔄) to prevent layout overflows. Tooltips are localized and dynamically updated with state info, such as `(ON)` / `(OFF)`. The Reset Progress button (🔄) prompts users with a custom, localized, retro-styled confirmation modal instead of a native browser dialog.
 - **Dynamic Box Header**: The left panel header dynamically loads the current level's title (e.g., `"LA LENTE DELLA VERITÀ"`) from `room.js` with full translation support, replacing generic labels.
 
 ### 8. Retro Sound Synthesizer (`RetroSynth`)
 Built using the browser's Web Audio API, a custom synthesizer generates authentic 8-bit sound effects (chimes, clicks, ruby collections, step movements, victory fanfares, and error blips) without loading external audio assets. An interaction unlock listener automatically initializes the AudioContext on the first user click/keypress to comply with browser autoplay restrictions.
 
 ### 9. i18n Translation Engine
-The interface includes full localization support for English (**EN**) and Italian (**IT**). Story dialogs, objectives, command documentation, help menus, console logs, and Blockly block labels translate dynamically.
+The interface includes full localization support for English (**EN**) and Italian (**IT**). Story dialogs, objectives, command documentation, help menus, console logs, and Blockly block labels translate dynamically. The splash screen features an integrated language selector that instantly applies selected translations and re-renders the workspace blocks dynamically in the chosen locale.
 
 ### 10. Room Presets & Dropdown Selection Filter
 A dedicated preset selector dropdown next to the room select dropdown allows filtering visible rooms by curated groups:
